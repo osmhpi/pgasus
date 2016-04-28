@@ -1,0 +1,5 @@
+- have all threads access a central database, managed by a numa::HashTable
+- threads generate "requests" randomly
+- these requests target a specific work item and some operation on that item (append, delete, compute)
+- then we can decide to spawn tasks where the items reside
+- this should be difficult to implement without the framework
