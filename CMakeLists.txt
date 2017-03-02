@@ -1,51 +1,44 @@
-#define Project
-cmake_minimum_required(VERSION 2.6)
-project(LibNumaCpp)
+cmake_minimum_required(VERSION 3.1)
 
-set(COMPILER_TYPE "gcc" CACHE STRING "Choose thy compiler.")
-set_property(CACHE COMPILER_TYPE PROPERTY STRINGS gcc gcc5 intel clang)
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(COMPILER_FLAGS "" CACHE STRING "Additional compiler flags")
 
-if (COMPILER_TYPE STREQUAL "clang")
-	set(CMAKE_C_COMPILER clang)
-	set(CMAKE_CXX_COMPILER clang++)
-	set(FFAST "-O3")
-	set(FBASE "-Wall")
-elseif (COMPILER_TYPE STREQUAL "intel")
-	set(CMAKE_C_COMPILER icc)
-	set(CMAKE_CXX_COMPILER icc)
-	set(FFAST "-Ofast -no-prec-div -xHOST")
-	set(FBASE "-Wall")
-elseif (COMPILER_TYPE STREQUAL "gcc5")
-	set(CMAKE_C_COMPILER gcc-5)
-	set(CMAKE_CXX_COMPILER g++-5)
-	set(FBASE "-Wpedantic -Wall")
-	set(FFAST "-O3 -march=native")
-	add_definitions(-D_GLIBCXX_USE_CXX11_ABI)
-else ()
-	set(CMAKE_C_COMPILER gcc)
-	set(CMAKE_CXX_COMPILER g++-4.9)
-	set(FFAST "-O3 -march=native")
-	set(FBASE "-Wpedantic -Wall")
+project(LibNumaCpp C CXX)
+
+
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    set(LINUX 1)
 endif()
 
-# User-provided definitions
-set(FBASE "${FBASE} ${COMPILER_FLAGS}")
+if (CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "ppc64le")
+    message("Detected a POWER system")
+    set(PPC64LE 1)
+endif()
 
-set(FLAGS_DEBUG "${FBASE} -g")
-set(FLAGS_RELDBG "${FBASE} ${FFAST} -g")
-set(FLAGS_REL "${FBASE} ${FFAST}")
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    add_compile_options(-Wpedantic -Wall)
 
-set(CMAKE_C_FLAGS "${FBASE}")
-set(CMAKE_C_FLAGS_DEBUG "${FLAGS_DEBUG}")
-set(CMAKE_C_FLAGS_RELWITHDEBINFO "${FLAGS_RELDBG}")
-set(CMAKE_C_FLAGS_RELEASE "${FLAGS_REL}")
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    add_compile_options(
+        -Wpedantic
+        -Wall
+    )
 
-set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -std=c++11")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -std=c++11")
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} -std=c++11")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -std=c++11")
+    if (NOT PPC64LE)
+        add_compile_options(
+            -march=native
+        )
+    endif()
+
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL "5.0")
+        add_definitions(-D_GLIBCXX_USE_CXX11_ABI)
+    endif()
+
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
+    add_compile_options(-Wall $<$<CONFIG:Release>:-Ofast -no-prec-div -xHOST>)
+endif()
+
 
 option(BUILD_STATIC_LIBRARIES "Also build static libraries" ON)
 
@@ -66,6 +59,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 find_package(Boost 1.56 COMPONENTS context chrono thread system REQUIRED)
+if (Boost_VERSION VERSION_GREATER 106000)
+	message(FATAL_ERROR "Boost version newer than 1.60 is currently not supported.")
+endif()
 find_package(ZLIB REQUIRED)
 include_directories(${Boost_INCLUDE_DIR})
 

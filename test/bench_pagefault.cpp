@@ -2,11 +2,13 @@
 #include <numaif.h>      /* for mbind */
 #include <numa.h>
 
-#include <cstdint>
-#include <cassert>
-#include <vector>
-#include <cstdio>
 #include <algorithm>
+#include <cassert>
+#include <cmath>
+#include <cstdint>
+#include <cstdio>
+#include <numeric>
+#include <vector>
 
 #include "tasking/tasking.hpp"
 #include "msource/node_replicated.hpp"

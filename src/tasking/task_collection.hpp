@@ -2,6 +2,7 @@
 
 #include <mutex>
 #include <atomic>
+#include <random>
 
 #include "msource/msource.hpp"
 #include "msource/msource_types.hpp"

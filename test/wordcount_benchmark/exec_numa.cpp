@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <numeric>
 
 #include "tasking/tasking.hpp"
 #include "hashtable/containers.hpp"
