@@ -27,7 +27,7 @@ inline static T& insert_into_vector(std::vector<T> &vec, size_t idx, const T& va
 namespace numa {
 namespace util {
 
-int Topology::NumaNode::core_of(int cpuid) const {
+size_t Topology::NumaNode::core_of(size_t cpuid) const {
 	for (size_t i = 0; i < cpus.size(); i++)
 		if (cpuid == cpus[i])
 			return i;
@@ -91,24 +91,24 @@ Topology::~Topology() {
 }
 
 
-int Topology::curr_cpu_id() {
+size_t Topology::curr_cpu_id() {
 	return sched_getcpu();
 }
 
-int Topology::max_node_id() const {
+size_t Topology::max_node_id() const {
 	return _nodes.size()-1;
 }
 
-int Topology::max_cpu_id() const {
+size_t Topology::max_cpu_id() const {
 	return _cpu_to_node.size() - 1;
 }
 
-const Topology::NumaNode* Topology::get_node(int n) const {
+const Topology::NumaNode* Topology::get_node(size_t n) const {
 	assert(n >= 0 && n < _nodes.size());
 	return _nodes[n];
 }
 
-const Topology::NumaNode* Topology::node_of_cpuid(int cpu) const {
+const Topology::NumaNode* Topology::node_of_cpuid(size_t cpu) const {
 	assert (cpu >= 0 && cpu < _cpu_to_node.size());
 	return _cpu_to_node[cpu];
 }
@@ -117,11 +117,11 @@ const Topology::NumaNode* Topology::curr_numa_node() const {
 	return node_of_cpuid(curr_cpu_id());
 }
 
-int Topology::cores_on_node(int n) const {	// how many cores on this node?
+size_t Topology::cores_on_node(size_t n) const {	// how many cores on this node?
 	return get_node(n)->cpus.size();
 }
 
-int Topology::core_of_cpuid(int cpu) const {	// return on-chip core no.
+size_t Topology::core_of_cpuid(size_t cpu) const {	// return on-chip core no.
 	return node_of_cpuid(cpu)->core_of(cpu);
 }
 

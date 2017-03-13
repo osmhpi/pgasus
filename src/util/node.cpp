@@ -173,7 +173,7 @@ NodeList Node::nearestNeighbors(size_t count) const {
 	NodeList result;
 	result.reserve(count);
 
-	for (int idx = 1; idx < mapping.size() && result.size() < count; idx++) {
+	for (size_t idx = 1; idx < mapping.size() && result.size() < count; idx++) {
 		int otherNode = (int)_physical_node ^ idx;
 		if (mapping[otherNode]  > 0)
 			result.push_back(allNodes[mapping[otherNode]]);

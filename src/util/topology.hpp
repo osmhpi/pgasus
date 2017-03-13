@@ -13,11 +13,11 @@ namespace util {
 class Topology {
 public:
 	struct NumaNode {
-		int                     id;
-		std::vector<int>        cpus;
-		std::vector<int>        distances;	// to other NUMA nodes
+		size_t                     id;
+		std::vector<size_t>        cpus;
+		std::vector<size_t>        distances;	// to other NUMA nodes
 		
-		int core_of(int cpuid) const;
+		size_t core_of(size_t cpuid) const;
 	};
 
 private:	
@@ -32,17 +32,17 @@ public:
 	
 	static const Topology* get();
 	
-	static int curr_cpu_id();
+	static size_t curr_cpu_id();
 	
-	int max_node_id() const;
-	int max_cpu_id() const;
+	size_t max_node_id() const;
+	size_t max_cpu_id() const;
 	
-	const NumaNode* get_node(int n) const;
-	const NumaNode* node_of_cpuid(int cpu) const;
+	const NumaNode* get_node(size_t n) const;
+	const NumaNode* node_of_cpuid(size_t cpu) const;
 	const NumaNode* curr_numa_node() const;
 	
-	int cores_on_node(int n) const;		// how many cores on this node?
-	int core_of_cpuid(int cpu) const;	// return on-chip core no.
+	size_t cores_on_node(size_t n) const;		// how many cores on this node?
+	size_t core_of_cpuid(size_t cpu) const;	// return on-chip core no.
 	
 	void print(std::ostream &stream) const;
 };

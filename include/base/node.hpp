@@ -16,7 +16,7 @@ public:
 	static size_t physicalNodesCount();
 };
 
-typedef int CpuId;
+typedef size_t CpuId;
 typedef std::vector<CpuId> CpuSet;
 
 class Node {
