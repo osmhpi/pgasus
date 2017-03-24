@@ -144,7 +144,9 @@ private:
 			alloc_end = MEM_PAGE_SIZE;
 			prev = nullptr;
 			next = nullptr;
-			assert(SpinLock_init(mspace_lock));
+			if (!SpinLock_init(mspace_lock)) {
+                assert(false);
+            }
 
 			// create mspace
 			if (dst_node < 0) {
@@ -170,7 +172,9 @@ private:
 				munmap(base, size);
 			}
 
-			assert(SpinLock_destroy(mspace_lock));
+			if (!SpinLock_destroy(mspace_lock)) {
+                assert(false);
+            }
 		}
 
 		inline ChunkFooter *alloc(size_t sz) {
@@ -296,8 +300,12 @@ private:
 		active_arena = native_arena;
 
 		// Init spinlocks
-		assert(SpinLock_init(arena_lock));
-		assert(SpinLock_init(mmapped_chunk_lock));
+		if (!SpinLock_init(arena_lock)) {
+            assert(false);
+        }
+		if (!SpinLock_init(mmapped_chunk_lock)) {
+            assert(false);
+        }
 	}
 
 	~MemSourceImpl() {
@@ -332,8 +340,12 @@ private:
 		}
 
 		// Destroy spinlocks
-		assert(SpinLock_destroy(arena_lock));
-		assert(SpinLock_destroy(mmapped_chunk_lock));
+		if (!SpinLock_destroy(arena_lock)) {
+            assert(false);
+        }
+		if (!SpinLock_destroy(mmapped_chunk_lock)) {
+            assert(false);
+        }
 	}
 
 	inline Arena* create_new_arena(size_t arena_size)

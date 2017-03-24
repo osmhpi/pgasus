@@ -88,14 +88,18 @@ public:
 		, _delete_data(del)
 	{
 		_data.reserve(initial);
-		assert(sem_init(&_count, 0, 0) == 0);
+		if (sem_init(&_count, 0, 0) != 0) {
+			assert(false);
+		}
 	}
 	
 	~SortedSyncPtrVector() {
 		if (_delete_data) {
 			for (T *t : _data) delete t;
 		}
-		assert(sem_destroy(&_count) == 0);
+		if (sem_destroy(&_count) != 0) {
+			assert(false);
+		}
 	}
 	
 	void put(T *t) {
@@ -104,7 +108,9 @@ public:
 		_data.push_back(t);
 		std::sort(_data.begin(), _data.end(), Comparator());
 		
-		assert(sem_post(&_count) == 0);
+		if (sem_post(&_count) != 0) {
+			assert(false);
+		}
 	}
 	
 	bool try_get(T* &result) {

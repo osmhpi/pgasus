@@ -17,15 +17,21 @@ private:
 	sem_t       _semaphore;
 public:
 	NativeThreadWait() {
-		assert(sem_init(&_semaphore, 0, 0) == 0);
+		if (sem_init(&_semaphore, 0, 0) != 0) {
+			assert(false);
+		}
 	}
 	
 	virtual void notify() override {
-		assert(sem_post(&_semaphore) == 0);
+		if (sem_post(&_semaphore) != 0) {
+			assert(false);
+		}
 	}
 	
 	void wait() {
-		assert(sem_wait(&_semaphore) == 0);
+		if (sem_wait(&_semaphore) != 0) {
+			assert(false);
+		}
 	}
 };
 
@@ -99,7 +105,9 @@ void prefaultWorkerThreadStorages(size_t bytes) {
 	std::mutex mutex;
 	size_t minPrefault = (size_t)-1;
 	std::atomic_size_t counter(0);
-	assert(sem_init(&semaphore, 0, 0) == 0);
+	if (sem_init(&semaphore, 0, 0) != 0) {
+		assert(false);
+	}
 
 	// spawn one task for each worker thread
 	wait(forEachThread(NodeList::allNodes(), [bytes,count,&counter,&semaphore,&mutex,&minPrefault]() {

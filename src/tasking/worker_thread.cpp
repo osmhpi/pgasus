@@ -45,7 +45,9 @@ WorkerThread::WorkerThread(size_t id, Scheduler *sched, const MemSource &ms)
 	, _curr_ctx(nullptr)
 	, _ready_contexes(msource())
 {
-	assert(sem_init(&_sleep, 0, 0) == 0);
+	if (sem_init(&_sleep, 0, 0) != 0) {
+		assert(false);
+	}
 	_done = 0;
 }
 
@@ -84,7 +86,9 @@ void WorkerThread::run() {
 WorkerThread::~WorkerThread() {
 	for (Context *c : _ready_contexes)
 		_scheduler->context_cache().store(c);
-	assert(sem_destroy(&_sleep) == 0);
+	if (sem_destroy(&_sleep) != 0) {
+		assert(false);
+	}
 }
 
 inline Task *WorkerThread::get_new_task() {
@@ -228,7 +232,9 @@ void WorkerThread::yield() {
  * local job center
  */
 void WorkerThread::notify() {
-	assert(sem_post(&_sleep) == 0);
+	if (sem_post(&_sleep) != 0) {
+		assert(false);
+	}
 }
 
 void WorkerThread::shutdown() {

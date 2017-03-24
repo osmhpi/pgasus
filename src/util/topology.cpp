@@ -40,9 +40,13 @@ const Topology* Topology::get() {
 }
 
 Topology::Topology() {
-	assert(hwloc_topology_init(&_topology) == 0);
+	if (hwloc_topology_init(&_topology) != 0) {
+		assert(false);
+	}
 	// TODO distance matrix?
-	assert(hwloc_topology_load(_topology) == 0);
+	if (hwloc_topology_load(_topology) != 0) {
+		assert(false);
+	}
 	
 	// get ptr to first numa node
 	int numa_depth = hwloc_get_type_or_below_depth(_topology, HWLOC_OBJ_NUMANODE);

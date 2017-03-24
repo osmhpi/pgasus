@@ -170,7 +170,9 @@ Scheduler::Scheduler(const Node &node)
 	_workers.resize(_cores, nullptr);
 
 	_waitingThreadsCount = 0;
-	assert(sem_init(&_waitingThreadsSemaphore, 0, 0) == 0);
+	if (sem_init(&_waitingThreadsSemaphore, 0, 0) != 0) {
+		assert(false);
+	}
 
 	_thread_manager = ThreadManager::create(_node, cpus, _msource);
 	set_thread_count(node.threadCount());
@@ -211,7 +213,9 @@ Scheduler::~Scheduler() {
 
 	MemSource::destruct(_domain);
 
-	assert(sem_destroy(&_waitingThreadsSemaphore) == 0);
+	if (sem_destroy(&_waitingThreadsSemaphore) != 0) {
+		assert(false);
+	}
 }
 
 Scheduler* Scheduler::get_scheduler(const Node &node) {

@@ -31,9 +31,14 @@ int main (int argc, char const* argv[])
 	size_t nCount = 10;
 	ssize_t nFiles = -1;
 
-	if (argc > 2) assert(sscanf(argv[2], "%zd", &nFiles) == 1);
-	if (argc > 3) assert(sscanf(argv[3], "%zd", &nTop) == 1);
-	if (argc > 4) assert(sscanf(argv[4], "%zd", &nCount) == 1);
+	bool paramsOkay = true;
+	if (argc > 2) paramsOkay = paramsOkay && (sscanf(argv[2], "%zd", &nFiles) == 1);
+	if (argc > 3) paramsOkay = paramsOkay && (sscanf(argv[3], "%zd", &nTop) == 1);
+	if (argc > 4) paramsOkay = paramsOkay && (sscanf(argv[4], "%zd", &nCount) == 1);
+	assert(paramsOkay);
+	if (!paramsOkay) {
+		return 1;
+	}
 
 	Executor *exec = createExecutor();
 	Timer<int> timer(true);
