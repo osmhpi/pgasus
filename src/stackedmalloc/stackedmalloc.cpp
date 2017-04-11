@@ -75,8 +75,9 @@ public:
   */
 static numa::msvector<NodeLocalStorage*> createNodeLocalStorages() {
 	numa::msvector<NodeLocalStorage*> result(numa::MemSource::global());
-	for (size_t i = 0; i <= numa::util::Topology::get()->max_node_id(); i++)
-		result.push_back(numa::MemSource::forNode(i).construct<NodeLocalStorage>(i));
+	for (int i = 0; i <= numa::util::Topology::get()->max_node_id(); i++)
+		result.push_back(
+			numa::MemSource::forNode(size_t(i)).construct<NodeLocalStorage>(i));
 	return result;
 }
 
@@ -113,7 +114,9 @@ private:
 	}
 
 	inline const numa::MemSource& get_node_msource(int n) {
-		return (n == _node) ? _thread_msource : _node_storage->get(n);
+		return (n >= 0 && size_t(n) == _node)
+			? _thread_msource
+			: _node_storage->get(n);
 	}
 
 	inline const numa::MemSource& get_place_msource(const numa::Place &p) {

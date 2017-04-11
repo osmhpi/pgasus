@@ -9,12 +9,14 @@
 namespace numa {
 namespace util {
 
-std::string strformat(const std::string &fmt, ...) {
+std::string strformat(const std::string * fmt, ...) {
 	char buff[4096];
 	
 	va_list args;
 	va_start(args, fmt);
-		vsprintf(buff, fmt.c_str(), args);
+		if (fmt) {
+			vsnprintf(buff, sizeof(buff)/sizeof(*buff), fmt->c_str(), args);
+		}
 	va_end(args);
 	
 	return std::string(buff);

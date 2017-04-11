@@ -109,12 +109,12 @@ int Topology::max_cpu_id() const {
 }
 
 const Topology::NumaNode* Topology::get_node(int n) const {
-	assert(n >= 0 && n < _nodes.size());
+	assert(n >= 0 && size_t(n) < _nodes.size());
 	return _nodes[n];
 }
 
 const Topology::NumaNode* Topology::node_of_cpuid(int cpu) const {
-	assert (cpu >= 0 && cpu < _cpu_to_node.size());
+	assert (cpu >= 0 && size_t(cpu) < _cpu_to_node.size());
 	return _cpu_to_node[cpu];
 }
 

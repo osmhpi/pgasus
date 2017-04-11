@@ -150,7 +150,7 @@ int main(int argc, char *argv[])
 	int tFault = globalTimer.stop_get_start();
 
 	size_t localMb = bytes / (1024*1024);
-	size_t totalMb = localMb * threads.load();
+	// size_t totalMb = localMb * threads.load();
 
 	if (!quiet) {
 	//	printf("tStart\t%d\n", tStart);
@@ -185,7 +185,8 @@ int main(int argc, char *argv[])
 		});
 		float stddev = sqrt(var);
 
-		printf("%zd\t%d\t%d\t%d\n", node.physicalId(), (int)sum, (int)avg, (int)stddev);
+		printf("%d\t%zd\t%zd\t%zd\n",
+			node.physicalId(), (ssize_t)sum, (ssize_t)avg, (ssize_t)stddev);
 	}
 
 	if (waitInput)

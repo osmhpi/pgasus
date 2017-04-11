@@ -43,10 +43,10 @@ int main (int argc, char const* argv[])
 
 	// go through all node combinations
 	numa::NodeList allNodes = numa::NodeList::allNodes();
-	for (int fromNodeIdx = 0; fromNodeIdx < allNodes.size(); fromNodeIdx++) {
+	for (size_t fromNodeIdx = 0; fromNodeIdx < allNodes.size(); fromNodeIdx++) {
 		numa::Node fromNode = allNodes[fromNodeIdx];
 
-		for (int toNodeIdx = fromNodeIdx; toNodeIdx < allNodes.size(); toNodeIdx++) {
+		for (size_t toNodeIdx = fromNodeIdx; toNodeIdx < allNodes.size(); toNodeIdx++) {
 			numa::Node toNode = allNodes[toNodeIdx];
 			std::map<int,int> *map;
 			TscTime timeRemote = 0, timeMigrate = 0, timeLocal = 0;

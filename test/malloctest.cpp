@@ -48,7 +48,7 @@ static void* thfun(void *data) {
 	std::vector<void*> allocs;
 	allocs.reserve(blocks);
 
-	printf("%zd/%d\n", (size_t)data, nthreads);
+	printf("%zd/%d\n", reinterpret_cast<size_t>(data), nthreads);
 
 	for (int i = 0; i < blocks; i++) {
 		allocs.push_back(malloc((i << 3) & 0x1FF));
@@ -87,7 +87,7 @@ int main (int argc, char const* argv[])
 	printf("start\n");
 
 	// start threads
-	for (int i = 0; i < nodes.size(); i++) {
+	for (int i = 0; i < int(nodes.size()); i++) {
 		// nodemask
 		cpu_set_t cpu_set;
 		CPU_ZERO(&cpu_set);
@@ -100,14 +100,14 @@ int main (int argc, char const* argv[])
 
 		for (int k = 0; k < nthreads; k++) {
 			pthread_t th;
-			assert(pthread_create(&th, &attr, thfun, (void*)k) == 0);
+			assert(pthread_create(&th, &attr, thfun, reinterpret_cast<void*>(k)) == 0);
 			threads.push_back(th);
 		}
 	}
 
 	// go
 	printf("run threads\n");
-	for (pthread_t &th : threads) sem_post(&sem);
+	for (size_t i = 0; i < threads.size(); ++i) sem_post(&sem);
 
 	for (pthread_t &th : threads)
 		assert(pthread_join(th, nullptr) == 0);

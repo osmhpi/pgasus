@@ -17,6 +17,9 @@ include_directories(../../include)
 include_directories(../../include/msource)
 
 add_definitions(-DHAVE_MMAP)
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+	add_definitions(-D_GNU_SOURCE)	# for mremap function
+endif()
 
 add_library(hpinuma_msource SHARED ${SOURCES})
 target_link_libraries(hpinuma_msource hpinuma_util pthread numa)

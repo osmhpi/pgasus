@@ -45,7 +45,7 @@ public:
 
 		for (const std::string &file : fileNames) {
 			waitList.push_back(numa::async<void>([this,file]() {
-				WordCount *wc = files[file]->countWords();
+				/*WordCount *wc =*/ files[file]->countWords();
 			}, 0, files.where(file).getNode()));
 		}
 

@@ -33,8 +33,8 @@ int main (int argc, char const* argv[])
 
 	bool paramsOkay = true;
 	if (argc > 2) paramsOkay = paramsOkay && (sscanf(argv[2], "%zd", &nFiles) == 1);
-	if (argc > 3) paramsOkay = paramsOkay && (sscanf(argv[3], "%zd", &nTop) == 1);
-	if (argc > 4) paramsOkay = paramsOkay && (sscanf(argv[4], "%zd", &nCount) == 1);
+	if (argc > 3) paramsOkay = paramsOkay && (sscanf(argv[3], "%zu", &nTop) == 1);
+	if (argc > 4) paramsOkay = paramsOkay && (sscanf(argv[4], "%zu", &nCount) == 1);
 	assert(paramsOkay);
 	if (!paramsOkay) {
 		return 1;

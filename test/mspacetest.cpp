@@ -16,7 +16,7 @@ using numa::MemSource;
 
 int sum(const MemSizes &mems) {
 	int s = 0;
-	for (int i = 0; i < mems.size(); i++) s += mems[i];
+	for (size_t i = 0; i < mems.size(); i++) s += mems[i];
 	return s;
 }
 
@@ -24,7 +24,7 @@ int sum(const MemSizes &mems) {
 Memories fill(MemSource src, const MemSizes &mems) {
 	Memories allocs;
 	
-	for (int i = 0; i < mems.size(); i++) {
+	for (size_t i = 0; i < mems.size(); i++) {
 		allocs.push_back(src.alloc(mems[i]));
 	}
 	
@@ -59,7 +59,7 @@ int main (int argc, char const* argv[])
 	Memories mems = fill(msrc, sizes);
 	printInfo(msrc);
 	
-	for (int i = 0; i < mems.size()/2; i++)
+	for (size_t i = 0; i < mems.size()/2; i++)
 		MemSource::free(mems[i]);
 		
 	printInfo(msrc);

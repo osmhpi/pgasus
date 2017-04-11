@@ -28,7 +28,7 @@ public:
 	virtual void topWords(std::vector<std::string> fileNames) {
 		#pragma omp parallel for
 		for (size_t i = 0; i < fileNames.size(); i++) {
-			WordCount *wc = files[fileNames[i]]->countWords();
+			/*WordCount *wc =*/ files[fileNames[i]]->countWords();
 		}
 	}
 
