@@ -1,6 +1,8 @@
 #pragma once
 
+#include <algorithm>
 #include <cstddef>
+#include <map>
 #include <tuple>
 #include <type_traits>
 #include <utility>

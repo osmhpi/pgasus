@@ -1,8 +1,9 @@
 #pragma once
 
+#include <array>
+#include <cstddef>
 #include <string>
 #include <vector>
-#include <array>
 
 namespace numa {
 namespace util {

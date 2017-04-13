@@ -1,17 +1,19 @@
-#include <cstdlib>
-#include <cstring>
-
-#include <thread>
+#include <cassert>
 #include <errno.h>
-
-#include "msource/msource_types.hpp"
-#include "msource/node_replicated.hpp"
-#include "msource/mmaphelper.h"
-#include "util/topology.hpp"
-#include "util/tsc.hpp"
-#include "util/debug.hpp"
-
+#include <ext/alloc_traits.h>
+#include <pthread.h>
+#include <stdio.h>
+#include <atomic>
+#include <cstring>
+#include <memory>
+#include <mutex>
+#include <thread>
+#include <vector>
+#include "base/node.hpp"
+#include "base/spinlock.hpp"
 #include "malloc.hpp"
+#include "msource/msource_types.hpp"
+#include "util/topology.hpp"
 
 
 /**
@@ -22,13 +24,13 @@ class NodeLocalStorage
 private:
 	size_t                          node;
 	size_t                          total_nodes;
-	
+
 	// Allocate one msource for each node, that is, an msource that allocates
 	// memory from the given node. The data structures of the memsources will
 	// stay on this node to reduce latency in case of cache misses
 	numa::MemSource                 local_msource;
 	numa::msvector<numa::MemSource> msources;
-	
+
 	numa::SpinLock                  lock;
 
 public:
@@ -40,18 +42,18 @@ public:
 	{
 		assert(total_nodes >= 1);
 		assert(local_msource.valid());
-	
+
 		// make space for remote-node msources
 		msources.resize(total_nodes);
 		msources[node] = local_msource;
 	}
-	
+
 	const numa::MemSource& get(size_t n) {
 		assert(n >= 0 && n < total_nodes);
-		
+
 		if (!msources[n].valid()) {
 			std::lock_guard<numa::SpinLock> guard(lock);
-			
+
 			if (!msources[n].valid()) {
 				char buff[4096];
 				snprintf(buff, sizeof(buff) / sizeof(buff[0]), "nodeLocal(src=%zd dst=%zd)",
@@ -59,10 +61,10 @@ public:
 				msources[n] = numa::MemSource::create(n, 1LL<<24, buff, node);
 			}
 		}
-		
+
 		return msources[n];
 	}
-	
+
 	~NodeLocalStorage() {
 		msources.clear();
 	}
@@ -83,7 +85,7 @@ static numa::msvector<NodeLocalStorage*>& getNodeLocalStorages() {
 	return nls;
 }
 
-/** 
+/**
  * Contains thread-local msource
  */
 struct ThreadLocalStorage
@@ -92,39 +94,39 @@ private:
 	size_t                      _tid;
 	size_t                      _node;
 	NodeLocalStorage           *_node_storage;
-	
+
 	// may be NULL during initialization
 	std::atomic_bool            _initializing;
 	std::atomic_bool            _initialization_done;
 	numa::MemSource             _thread_msource;
-	
+
 	// stack stored within local msource
 	numa::msvector<numa::Place> _place_stack;
-	
+
 	// currently used mem source
 	numa::MemSource             _curr_msource;
-	
+
 	static const size_t         s_local_source_size = (size_t)(1 << 24);
-	
+
 	inline bool is_inited() {
 		return _initialization_done.load() || init();
 	}
-	
+
 	inline const numa::MemSource& get_node_msource(int n) {
 		return (n == _node) ? _thread_msource : _node_storage->get(n);
 	}
-	
+
 	inline const numa::MemSource& get_place_msource(const numa::Place &p) {
 		return p.msource.valid() ? p.msource : get_node_msource(p.node.physicalId());
 	}
-	
+
 	inline const numa::MemSource& get_curr_msource() {
 		if (_place_stack.empty())
 			return _thread_msource;
-			
+
 		return get_place_msource(_place_stack.back());
 	}
-	
+
 public:
 
 	ThreadLocalStorage()
@@ -178,13 +180,13 @@ public:
 
 	~ThreadLocalStorage() {
 	}
-	
+
 	// Push a Place onto the allocation-source stack
 	inline void push(const numa::Place &p) {
 		_place_stack.push_back(p);
 		_curr_msource = get_place_msource(p);
 	}
-	
+
 	// Pop the top MemSource from the allocation-source stack
 	inline numa::Place pop() {
 		assert(!_place_stack.empty());
@@ -194,7 +196,7 @@ public:
 		_curr_msource = get_curr_msource();
 		return result;
 	}
-	
+
 	// Moves the whole current stack into given collection
 	template <class Col>
 	inline void pop_all(Col &dst) {
@@ -202,14 +204,14 @@ public:
 		_place_stack.clear();
 		_curr_msource = _thread_msource;
 	}
-	
+
 	// Copies the whole given collection onto msource stack
 	template <class Col>
 	inline void push_all(const Col &dst) {
 		_place_stack.insert(_place_stack.end(), dst.begin(), dst.end());
 		_curr_msource = get_curr_msource();
 	}
-	
+
 	// Get the current allocation MemSource (may be top of stack or thread-local)
 	// During initialization, this might return the global allocator
 	inline const numa::MemSource& get_msource() {
@@ -288,7 +290,7 @@ Place pop() {
 PlaceStack pop_all() {
 	PlaceStack result;
 	getTls().pop_all(result);
-	return std::move(result);
+	return result;
 }
 
 MemSource curr_msource() {
@@ -309,12 +311,12 @@ MemSource curr_msource() {
 
 inline void *stackedmalloc(size_t sz) throw() {
 	void *result = getTls().get_msource().alloc(sz);
-	
+
 #if NUMA_STACKEDMALLOC_DEBUG
 	printf("[alloc] sz=%zd source=%s result=%p\n", sz, getTls().get_msource().getDescription().c_str(), result);
 	fflush(stdout);
 #endif
-	
+
 	return result;
 }
 
@@ -323,12 +325,12 @@ inline void *stackedmalloc_aligned(size_t align, size_t sz) throw() {
 		return nullptr;
 
 	void *result = getTls().get_msource().allocAligned(align, sz);
-	
+
 #if NUMA_STACKEDMALLOC_DEBUG
 	printf("[align] sz=%zd align=%zd source=%s result=%p\n", sz, align, getTls().get_msource().getDescription().c_str(), result);
 	fflush(stdout);
 #endif
-	
+
 	return result;
 }
 
@@ -357,17 +359,17 @@ extern "C" void* realloc(void *p, size_t sz) throw() {
 	size_t old_size = (p != nullptr) ? numa::MemSource::allocatedSize(p) : 0;
 	if (sz < old_size)
 		return p;
-	
+
 	// allocate new
 	void *pnew = stackedmalloc(sz);
 	if (pnew == nullptr)
 		return nullptr;
-	
+
 	if (p != nullptr) {
 		memmove(pnew, p, old_size);
 		numa::MemSource::free(p);
 	}
-	
+
 	return pnew;
 }
 
@@ -376,12 +378,12 @@ extern "C" int posix_memalign(void** ptr, size_t align, size_t sz) throw() {
 		*ptr = nullptr;
 		return 0;
 	}
-	
+
 	void *p = stackedmalloc_aligned(align, sz);
 	if (p == nullptr) {
 		return ENOMEM;
 	}
-	
+
 	*ptr = p;
 	return 0;
 }

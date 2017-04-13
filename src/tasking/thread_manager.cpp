@@ -1,8 +1,19 @@
+#include <algorithm>
+#include <cassert>
+#include <list>
+#include <map>
+#include <memory>
+#include <mutex>
+#include <vector>
+
+#include <errno.h>
 #include <pthread.h>
 #include <sched.h>
-#include <errno.h>
+#include <stdio.h>
 
-#include <algorithm>
+#include "base/node.hpp"
+#include "msource/msource.hpp"
+#include "msource/msource_allocator.hpp"
 
 #include "tasking/thread_manager.hpp"
 
@@ -29,9 +40,9 @@ ThreadBase::~ThreadBase() {
 /** Associate with given manager. Can only start if associated. */
 void ThreadBase::associate(ThreadManager *mgr, int cpuid) {
 	std::lock_guard<LockType> lock(_mutex);
-	
+
 	assert(state() == CREATED);
-	
+
 	_manager = mgr;
 	_cpuid = cpuid;
 
@@ -41,9 +52,9 @@ void ThreadBase::associate(ThreadManager *mgr, int cpuid) {
 /** De-associate from manager. floats freely within the void now. */
 void ThreadBase::release(ThreadManager *mgr) {
 	std::lock_guard<LockType> lock(_mutex);
-	
+
 	_manager = nullptr;
-	
+
 	assert(state() == TERMINATED);
 	set_state(FLOATING);
 }
@@ -53,20 +64,20 @@ void ThreadBase::release(ThreadManager *mgr) {
 	if (ret != 0) { \
 		errno = ret; perror(#call); assert(0); \
 	} } while (0)
-	
+
 
 /** Start actual OS thread on specified cpu. */
 void ThreadBase::start() {
 	std::lock_guard<LockType> lock(_mutex);
-	
+
 	assert(state() == ASSOCIATED);
-	
+
 	cpu_set_t cpu_set;
 	CPU_ZERO(&cpu_set);
 	CPU_SET(_cpuid, &cpu_set);
-	
+
 	set_state(RUNNING);
-	
+
 	pthread_attr_t attr;
 	ASSERT_SUCCESS(pthread_attr_init(&attr));
 	ASSERT_SUCCESS(pthread_attr_setaffinity_np(&attr, sizeof(cpu_set), &cpu_set));
@@ -76,24 +87,24 @@ void ThreadBase::start() {
 /** Waits for the thread to terminate */
 void ThreadBase::join() {
 	assert (state() == RUNNING || state() == TERMINATED || state() == FLOATING);
-	
+
 	void *ret = nullptr;
 	assert(pthread_join(_thread_handle, &ret) == 0);
 	assert(ret == (void*) this);
 }
-	
+
 void* ThreadBase::thread_func(void *arg) {
 	ThreadBase *thread = (ThreadBase*) arg;
-	
+
 	assert(thread->state() == RUNNING);
-	
+
 	thread->run();
-	
+
 	thread->set_state(TERMINATED);
-	
+
 	return arg;
 }
-	
+
 
 /**
  * Manages starting, shutting down and waiting on threads that run on
@@ -109,7 +120,7 @@ ThreadManager::ThreadManager(Node node, const CpuSet& cpuset, const MemSource &m
 	assert(node.valid());
 	assert(_msource.valid());
 	assert(cpuset.size() > 0);
-	
+
 	// setup cpu mapping data structs
 	for (size_t i = 0; i < cpuset.size(); i++) {
 		_cpu_set.push_back(cpuset[i]);
@@ -131,13 +142,13 @@ bool ThreadManager::manages_thread(ThreadBase *thread) {
 	return false;
 }
 
-/** 
- * Register given thread with manager. If cpuid<0, automatically choose 
+/**
+ * Register given thread with manager. If cpuid<0, automatically choose
  * target CPU
  */
 int ThreadManager::register_thread(ThreadBase *thread, int core) {
 	std::lock_guard<std::recursive_mutex> lock(_mutex);
-	
+
 	// find best spot?
 	if (core < 0) {
 		core = 0;
@@ -145,14 +156,14 @@ int ThreadManager::register_thread(ThreadBase *thread, int core) {
 			if (_cpu_threads[i].size() < _cpu_threads[core].size())
 				core = i;
 	}
-	
+
 	assert(core >= 0 && core < (int)_cpu_threads.size());
-	
+
 	_cpu_threads[core].push_back(thread);
-	
+
 	thread->associate(this, _cpu_set[core]);
 	thread->start();
-	
+
 	return core;
 }
 
@@ -161,13 +172,13 @@ int ThreadManager::register_thread(ThreadBase *thread, int core) {
  */
 void ThreadManager::deregister_thread(ThreadBase *thread) {
 	std::lock_guard<std::recursive_mutex> lock(_mutex);
-	
+
 	assert(thread != nullptr && manages_thread(thread));
 	assert(_cpu_to_idx.count(thread->cpuid()) > 0);
-	
+
 	thread->join();
 	thread->release(this);
-	
+
 	int core = _cpu_to_idx[thread->cpuid()];
 	_cpu_threads[core].remove(thread);
 }
@@ -177,7 +188,7 @@ void ThreadManager::deregister_thread(ThreadBase *thread) {
  */
 void ThreadManager::deregister_all() {
 	std::lock_guard<std::recursive_mutex> lock(_mutex);
-	
+
 	for (auto &l : _cpu_threads) {
 		for (ThreadBase *tb : l) {
 			tb->join();
@@ -192,7 +203,7 @@ void ThreadManager::deregister_all() {
  */
 void ThreadManager::wait_for_all() {
 	std::lock_guard<std::recursive_mutex> lock(_mutex);
-	
+
 	for (auto &l : _cpu_threads) {
 		for (ThreadBase *tb : l) {
 			tb->join();

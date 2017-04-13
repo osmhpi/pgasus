@@ -1,5 +1,8 @@
 #include "tasking/task_collection.hpp"
 
+#include <cassert>
+#include <new>
+
 
 using namespace numa::msource;
 

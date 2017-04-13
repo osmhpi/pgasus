@@ -1,9 +1,10 @@
 #pragma once
 
-#include <deque>
-#include <vector>
-#include <mutex>
 #include <algorithm>
+#include <cassert>
+#include <deque>
+#include <mutex>
+#include <vector>
 
 #include <semaphore.h>
 

@@ -4,7 +4,6 @@
 #include <cassert>
 #include <tuple>
 
-#include "msource/msource.hpp"
 #include "msource/msource_types.hpp"
 
 #include "util/spinlock.hpp"

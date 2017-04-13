@@ -4,7 +4,6 @@
 #include <vector>
 #include <boost/context/all.hpp>
 
-#include "msource/msource.hpp"
 #include "msource/msource_types.hpp"
 #include "base/spinlock.hpp"
 

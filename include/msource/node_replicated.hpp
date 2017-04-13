@@ -7,7 +7,6 @@
 
 #include "base/node.hpp"
 #include "msource/msource.hpp"
-#include "msource/msource_types.hpp"
 #include "base/spinlock.hpp"
 
 namespace numa {

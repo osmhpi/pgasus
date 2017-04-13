@@ -1,9 +1,11 @@
 #include "buffer.hpp"
 
-#include <zlib.h>
-#include <cstdio>
-#include <cstring>
 #include <cassert>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+
+#include <zlib.h>
 
 Buffer *Buffer::fromFile(const char *fname) {
 	Buffer *buf = new Buffer();

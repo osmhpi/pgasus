@@ -2,8 +2,10 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstdlib>
+#include <string>
 #include <vector>
 
+#include "base/node.hpp"
 #include "msource/msource.hpp"
 
 

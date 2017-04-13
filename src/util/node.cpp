@@ -3,10 +3,13 @@
 #include "util/strutil.hpp"
 #include "util/debug.hpp"
 
+#include <algorithm>
 #include <cstdlib>
 #include <cstdio>
-#include <vector>
+#include <memory>
 #include <sstream>
+#include <string>
+#include <vector>
 
 #ifndef HPINUMA_MAX_NODES
 #define HPINUMA_MAX_NODES 1024

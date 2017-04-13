@@ -1,13 +1,14 @@
 #include <algorithm>
-#include <mutex>
-#include <vector>
+#include <cassert>
+#include <cstdio>
 #include <fstream>
+#include <string>
+#include <vector>
 
 #include <sched.h>
 #include <hwloc.h>
 
 #include "util/topology.hpp"
-#include "base/spinlock.hpp"
 
 
 /* There seems to be some confusion about naming hwloc types */

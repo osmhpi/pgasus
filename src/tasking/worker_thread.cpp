@@ -1,10 +1,23 @@
-#include <array>
+#include <atomic>
+#include <cassert>
+#include <cstddef>
+#include <cstdint>
+#include <list>
+#include <vector>
 
+#include <semaphore.h>
+
+#include "base/spinlock.hpp"
+#include "msource/msource.hpp"
+#include "tasking/context.hpp"
+#include "tasking/synchronizable.hpp"
+#include "tasking/task.hpp"
+#include "tasking/task_scheduler.hpp"
+#include "tasking/thread_manager.hpp"
 #include "tasking/worker_thread.hpp"
-
-#include "util/topology.hpp"
 #include "util/debug.hpp"
 #include "util/timer.hpp"
+#include "util/tsc.hpp"
 
 
 namespace numa {
@@ -17,7 +30,7 @@ using numa::debug::DebugLevel;
 thread_local std::atomic_uintptr_t self_ptr;
 
 /**
- * Sets the TLS to the given thread 
+ * Sets the TLS to the given thread
  */
 void WorkerThread::set_tls(WorkerThread *th) {
 	self_ptr = reinterpret_cast<uintptr_t>(th);
@@ -33,7 +46,7 @@ WorkerThread* WorkerThread::curr_worker_thread() {
 
 
 /**
- * A WorkerThread represents a running thread that executes Tasks that it 
+ * A WorkerThread represents a running thread that executes Tasks that it
  * receives from the associated Scheduler
  */
 WorkerThread::WorkerThread(size_t id, Scheduler *sched, const MemSource &ms)
@@ -53,12 +66,12 @@ WorkerThread::WorkerThread(size_t id, Scheduler *sched, const MemSource &ms)
 
 void WorkerThread::run() {
 	set_tls(this);
-	
+
 	Counter start_cycles = numa::util::rdtsc();		// count cycles
 	Timer<int> timer(true);							// count wall-time
-	
+
 	reset_get_delta();
-	
+
 	// create new neutral context, start execution in that context,
 	// saving the root context locally
 	_curr_ctx = get_neutral_context();
@@ -66,7 +79,7 @@ void WorkerThread::run() {
 
 	int total_time = timer.stop_get();
 	Counter total_cycles = numa::util::rdtsc() - start_cycles;
-	
+
 	log(DebugLevel::DEBUG, "WorkerThread spent %d.%03ds: "
 		"get_task=%1.2f run=%1.2f sleep=%1.2f unempl=%1.2f taskmgmt(y=%1.2f w=%1.2f s=%1.2f d=%1.2f)",
 		total_time / 1000, total_time % 1000,
@@ -79,7 +92,7 @@ void WorkerThread::run() {
 		(float)_time_task_done    / (float)total_cycles,
 		(float)_time_unemployment / (float)total_cycles
 	);
-	
+
 	// we are done here
 }
 
@@ -129,7 +142,7 @@ void WorkerThread::start_new_context(intptr_t ptr) {
 
 	while (self->_done.load() == 0) {
 		self->_time_running += self->reset_get_delta();
-		
+
 		// if we have a current task that means the task was interrupted.
 		// the context of the tasks is stored therein.
 		if (self->_curr_task != nullptr) {
@@ -137,7 +150,7 @@ void WorkerThread::start_new_context(intptr_t ptr) {
 			if (self->_task_waits.empty()) {
 				self->_curr_task->yield(self->id());
 				self->_curr_task = nullptr;
-	
+
 				self->_time_task_yield += self->reset_get_delta();
 			}
 			else {
@@ -146,18 +159,18 @@ void WorkerThread::start_new_context(intptr_t ptr) {
 				}
 				// else just resume task
 				self->_task_waits.clear();
-	
+
 				self->_time_task_wait += self->reset_get_delta();
 			}
 		}
-		
+
 		// get new task, if the old one was given away
 		if (self->_curr_task == nullptr) {
 			self->_curr_task = self->get_new_task();
-		
+
 			if (self->_curr_task == nullptr) break; // no new task -> quit
 		}
-			
+
 		// start task?
 		if (!self->_curr_task->has_started()) {
 			self->_curr_task->schedule(self);
@@ -165,7 +178,7 @@ void WorkerThread::start_new_context(intptr_t ptr) {
 
 			self = self->_curr_task->run(self->_curr_ctx);
 			self->_time_running += self->reset_get_delta();
-			
+
 			self->_curr_task->done();
 			self->_curr_task->unref();
 			self->_curr_task = nullptr;
@@ -180,9 +193,9 @@ void WorkerThread::start_new_context(intptr_t ptr) {
 			self = (WorkerThread*) self->_curr_ctx->jump_to(self->_curr_task->get_context(), self);
 		}
 	}
-	
+
 	self->_time_running += self->reset_get_delta();
-	
+
 	// thread was commanded to stop. jump back to native ctx
 	self->_curr_ctx->jump_to(&self->_native_context, (void*) 0);
 }
@@ -195,12 +208,12 @@ void WorkerThread::drop_task(WorkerThread *self) {
 	// switch to some acquired neutral context, send task information,
 	self->_curr_ctx = self->get_neutral_context();
 	self = (WorkerThread*) self->_curr_task->get_context()->jump_to(self->_curr_ctx, self);
-	
+
 	// stash away old context
 	// TODO: what to do with that in the long term?
 	Context *new_ctx = self->_curr_task->get_context();
 	assert(self->_curr_ctx != nullptr && self->_curr_ctx != new_ctx);
-	
+
 	self->put_neutral_context(self->_curr_ctx);
 	self->_curr_ctx = new_ctx;
 }
@@ -210,18 +223,18 @@ void WorkerThread::drop_task(WorkerThread *self) {
  */
 void WorkerThread::curr_task_wait(const std::list<TriggerableRef> &tasks) {
 	WorkerThread *self = curr_worker_thread();
-	
+
 	assert(self != nullptr);
 	assert(self->_curr_task != nullptr);
-	
+
 	self->_task_waits = tasks;
-	
+
 	drop_task(self);
 }
 
 /**
- * Lets the currently running task yield (i.e. give up execution to be 
- *  scheduled again later). 
+ * Lets the currently running task yield (i.e. give up execution to be
+ *  scheduled again later).
  */
 void WorkerThread::yield() {
 	curr_task_wait(std::list<TriggerableRef>());

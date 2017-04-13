@@ -2,15 +2,12 @@
 
 #include <atomic>
 
-#include "msource/msource.hpp"
 #include "msource/msource_types.hpp"
 
 #include "tasking/task.hpp"
 #include "tasking/task_scheduler.hpp"
 #include "tasking/thread_manager.hpp"
 
-#include "base/spinlock.hpp"
-#include "util/topology.hpp"
 #include "util/debug.hpp"
 #include "util/tsc.hpp"
 
@@ -18,6 +15,7 @@
 namespace numa {
 namespace tasking {
 
+class Task;
 
 using numa::debug::log;
 using numa::debug::DebugLevel;

@@ -7,17 +7,16 @@
 #include "msource/msource.hpp"
 #include "base/spinlock.hpp"
 
-#include "tasking/task.hpp"
-#include "tasking/task_collection.hpp"
 #include "tasking/context.hpp"
 
 
 namespace numa {
 namespace tasking {
 
-
-class WorkerThread;
+class Task;
+class TaskCollection;
 class ThreadManager;
+class WorkerThread;
 
 
 /**

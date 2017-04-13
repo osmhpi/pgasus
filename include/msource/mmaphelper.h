@@ -44,6 +44,7 @@ void touchMemory(void *p, size_t sz);
 #ifdef __cplusplus
 }  /* extern "C" */
 
+#include <new>
 #include <utility>
 #include <vector>
 
@@ -65,7 +66,7 @@ namespace util {
 		if (getNumaNodeForMemory_n(ptrs.size(), (void**) &ptrs[0], &result[0]) != 0) {
 			for (auto &i : result) i = -1;
 		}
-		return std::move(result);
+		return result;
 	}
 
 	/**

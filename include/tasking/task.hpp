@@ -45,10 +45,10 @@ class WorkerThread;
  */
 class Task : public TwoPhaseTriggerable, public Synchronizer
 {
-private:
 	friend class Scheduler;
 	friend class WorkerThread;
 	
+protected:
 	/**
 	 * Task States
 	 */
@@ -66,6 +66,7 @@ private:
 	static constexpr uint16_t HAS_STARTED    = 0x2000;
 	static constexpr uint16_t FLAG_MASK      = 0xE000;
 	
+private:
 	typedef numa::SpinLock Lock;
 	
 	uint16_t                                _state_flags;

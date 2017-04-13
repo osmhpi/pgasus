@@ -1,12 +1,11 @@
 #include "msource/mmaphelper.h"
 
-#include <sys/mman.h>    /* for mmap */
 #include <numaif.h>      /* for mbind */
 #include <numa.h>
 
 #include <cstdint>
 #include <cassert>
-#include <vector>
+#include <string.h>
 
 
 /** 
@@ -133,7 +132,7 @@ std::vector<int> getNumaNodeForMemory(const void *ptr, size_t sz) {
 	if (getNumaNodeForMemory_n(pages.size(), &pages[0], &ret[0]) != 0) {
 		for (auto &i : ret) i = -1;
 	}
-	return std::move(ret);
+	return ret;
 }
 
 }

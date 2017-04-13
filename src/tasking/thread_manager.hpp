@@ -1,16 +1,8 @@
 #pragma once
 
-#include <vector>
 #include <mutex>
-#include <semaphore.h>
 
-#include "msource/msource.hpp"
 #include "msource/msource_types.hpp"
-#include "base/spinlock.hpp"
-
-#include "tasking/task.hpp"
-#include "tasking/task_collection.hpp"
-#include "tasking/context.hpp"
 
 
 namespace numa {

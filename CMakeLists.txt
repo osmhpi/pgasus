@@ -17,7 +17,11 @@ if (CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "ppc64le")
 endif()
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    add_compile_options(-Wpedantic -Wall)
+    add_compile_options(
+        -Wpedantic
+        -Wall
+        -Wno-missing-braces
+    )
 
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     add_compile_options(
