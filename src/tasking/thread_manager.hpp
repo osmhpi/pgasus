@@ -56,7 +56,7 @@ protected:
 
 public:
 	ThreadBase(const numa::MemSource &ms);
-	~ThreadBase();
+	virtual ~ThreadBase();
 	
 	/** Associate with given manager. Can only start if associated. */
 	void associate(ThreadManager *mgr, CpuId cpuid);

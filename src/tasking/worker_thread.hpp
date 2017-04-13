@@ -76,7 +76,7 @@ private:
 public:
 	
 	WorkerThread(size_t id, Scheduler *sched, const numa::MemSource &ms);
-	~WorkerThread();
+	~WorkerThread() override;
 
 	inline int id() const { return _thread_id; }
 	inline Node homeNode() const { return _node; }
