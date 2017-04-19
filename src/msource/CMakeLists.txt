@@ -24,7 +24,7 @@ endif()
 add_library(hpinuma_msource SHARED ${SOURCES})
 target_link_libraries(hpinuma_msource hpinuma_util pthread numa)
 
-if (BUILD_STATIC_LIBRARIES)
+if (PGASUS_BUILD_STATIC_LIBRARIES)
 	add_library(hpinuma_msource_s STATIC ${SOURCES})
 	target_link_libraries(hpinuma_msource_s hpinuma_util_s pthread numa)
 endif()

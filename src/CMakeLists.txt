@@ -52,7 +52,7 @@ target_link_libraries(hpinuma
 )
 
 # Create Library
-if (BUILD_STATIC_LIBRARIES)
+if (PGASUS_BUILD_STATIC_LIBRARIES)
 	add_library(hpinuma_s STATIC ${SOURCES})
 	target_link_libraries(hpinuma_s
 		hpinuma_msource_s hpinuma_util_s

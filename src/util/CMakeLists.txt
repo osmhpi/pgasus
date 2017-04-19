@@ -26,7 +26,7 @@ include_directories(../../include)
 add_library(hpinuma_util SHARED ${SOURCES})
 target_link_libraries(hpinuma_util hwloc)
 
-if (BUILD_STATIC_LIBRARIES)
+if (PGASUS_BUILD_STATIC_LIBRARIES)
 	add_library(hpinuma_util_s STATIC ${SOURCES})
         target_link_libraries(hpinuma_util_s hwloc)
 endif()

@@ -49,16 +49,16 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
 endif()
 
 
-option(BUILD_STATIC_LIBRARIES "Also build static libraries" ON)
+option(PGASUS_BUILD_STATIC_LIBRARIES "Also build static libraries" ON)
 
-option(RDTSC_PROFILING "Also rdtsc()-based profiling for msources and spinlocks" OFF)
-if (RDTSC_PROFILING)
+option(PGASUS_RDTSC_PROFILING "Also rdtsc()-based profiling for msources and spinlocks" OFF)
+if (PGASUS_RDTSC_PROFILING)
 	add_definitions(-DNUMA_PROFILE_SPINLOCK=1)
 	add_definitions(-DNUMA_PROFILE_MSOURCE=1)
 endif()
 
-option(DEBUG_MALLOC "Annotate freshly allocated and freed memory regions with special values (0xAA, 0xBB, 0xCC)" OFF)
-if (DEBUG_MALLOC)
+option(PGASUS_DEBUG_MALLOC "Annotate freshly allocated and freed memory regions with special values (0xAA, 0xBB, 0xCC)" OFF)
+if (PGASUS_DEBUG_MALLOC)
 	add_definitions(-DMEM_SOURCE_FILL_MEMORY_DEBUG=1)
 endif()
 
