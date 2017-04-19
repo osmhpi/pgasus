@@ -72,3 +72,4 @@ include_directories(${Boost_INCLUDE_DIR})
 # add sub-projects
 add_subdirectory(src)
 add_subdirectory(test)
+add_subdirectory(docs)
