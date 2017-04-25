@@ -1,4 +1,3 @@
-cmake_minimum_required(VERSION 2.6)
 
 # Define source files
 set(SOURCES
@@ -30,4 +29,3 @@ if (PGASUS_BUILD_STATIC_LIBRARIES)
 	add_library(hpinuma_util_s STATIC ${SOURCES})
         target_link_libraries(hpinuma_util_s hwloc)
 endif()
-

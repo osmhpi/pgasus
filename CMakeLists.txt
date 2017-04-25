@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 project(LibNumaCpp C CXX)
 
+list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     set(LINUX 1)
@@ -72,6 +73,9 @@ if (Boost_VERSION VERSION_GREATER 106000)
 	message(FATAL_ERROR "Boost version newer than 1.60 is currently not supported.")
 endif()
 find_package(ZLIB REQUIRED)
+find_package(NUMA REQUIRED)
+find_package(HWLOC REQUIRED)
+
 include_directories(${Boost_INCLUDE_DIR})
 
 # add sub-projects
