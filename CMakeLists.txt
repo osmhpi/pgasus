@@ -23,7 +23,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 		-Wall
 		-Wno-missing-braces
 	)
-	if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL "4.0")
+	if (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS "4.0")
 		add_compile_options(
 			$<$<CONFIG:Debug>:-fno-limit-debug-info>
 		)
@@ -41,7 +41,7 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 		)
 	endif()
 
-	if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL "5.0")
+	if (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS "5.0")
 		add_definitions(-D_GLIBCXX_USE_CXX11_ABI)
 	endif()
 
