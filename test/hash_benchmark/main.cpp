@@ -223,7 +223,7 @@ int main (int argc, char const* argv[])
 	}
 
 	size_t elems;
-	if (sscanf(argv[1], "%zd", &elems) != 1) {
+	if (sscanf(argv[1], "%zu", &elems) != 1) {
 		return 1;
 	}
 

@@ -3,8 +3,10 @@
 #include <ext/alloc_traits.h>
 #include <pthread.h>
 #include <stdio.h>
+#include <algorithm>
 #include <atomic>
 #include <cstring>
+#include <functional>
 #include <memory>
 #include <mutex>
 #include <thread>
@@ -282,7 +284,8 @@ void push(const Place &p) {
 }
 
 void push_all(const PlaceStack &places) {
-	for (const Place &p : places) assert (p.valid());
+	assert(std::all_of(places.begin(), places.end(),
+		std::bind(&Place::valid, std::placeholders::_1)));
 	getTls().push_all(places);
 }
 

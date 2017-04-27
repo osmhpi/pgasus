@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <cassert>
+#include <functional>
 #include <list>
 #include <map>
 #include <memory>
@@ -89,7 +90,9 @@ void ThreadBase::join() {
 	assert (state() == RUNNING || state() == TERMINATED || state() == FLOATING);
 
 	void *ret = nullptr;
-	assert(pthread_join(_thread_handle, &ret) == 0);
+	if (pthread_join(_thread_handle, &ret) != 0 ) {
+		assert(false);
+	}
 	assert(ret == (void*) this);
 }
 
@@ -131,8 +134,8 @@ ThreadManager::ThreadManager(Node node, const CpuSet& cpuset, const MemSource &m
 
 ThreadManager::~ThreadManager() {
 	// make sure there are no more threads
-	for (auto &threads : _cpu_threads)
-		assert(threads.empty());
+	assert(std::all_of(_cpu_threads.begin(), _cpu_threads.end(),
+		std::bind(&mslist<ThreadBase*>::empty, std::placeholders::_1)));
 }
 
 bool ThreadManager::manages_thread(ThreadBase *thread) {
