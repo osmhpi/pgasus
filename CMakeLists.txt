@@ -4,49 +4,49 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
-project(LibNumaCpp C CXX)
+project(LibNumaCpp VERSION 0.0.0 LANGUAGES C CXX)
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    set(LINUX 1)
+	set(LINUX 1)
 endif()
 
 if (CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "ppc64le")
-    message("Detected a POWER system")
-    set(PPC64LE 1)
+	message("Detected a POWER system")
+	set(PPC64LE 1)
 endif()
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    add_compile_options(
-        -Wpedantic
-        -Wall
-        -Wno-missing-braces
-    )
-    if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL "4.0")
-        add_compile_options(
-            $<$<CONFIG:Debug>:-fno-limit-debug-info>
-        )
-    endif()
+	add_compile_options(
+		-Wpedantic
+		-Wall
+		-Wno-missing-braces
+	)
+	if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL "4.0")
+		add_compile_options(
+			$<$<CONFIG:Debug>:-fno-limit-debug-info>
+		)
+	endif()
 
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    add_compile_options(
-        -Wpedantic
-        -Wall
-    )
+	add_compile_options(
+		-Wpedantic
+		-Wall
+	)
 
-    if (NOT PPC64LE)
-        add_compile_options(
-            -march=native
-        )
-    endif()
+	if (NOT PPC64LE)
+		add_compile_options(
+			-march=native
+		)
+	endif()
 
-    if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL "5.0")
-        add_definitions(-D_GLIBCXX_USE_CXX11_ABI)
-    endif()
+	if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL "5.0")
+		add_definitions(-D_GLIBCXX_USE_CXX11_ABI)
+	endif()
 
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
-    add_compile_options(-Wall $<$<CONFIG:Release>:-Ofast -no-prec-div -xHOST>)
+	add_compile_options(-Wall $<$<CONFIG:Release>:-Ofast -no-prec-div -xHOST>)
 endif()
 
 
@@ -76,9 +76,67 @@ find_package(ZLIB REQUIRED)
 find_package(NUMA REQUIRED)
 find_package(HWLOC REQUIRED)
 
-include_directories(${Boost_INCLUDE_DIR})
+
+set(package_name "PGASUS")
+
+set(INSTALL_LIB_DIR lib CACHE PATH "Installation directory for libraries")
+set(INSTALL_BIN_DIR bin CACHE PATH "Installation directory for executables")
+set(INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header files")
+if(WIN32 AND NOT CYGWIN)
+  set(DEF_INSTALL_CMAKE_DIR CMake)
+else()
+  set(DEF_INSTALL_CMAKE_DIR lib/CMake/${package_name})
+endif()
+set(INSTALL_CMAKE_DIR ${DEF_INSTALL_CMAKE_DIR} CACHE PATH
+  "Installation directory for CMake files")
+
+# Make relative paths absolute (needed later on)
+foreach(p LIB BIN INCLUDE CMAKE)
+  set(var INSTALL_${p}_DIR)
+  if(NOT IS_ABSOLUTE "${${var}}")
+    set(${var} "${CMAKE_INSTALL_PREFIX}/${${var}}")
+  endif()
+endforeach()
+
+# populate ;-separated list with targets to be exported
+set(export_targets)
+
 
 # add sub-projects
 add_subdirectory(src)
 add_subdirectory(test)
 add_subdirectory(docs)
+
+
+# Export to be usable in external projects
+export(TARGETS ${export_targets}
+    NAMESPACE ${package_name}::
+    FILE "${PROJECT_BINARY_DIR}/${package_name}Targets.cmake")
+export(PACKAGE ${package_name})
+
+# Create the ${package_name}Config.cmake and ${package_name}ConfigVersion files
+file(RELATIVE_PATH REL_INCLUDE_DIR "${INSTALL_CMAKE_DIR}"
+   "${INSTALL_INCLUDE_DIR}")
+# ... for the build tree
+set(CONF_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}" "${PROJECT_BINARY_DIR}")
+configure_file("cmake/${package_name}Config.cmake.in"
+  "${PROJECT_BINARY_DIR}/${package_name}Config.cmake" @ONLY)
+# ... for the install tree
+set(CONF_INCLUDE_DIRS "\${${package_name}_CMAKE_DIR}/${REL_INCLUDE_DIR}")
+configure_file("cmake/${package_name}Config.cmake.in"
+  "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${package_name}Config.cmake" @ONLY)
+# ... for both
+configure_file("cmake/${package_name}ConfigVersion.cmake.in"
+  "${PROJECT_BINARY_DIR}/${package_name}ConfigVersion.cmake" @ONLY)
+
+# Install the ${package_name}Config.cmake and ${package_name}ConfigVersion.cmake
+install(FILES
+  "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${package_name}Config.cmake"
+  "${PROJECT_BINARY_DIR}/${package_name}ConfigVersion.cmake"
+  DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
+
+# Install the export set for use with the install-tree
+install(EXPORT ${package_name}Targets
+    NAMESPACE ${package_name}::
+    DESTINATION "${INSTALL_CMAKE_DIR}"
+    COMPONENT dev)

@@ -1,7 +1,4 @@
 
-include_directories(.)
-include_directories(../..)
-
 set(SOURCES
 	test.hpp
 	rand.hpp
@@ -20,13 +17,24 @@ if (NOT libcuckoo_FOUND)
 	return()
 endif()
 
-include_directories(
-	${TBB_INCLUDE_DIRS}
-	${libcuckoo_INCLUDE_DIRS}
+add_executable(bench_hash ${SOURCES})
+target_link_libraries(bench_hash
+	PUBLIC
+		hpinuma
+		${TBB_LIBRARIES}
+)
+target_include_directories(bench_hash
+	PUBLIC
+		${libcuckoo_INCLUDE_DIRS}
 )
 
-add_executable(bench_hash ${SOURCES})
-target_link_libraries(bench_hash hpinuma ${TBB_LIBRARIES})
-
 add_executable(bench_hash_s ${SOURCES})
-target_link_libraries(bench_hash_s hpinuma_s ${TBB_LIBRARIES})
+target_link_libraries(bench_hash_s
+	PUBLIC
+		hpinuma_s
+		${TBB_LIBRARIES}
+)
+target_include_directories(bench_hash_s
+	PUBLIC
+		${libcuckoo_INCLUDE_DIRS}
+)

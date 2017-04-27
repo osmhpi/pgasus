@@ -1,6 +1,5 @@
 
-include_directories(.)
-include_directories(../include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(test_msource mspacetest.cpp)
 target_link_libraries(test_msource hpinuma_msource)

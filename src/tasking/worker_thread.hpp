@@ -8,17 +8,13 @@
 #include "tasking/task_scheduler.hpp"
 #include "tasking/thread_manager.hpp"
 
-#include "util/debug.hpp"
-#include "util/tsc.hpp"
+#include "base/tsc.hpp"
 
 
 namespace numa {
 namespace tasking {
 
 class Task;
-
-using numa::debug::log;
-using numa::debug::DebugLevel;
 
 
 /**

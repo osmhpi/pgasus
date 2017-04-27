@@ -10,8 +10,8 @@
 #include <numaif.h>
 
 #include "malloc-numa.h"
-#include "msource_allocator.hpp"
 #include "base/spinlock.hpp"
+#include "msource/msource_allocator.hpp"
 #include "msource/msource_types.hpp"
 #include "msource/mmaphelper.h"
 #include "util/topology.hpp"

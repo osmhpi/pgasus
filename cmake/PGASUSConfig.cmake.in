@@ -1,0 +1,17 @@
+# - Config file for the PGASUS package
+# It defines the following variables
+#  PGASUS_INCLUDE_DIRS - include directories for PGASUS
+#  PGASUS_LIBRARIES    - libraries to link against
+#  PGASUS_EXECUTABLE   - the bar executable
+ 
+# Compute paths
+get_filename_component(PGASUS_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+set(PGASUS_INCLUDE_DIRS "@CONF_INCLUDE_DIRS@")
+ 
+# Our library dependencies (contains definitions for IMPORTED targets)
+if(NOT TARGET hpinuma AND NOT PGASUS_BINARY_DIR)
+  include("${PGASUS_CMAKE_DIR}/PGASUSTargets.cmake")
+endif()
+ 
+# These are IMPORTED targets created by PGASUSTargets.cmake
+set(PGASUS_LIBRARIES "@export_targets@")

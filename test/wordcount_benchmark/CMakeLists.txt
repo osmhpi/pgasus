@@ -1,8 +1,4 @@
 
-include_directories(.)
-include_directories(../..)
-include_directories(${ZLIB_INCLUDE_DIRS})
-
 set(SRC_UTIL
 	buffer.hpp
 	buffer.cpp
@@ -12,6 +8,8 @@ set(SRC_UTIL
 	gzstream.cpp
 	gzstream.h
 )
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(bench_wc_omp main.cpp exec_openmp.cpp ${SRC_UTIL})
 set_target_properties(bench_wc_omp PROPERTIES COMPILE_FLAGS "-fopenmp")

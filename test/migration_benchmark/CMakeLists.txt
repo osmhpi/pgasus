@@ -1,7 +1,4 @@
 
-include_directories(.)
-include_directories(../..)
-
 set(SOURCES
 	executor.hpp
 	executor_movepages.hpp

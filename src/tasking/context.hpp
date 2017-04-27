@@ -2,7 +2,7 @@
 
 #include <mutex>
 #include <vector>
-#include <boost/context/all.hpp>
+#include <boost/context/fcontext.hpp>
 
 #include "msource/msource_types.hpp"
 #include "base/spinlock.hpp"

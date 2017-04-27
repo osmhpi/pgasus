@@ -17,7 +17,7 @@
 #include "tasking/worker_thread.hpp"
 #include "util/debug.hpp"
 #include "util/timer.hpp"
-#include "util/tsc.hpp"
+#include "base/tsc.hpp"
 
 
 namespace numa {
