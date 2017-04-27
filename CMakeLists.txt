@@ -68,9 +68,13 @@ endif()
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-find_package(Boost 1.56 COMPONENTS context chrono thread system REQUIRED)
-if (Boost_VERSION VERSION_GREATER 106000)
-	message(FATAL_ERROR "Boost version newer than 1.60 is currently not supported.")
+set(BOOST_MIN_REQUIRED_VERSION 1.56)
+set(BOOST_MAX_REQUIRED_VERSION 1.60)
+set(BOOST_REQUIRED_COMPONENTS context chrono thread system)
+find_package(Boost ${BOOST_MIN_REQUIRED_VERSION} COMPONENTS ${BOOST_REQUIRED_COMPONENTS} REQUIRED)
+set(BOOST_FOUND_VERSION ${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION}.${Boost_SUBMINOR_VERSION})
+if (BOOST_FOUND_VERSION VERSION_GREATER BOOST_MAX_REQUIRED_VERSION)
+	message(FATAL_ERROR "Boost version newer than ${BOOST_MAX_REQUIRED_VERSION} is currently not supported.")
 endif()
 find_package(ZLIB REQUIRED)
 find_package(NUMA REQUIRED)
@@ -83,19 +87,19 @@ set(INSTALL_LIB_DIR lib CACHE PATH "Installation directory for libraries")
 set(INSTALL_BIN_DIR bin CACHE PATH "Installation directory for executables")
 set(INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header files")
 if(WIN32 AND NOT CYGWIN)
-  set(DEF_INSTALL_CMAKE_DIR CMake)
+	set(DEF_INSTALL_CMAKE_DIR CMake)
 else()
-  set(DEF_INSTALL_CMAKE_DIR lib/CMake/${package_name})
+	set(DEF_INSTALL_CMAKE_DIR lib/CMake/${package_name})
 endif()
 set(INSTALL_CMAKE_DIR ${DEF_INSTALL_CMAKE_DIR} CACHE PATH
-  "Installation directory for CMake files")
+	"Installation directory for CMake files")
 
 # Make relative paths absolute (needed later on)
 foreach(p LIB BIN INCLUDE CMAKE)
-  set(var INSTALL_${p}_DIR)
-  if(NOT IS_ABSOLUTE "${${var}}")
-    set(${var} "${CMAKE_INSTALL_PREFIX}/${${var}}")
-  endif()
+	set(var INSTALL_${p}_DIR)
+	if(NOT IS_ABSOLUTE "${${var}}")
+		set(${var} "${CMAKE_INSTALL_PREFIX}/${${var}}")
+	endif()
 endforeach()
 
 # populate ;-separated list with targets to be exported
@@ -110,33 +114,33 @@ add_subdirectory(docs)
 
 # Export to be usable in external projects
 export(TARGETS ${export_targets}
-    NAMESPACE ${package_name}::
-    FILE "${PROJECT_BINARY_DIR}/${package_name}Targets.cmake")
+		NAMESPACE ${package_name}::
+		FILE "${PROJECT_BINARY_DIR}/${package_name}Targets.cmake")
 export(PACKAGE ${package_name})
 
 # Create the ${package_name}Config.cmake and ${package_name}ConfigVersion files
 file(RELATIVE_PATH REL_INCLUDE_DIR "${INSTALL_CMAKE_DIR}"
-   "${INSTALL_INCLUDE_DIR}")
+	 "${INSTALL_INCLUDE_DIR}")
 # ... for the build tree
 set(CONF_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}" "${PROJECT_BINARY_DIR}")
 configure_file("cmake/${package_name}Config.cmake.in"
-  "${PROJECT_BINARY_DIR}/${package_name}Config.cmake" @ONLY)
+	"${PROJECT_BINARY_DIR}/${package_name}Config.cmake" @ONLY)
 # ... for the install tree
 set(CONF_INCLUDE_DIRS "\${${package_name}_CMAKE_DIR}/${REL_INCLUDE_DIR}")
 configure_file("cmake/${package_name}Config.cmake.in"
-  "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${package_name}Config.cmake" @ONLY)
+	"${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${package_name}Config.cmake" @ONLY)
 # ... for both
 configure_file("cmake/${package_name}ConfigVersion.cmake.in"
-  "${PROJECT_BINARY_DIR}/${package_name}ConfigVersion.cmake" @ONLY)
+	"${PROJECT_BINARY_DIR}/${package_name}ConfigVersion.cmake" @ONLY)
 
 # Install the ${package_name}Config.cmake and ${package_name}ConfigVersion.cmake
 install(FILES
-  "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${package_name}Config.cmake"
-  "${PROJECT_BINARY_DIR}/${package_name}ConfigVersion.cmake"
-  DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
+	"${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${package_name}Config.cmake"
+	"${PROJECT_BINARY_DIR}/${package_name}ConfigVersion.cmake"
+	DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
 
 # Install the export set for use with the install-tree
 install(EXPORT ${package_name}Targets
-    NAMESPACE ${package_name}::
-    DESTINATION "${INSTALL_CMAKE_DIR}"
-    COMPONENT dev)
+		NAMESPACE ${package_name}::
+		DESTINATION "${INSTALL_CMAKE_DIR}"
+		COMPONENT dev)
