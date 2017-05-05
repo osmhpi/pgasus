@@ -48,7 +48,7 @@ int main (int argc, char const* argv[])
 	numa::prefaultWorkerThreadStorages(count);
 	printf("prefaulting done\n");
 
-	getc(stdin);
+	// getc(stdin);
 
 	return 0;
 }

@@ -29,9 +29,12 @@ int main (int argc, char const* argv[])
 		elem = tediousCalc(1);
 		param += 1;
 		if (param % 100 == 0) {
-			printf("%zd iters\n", param);
+			// printf("%zd iters\n", param);
+			printf(".");
 		}
 	}, numa::containers::IgnorePlacement(), 50);
+
+	printf(" done!\n");
 
 	return 0;
 }
