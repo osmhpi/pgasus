@@ -10,6 +10,8 @@
 #include "base/node.hpp"
 #include "msource/mmaphelper.h"
 
+#include "test_helper.h"
+
 static void* thread_func(void *ptr) {
 	std::function<void()> *function = (std::function<void()>*) ptr;
 	(*function)();
@@ -26,10 +28,10 @@ void runAt(numa::Node node, const std::function<void()> &function) {
 
 	pthread_attr_t attr;
 	pthread_t handle;
-	assert(pthread_attr_init(&attr) == 0);
-	assert(pthread_attr_setaffinity_np(&attr, sizeof(cpu_set), &cpu_set) == 0);
-	assert(pthread_create(&handle, &attr, thread_func, (void*) &function) == 0);
-	assert(pthread_join(handle, nullptr) == 0);
+	ASSERT_TRUE(pthread_attr_init(&attr) == 0);
+	ASSERT_TRUE(pthread_attr_setaffinity_np(&attr, sizeof(cpu_set), &cpu_set) == 0);
+	ASSERT_TRUE(pthread_create(&handle, &attr, thread_func, (void*) &function) == 0);
+	ASSERT_TRUE(pthread_join(handle, nullptr) == 0);
 }
 
 int NodeLocalityChecker::get(void *p) {

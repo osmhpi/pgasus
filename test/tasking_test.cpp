@@ -10,6 +10,7 @@
 
 #include "tasking/tasking.hpp"
 #include "timer.hpp"
+#include "test_helper.h"
 
 
 using numa::TaskRef;
@@ -33,6 +34,8 @@ int main (int argc, char const* argv[])
 {
 	if (argc < 3) usage(argv[0]);
 	
+	testing::initialize();
+
 	// get task count
 	int count = atoi(argv[1]);
 	int count2 = count/2;

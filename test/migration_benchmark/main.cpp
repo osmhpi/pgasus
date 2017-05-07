@@ -67,6 +67,8 @@ int t = run_test<SomePod, POD_move_pages_executor<SomePod>>(1024, true);
 #include "executor_copy.hpp"
 #include "executor_msource.hpp"
 
+#include "test_helper.h"
+
 
 struct TestPod {
 	float f[16];
@@ -198,6 +200,8 @@ template <> struct IsOnNode<IntMap> {
 
 int main (int argc, char const* argv[])
 {
+	testing::initialize();
+
 	numa::NodeList nodes = numa::NodeList::allNodes();
 
 	numa::Node from = nodes.front();

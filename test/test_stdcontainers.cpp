@@ -6,10 +6,13 @@
 #include <set>
 #include <list>
 #include <string>
+#include <iostream>
 
 #include <cmath>
 #include <cstdio>
 #include <cstring>
+
+#include "test_helper.h"
 
 
 float tediousCalc(int count) {
@@ -22,6 +25,8 @@ float tediousCalc(int count) {
 
 int main (int argc, char const* argv[])
 {
+	testing::initialize();
+
 	size_t count = 100 * 1000;
 
 	std::vector<float> testVec(count);
@@ -30,11 +35,11 @@ int main (int argc, char const* argv[])
 		param += 1;
 		if (param % 100 == 0) {
 			// printf("%zd iters\n", param);
-			printf(".");
+			std::cout << "." << std::flush;
 		}
 	}, numa::containers::IgnorePlacement(), 50);
 
-	printf(" done!\n");
+	std::cout << " done!" << std::endl;
 
 	return 0;
 }

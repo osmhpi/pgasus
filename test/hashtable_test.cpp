@@ -6,6 +6,8 @@
 #include <cstdio>
 #include <cstring>
 
+#include "test_helper.h"
+
 std::string generate(int i) {
 	char buff[4096];
 	sprintf(buff, "_%d_", i);
@@ -15,6 +17,8 @@ std::string generate(int i) {
 
 int main (int argc, char const* argv[])
 {
+	testing::initialize();
+
 	numa::HashTable<std::string, int, 5> table(numa::NodeList::allNodes());
 	
 	int count = 100000;
@@ -23,8 +27,8 @@ int main (int argc, char const* argv[])
 	for (int i = 0; i < count; i++) {
 		table[generate(i)] = i;
 
-		assert(!table.begin().is_end());
-		assert(table.end().is_end());
+		ASSERT_TRUE(!table.begin().is_end());
+		ASSERT_TRUE(table.end().is_end());
 	}
 	
 	// check for content
@@ -40,10 +44,10 @@ int main (int argc, char const* argv[])
 	// iterate 1...
 	for (auto it = table.begin(); !it.is_end(); it.next()) {
 		int n;
-		assert(sscanf(it->first.c_str(), "_%d_", &n) > 0);
-		assert(n == it->second);
-		assert(n >= 0 && n < count);
-		assert(!values1[n]);
+		ASSERT_TRUE(sscanf(it->first.c_str(), "_%d_", &n) > 0);
+		ASSERT_TRUE(n == it->second);
+		ASSERT_TRUE(n >= 0 && n < count);
+		ASSERT_TRUE(!values1[n]);
 		values1[n] = true;
 	}
 
@@ -58,10 +62,10 @@ int main (int argc, char const* argv[])
 			numa::PlaceGuard guard(ms);
 			for (; !it.is_end(); it.next()) {
 				int n;
-				assert(sscanf(it->first.c_str(), "_%d_", &n) > 0);
-				assert(n == it->second);
-				assert(n >= 0 && n < count);
-				assert(!values2[n]);
+				ASSERT_TRUE(sscanf(it->first.c_str(), "_%d_", &n) > 0);
+				ASSERT_TRUE(n == it->second);
+				ASSERT_TRUE(n >= 0 && n < count);
+				ASSERT_TRUE(!values2[n]);
 				values2[n] = true;
 			}
 		}
@@ -69,8 +73,8 @@ int main (int argc, char const* argv[])
 
 	// check for values
 	for (int i = 0; i < count; i++) {
-		assert(values1[i]);
-		assert(values2[i]);
+		ASSERT_TRUE(values1[i]);
+		ASSERT_TRUE(values2[i]);
 	}
 	
 	return 0;

@@ -9,6 +9,7 @@
 #include <iostream>
 
 #include "tasking/tasking.hpp"
+#include "test_helper.h"
 #include "timer.hpp"
 
 
@@ -22,6 +23,8 @@ void usage(const char *name) {
 
 int main (int argc, char const* argv[])
 {
+	testing::initialize();
+
 	if (argc < 2) usage(argv[0]);
 
 	// get prefault byte count

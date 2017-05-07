@@ -8,6 +8,8 @@
 #include "base/node.hpp"
 #include "msource/msource.hpp"
 
+#include "test_helper.h"
+
 
 typedef std::vector<void*> Memories;
 typedef std::vector<int> MemSizes;
@@ -47,6 +49,8 @@ void printInfo(MemSource src) {
 
 int main (int argc, char const* argv[])
 {
+	testing::initialize();
+
 	srand(time(0));
 	
 	MemSizes sizes;

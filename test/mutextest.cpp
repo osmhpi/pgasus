@@ -11,6 +11,7 @@
 #include "tasking/tasking.hpp"
 #include "mutex.hpp"
 
+#include "test_helper.h"
 #include "timer.hpp"
 
 using numa::TaskRef;
@@ -20,7 +21,7 @@ using numa::TriggerableRef;
 static std::atomic_flag flag;
 
 float tediousCalc(int count) {
-	assert(!flag.test_and_set());
+	ASSERT_TRUE(!flag.test_and_set());
 	
 	float val = 0.f;
 	for (int i = 0; i < count * 1000; i++)
@@ -63,6 +64,8 @@ int main (int argc, char const* argv[])
 		printf("Usage: %s taskcount [lock]\n", argv[0]);
 		return 0;
 	}
+
+	testing::initialize();
 
 	// get task count
 	int taskcount = atoi(argv[1]);

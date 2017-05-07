@@ -7,17 +7,19 @@
 
 #include <zlib.h>
 
+#include "test_helper.h"
+
 Buffer *Buffer::fromFile(const char *fname) {
 	Buffer *buf = new Buffer();
 	FILE *f = fopen(fname, "rb");
-	assert(f != nullptr);
+	ASSERT_TRUE(f != nullptr);
 
 	fseek(f, 0, SEEK_END);
 	buf->_size = ftell(f);
 	fseek(f, 0, SEEK_SET);
 
 	buf->_data = new char[buf->_size];
-	assert(fread(buf->_data, 1, buf->_size, f) == buf->_size);
+	ASSERT_TRUE(fread(buf->_data, 1, buf->_size, f) == buf->_size);
 	fclose(f);
 
 	buf->_name = fname;
@@ -33,7 +35,7 @@ Buffer *Buffer::unzip(Buffer *other) {
 	// open stream
 	z_stream zs;
 	memset(&zs, 0, sizeof(z_stream));
-	assert(inflateInit2(&zs, 15|32) == Z_OK);
+	ASSERT_TRUE(inflateInit2(&zs, 15|32) == Z_OK);
 	zs.next_in = (Bytef*) other->_data;
 	zs.avail_in = other->_size;
 
@@ -58,7 +60,7 @@ Buffer *Buffer::unzip(Buffer *other) {
 	buf->_size = currpos;
 
 	inflateEnd(&zs);
-	assert(ret == Z_STREAM_END);
+	ASSERT_TRUE(ret == Z_STREAM_END);
 
 	buf->_name = other->_name;
 	return buf;

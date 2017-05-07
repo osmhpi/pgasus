@@ -9,6 +9,8 @@
 #include "../src/util/strutil.hpp"
 #include "../src/util/topology.hpp"
 
+#include "test_helper.h"
+
 
 static bool get_elements_from_string(const std::string &s, std::vector<int> &ret) {
 	for (auto &part : numa::util::split(s, ',')) {
@@ -43,7 +45,7 @@ static int nnodes;
 static sem_t sem;
 
 static void* thfun(void *data) {
-	assert(sem_wait(&sem) == 0);
+	ASSERT_TRUE(sem_wait(&sem) == 0);
 	
 	std::vector<void*> allocs;
 	allocs.reserve(blocks);
@@ -66,6 +68,8 @@ static void* thfun(void *data) {
 
 int main (int argc, char const* argv[])
 {
+	testing::initialize();
+
 	if (argc < 4) {
 		printf("Usage: %s nodes threads blocks\n", argv[0]);
 		return 0;
@@ -82,7 +86,7 @@ int main (int argc, char const* argv[])
 	const numa::util::Topology *topo = numa::util::Topology::get();
 	std::vector<pthread_t> threads;
 	
-	assert(sem_init(&sem, 0, 0) == 0);
+	ASSERT_TRUE(sem_init(&sem, 0, 0) == 0);
 	
 	printf("start\n");
 
@@ -95,12 +99,12 @@ int main (int argc, char const* argv[])
 			CPU_SET(cpu, &cpu_set);
 
 		pthread_attr_t attr;
-		assert(pthread_attr_init(&attr) == 0);
-		assert(pthread_attr_setaffinity_np(&attr, sizeof(cpu_set), &cpu_set) == 0);
+		ASSERT_TRUE(pthread_attr_init(&attr) == 0);
+		ASSERT_TRUE(pthread_attr_setaffinity_np(&attr, sizeof(cpu_set), &cpu_set) == 0);
 
 		for (int k = 0; k < nthreads; k++) {
 			pthread_t th;
-			assert(pthread_create(&th, &attr, thfun, reinterpret_cast<void*>(k)) == 0);
+			ASSERT_TRUE(pthread_create(&th, &attr, thfun, reinterpret_cast<void*>(k)) == 0);
 			threads.push_back(th);
 		}
 	}
@@ -110,10 +114,9 @@ int main (int argc, char const* argv[])
 	for (size_t i = 0; i < threads.size(); ++i) sem_post(&sem);
 
 	for (pthread_t &th : threads)
-		assert(pthread_join(th, nullptr) == 0);
+		ASSERT_TRUE(pthread_join(th, nullptr) == 0);
 	
 	printf("done\n");
 	
 	return 0;
 }
-
