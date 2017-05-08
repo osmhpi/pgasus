@@ -38,7 +38,7 @@ endif()
 # Create public exports
 set_target_properties(hpinuma_msource PROPERTIES
   PUBLIC_HEADER "${PUBLIC_HEADERS}")
-set(export_targets ${export_targets};hpinuma_msource PARENT_SCOPE)
+addExportTarget(hpinuma_msource)
 install(TARGETS hpinuma_msource
     EXPORT ${package_name}Targets
     RUNTIME DESTINATION "${INSTALL_BIN_DIR}" COMPONENT bin
@@ -61,4 +61,13 @@ if (PGASUS_BUILD_STATIC_LIBRARIES)
 		target_compile_definitions(hpinuma_msource_s
 			PRIVATE _GNU_SOURCE)	# for mremap function
 	endif()
+
+	set_target_properties(hpinuma_msource_s PROPERTIES
+		PUBLIC_HEADER "${PUBLIC_HEADERS}")
+	addExportTarget(hpinuma_msource_s)
+	install(TARGETS hpinuma_msource_s
+		EXPORT ${package_name}Targets
+		ARCHIVE DESTINATION "${INSTALL_LIB_DIR}" COMPONENT staticlib
+		PUBLIC_HEADER DESTINATION "${INSTALL_INCLUDE_DIR}" COMPONENT dev
+	)
 endif()

@@ -35,4 +35,6 @@ if(NOT TARGET hpinuma AND NOT @package_name@_BINARY_DIR)
 endif()
 
 # These are IMPORTED targets created by @package_name@Targets.cmake
-set(@package_name@_LIBRARIES "@export_targets@")
+set(@package_name@_BINARIES "@export_targets_bin@")
+set(@package_name@_SHARED_LIBRARIES "@export_targets_shlib@")
+set(@package_name@_STATIC_LIBRARIES "@export_targets_staticlib@")

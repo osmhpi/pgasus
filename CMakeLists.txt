@@ -103,7 +103,28 @@ foreach(p LIB BIN INCLUDE CMAKE)
 endforeach()
 
 # populate ;-separated list with targets to be exported
-set(export_targets)
+set(export_targets_bin "" CACHE INTERNAL "")
+set(export_targets_shlib "" CACHE INTERNAL "")
+set(export_targets_staticlib "" CACHE INTERNAL "")
+function(addExportTarget TARGET_NAME)
+	get_target_property(type ${TARGET_NAME} TYPE)
+	set(targetVar)
+	if (type STREQUAL EXECUTABLE)
+		set(targetVar export_targets_bin)
+	elseif(type STREQUAL SHARED_LIBRARY)
+		set(targetVar export_targets_shlib)
+	elseif(type STREQUAL STATIC_LIBRARY)
+		set(targetVar export_targets_staticlib)
+	else()
+		message(FATAL_ERROR "Unexpected target type: ${type} (target: \"${TARGET_NAME}\")")
+	endif()
+	set(separator)
+	if (${targetVar})
+		set(separator ";")
+	endif()
+	set(${targetVar} "${${targetVar}}${separator}${TARGET_NAME}"
+		CACHE INTERNAL "")
+endfunction()
 
 
 # add sub-projects

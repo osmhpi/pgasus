@@ -53,7 +53,7 @@ target_include_directories(hpinuma ${include_dirs})
 # Create public exports
 set_target_properties(hpinuma PROPERTIES
   PUBLIC_HEADER "${PUBLIC_HEADERS}")
-set(export_targets ${export_targets};hpinuma PARENT_SCOPE)
+addExportTarget(hpinuma)
 install(TARGETS hpinuma
     EXPORT ${package_name}Targets
     RUNTIME DESTINATION "${INSTALL_BIN_DIR}" COMPONENT bin
@@ -73,4 +73,13 @@ if (PGASUS_BUILD_STATIC_LIBRARIES)
 		Boost::thread
 	)
 	target_include_directories(hpinuma_s ${include_dirs})
+
+	set_target_properties(hpinuma_s PROPERTIES
+		PUBLIC_HEADER "${PUBLIC_HEADERS}")
+	addExportTarget(hpinuma_s)
+	install(TARGETS hpinuma_s
+		EXPORT ${package_name}Targets
+		ARCHIVE DESTINATION "${INSTALL_LIB_DIR}" COMPONENT staticlib
+		PUBLIC_HEADER DESTINATION "${INSTALL_INCLUDE_DIR}" COMPONENT dev
+	)
 endif()

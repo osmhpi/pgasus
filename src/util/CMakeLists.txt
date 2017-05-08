@@ -37,7 +37,7 @@ target_include_directories(hpinuma_util ${include_dirs})
 # Create public exports
 set_target_properties(hpinuma_util PROPERTIES
   PUBLIC_HEADER "${PUBLIC_HEADERS}")
-set(export_targets ${export_targets};hpinuma_util PARENT_SCOPE)
+addExportTarget(hpinuma_util)
 install(TARGETS hpinuma_util
     EXPORT ${package_name}Targets
     RUNTIME DESTINATION "${INSTALL_BIN_DIR}" COMPONENT bin
@@ -50,4 +50,13 @@ if (PGASUS_BUILD_STATIC_LIBRARIES)
 	target_link_libraries(hpinuma_util_s
 		PUBLIC hwloc)
 	target_include_directories(hpinuma_util_s ${include_dirs})
+
+	set_target_properties(hpinuma_util_s PROPERTIES
+		PUBLIC_HEADER "${PUBLIC_HEADERS}")
+	addExportTarget(hpinuma_util_s)
+	install(TARGETS hpinuma_util_s
+		EXPORT ${package_name}Targets
+		ARCHIVE DESTINATION "${INSTALL_LIB_DIR}" COMPONENT staticlib
+		PUBLIC_HEADER DESTINATION "${INSTALL_INCLUDE_DIR}" COMPONENT dev
+	)
 endif()
