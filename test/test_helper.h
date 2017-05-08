@@ -17,8 +17,10 @@ public:
 	}
 	~TestFailure() override = default;
 
-#if defined(_GLIBCXX_TXN_SAFE_DYN) || defined(_GLIBCXX_USE_NOEXCEPT)
+#if defined(_GLIBCXX_TXN_SAFE_DYN) && defined(_GLIBCXX_USE_NOEXCEPT)
 #define EXCEPTION_WHAT_NOEXCEPT _GLIBCXX_TXN_SAFE_DYN _GLIBCXX_USE_NOEXCEPT
+#elif defined(_GLIBCXX_USE_NOEXCEPT)
+#define EXCEPTION_WHAT_NOEXCEPT _GLIBCXX_USE_NOEXCEPT
 #else
 #define EXCEPTION_WHAT_NOEXCEPT nothrow
 #endif
