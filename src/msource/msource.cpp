@@ -10,12 +10,17 @@
 #include <numaif.h>
 
 #include "malloc-numa.h"
+#include "PGASUS-config.h"
 #include "base/spinlock.hpp"
 #include "msource/msource_allocator.hpp"
 #include "msource/msource_types.hpp"
 #include "msource/mmaphelper.h"
 #include "util/topology.hpp"
 #include "util/debug.hpp"
+
+#ifdef MEM_SOURCE_USE_PTHREAD_SPINLOCK
+#include <pthread.h>
+#endif
 
 
 namespace numa {

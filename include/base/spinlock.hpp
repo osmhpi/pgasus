@@ -3,6 +3,8 @@
 #include <atomic>
 #include <cstring>
 
+#include "PGASUS-config.h"
+
 namespace numa {
 
 template <size_t INITIAL = 16, size_t MAXBKOFF = (1<<10)>

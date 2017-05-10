@@ -8,6 +8,14 @@ project(LibNumaCpp VERSION 0.0.0 LANGUAGES C CXX)
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
+option(PGASUS_PROFILING_GPROF "Compile for profiling with gprof" OFF)
+option(PGASUS_MEM_SOURCE_USE_PTHREAD_SPINLOCK "Use pthread spinlocks instead of own implementation" OFF)
+if (PGASUS_MEM_SOURCE_USE_PTHREAD_SPINLOCK)
+	set(MEM_SOURCE_USE_PTHREAD_SPINLOCK 1)
+else()
+	set(MEM_SOURCE_USE_PTHREAD_SPINLOCK 0)
+endif()
+
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
 	set(LINUX 1)
 endif()
@@ -45,6 +53,11 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 		add_definitions(-D_GLIBCXX_USE_CXX11_ABI)
 	endif()
 
+	if (PGASUS_PROFILING_GPROF)
+		add_compile_options(-g -pg)
+        link_libraries(-g -pg)
+	endif()
+
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
 	add_compile_options(-Wall $<$<CONFIG:Release>:-Ofast -no-prec-div -xHOST>)
 endif()
@@ -54,14 +67,23 @@ option(PGASUS_BUILD_STATIC_LIBRARIES "Also build static libraries" ON)
 
 option(PGASUS_RDTSC_PROFILING "Also rdtsc()-based profiling for msources and spinlocks" OFF)
 if (PGASUS_RDTSC_PROFILING)
-	add_definitions(-DNUMA_PROFILE_SPINLOCK=1)
-	add_definitions(-DNUMA_PROFILE_MSOURCE=1)
+	set(NUMA_PROFILE_SPINLOCK 1)
+	set(NUMA_PROFILE_MSOURCE 1)
+else()
+	set(NUMA_PROFILE_SPINLOCK 0)
+	set(NUMA_PROFILE_MSOURCE 0)
 endif()
 
 option(PGASUS_DEBUG_MALLOC "Annotate freshly allocated and freed memory regions with special values (0xAA, 0xBB, 0xCC)" OFF)
 if (PGASUS_DEBUG_MALLOC)
-	add_definitions(-DMEM_SOURCE_FILL_MEMORY_DEBUG=1)
+	set(MEM_SOURCE_FILL_MEMORY_DEBUG 1)
+else()
+	set(MEM_SOURCE_FILL_MEMORY_DEBUG 0)
 endif()
+
+
+set(PGASUS_CONFIG_FILE ${PROJECT_BINARY_DIR}/src/PGASUS-config.h)
+configure_file(${PROJECT_SOURCE_DIR}/cmake/PGASUS-config.h.in ${PGASUS_CONFIG_FILE})
 
 
 # Set output directory
