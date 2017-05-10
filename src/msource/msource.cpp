@@ -584,8 +584,6 @@ public:
 
 			// Finalize
 			result = chunk->TO_POINTER();
-
-			goto done;
 		}
 		else {
 			SpinLock_lock(arena_lock);
@@ -609,11 +607,8 @@ public:
 				return nullptr;
 
 			result = arena_chunk->TO_POINTER();
-
-			goto done;
 		}
 
-	done:
 		blocks.addBlock();
 
 		return result;

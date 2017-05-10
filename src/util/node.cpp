@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <memory>
+#include <numeric>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -51,8 +52,16 @@ static NodeMapping getPhysicalToLogicalMapping() {
 
 	char *envNodes = getenv("NUMA_NODES");
 
+	// normal mapping - use all nodes
+	auto setDefault = [] (std::vector<int> & nodes) {
+		std::iota(nodes.begin(), nodes.end(), size_t(0u));
+	};
+
 	// nothing specified -> return normal
-	if (envNodes == nullptr) goto setdefault;
+	if (envNodes == nullptr) {
+		setDefault(result);
+		return result;
+	}
 
 	// try to exctract node ids from env string
 	if (get_elements_from_string(envNodes, nodes) && !nodes.empty()) {
@@ -60,30 +69,28 @@ static NodeMapping getPhysicalToLogicalMapping() {
 		for (int &v : result) v = -1;
 
 		// use only given nodes
+		bool configOkay = true;
 		for (int &n : nodes) {
-			if (n < 0 || n >= physNodeCount)
-				goto fail;
+			if (n < 0 || n >= physNodeCount) {
+				configOkay = false;
+				break;
+			}
 			result[n] = 1;
 		}
 
-		// sort nodes
-		int curr = 0;
-		for (int &n : result) {
-			if (n > 0) n = curr++;
-		}
+		if (configOkay) {
+			// sort nodes
+			int curr = 0;
+			for (int &n : result) {
+				if (n > 0) n = curr++;
+			}
 
-		goto out;
+			return result;
+		}
 	}
 
-fail:
 	fprintf(stderr, "Invalid Node Configuration: \"%s\". Using all nodes.\n", envNodes);
-
-setdefault:
-	// normal mapping - use all nodes
-	for (size_t i = 0; i < result.size(); i++)
-		result[i] = i;
-
-out:
+	setDefault(result);
 	return result;
 }
 
