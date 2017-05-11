@@ -33,6 +33,7 @@ add_library(hpinuma_util SHARED ${SOURCES})
 target_link_libraries(hpinuma_util
 	PUBLIC hwloc)
 target_include_directories(hpinuma_util ${include_dirs})
+target_compile_definitions(hpinuma_util ${DEFAULT_COMPILE_DEFINITIONS})
 
 # Create public exports
 set_target_properties(hpinuma_util PROPERTIES
@@ -50,6 +51,7 @@ if (PGASUS_BUILD_STATIC_LIBRARIES)
 	target_link_libraries(hpinuma_util_s
 		PUBLIC hwloc)
 	target_include_directories(hpinuma_util_s ${include_dirs})
+	target_compile_definitions(hpinuma_util_s ${DEFAULT_COMPILE_DEFINITIONS})
 
 	set_target_properties(hpinuma_util_s PROPERTIES
 		PUBLIC_HEADER "${PUBLIC_HEADERS}")
