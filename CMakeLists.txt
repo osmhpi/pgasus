@@ -159,6 +159,7 @@ add_subdirectory(docs)
 
 
 # Export to be usable in external projects
+set(export_targets ${export_targets_bin} ${export_targets_shlib} ${export_targets_staticlib})
 export(TARGETS ${export_targets}
 		NAMESPACE ${package_name}::
 		FILE "${PROJECT_BINARY_DIR}/${package_name}Targets.cmake")

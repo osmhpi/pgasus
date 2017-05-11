@@ -40,7 +40,7 @@ set_target_properties(hpinuma_msource PROPERTIES
   PUBLIC_HEADER "${PUBLIC_HEADERS}")
 addExportTarget(hpinuma_msource)
 install(TARGETS hpinuma_msource
-    EXPORT ${package_name}Targets
+    EXPORT ${package_name}Targets COMPONENT dev
     RUNTIME DESTINATION "${INSTALL_BIN_DIR}" COMPONENT bin
     LIBRARY DESTINATION "${INSTALL_LIB_DIR}" COMPONENT shlib
     PUBLIC_HEADER DESTINATION "${INSTALL_INCLUDE_DIR}" COMPONENT dev
@@ -66,7 +66,7 @@ if (PGASUS_BUILD_STATIC_LIBRARIES)
 		PUBLIC_HEADER "${PUBLIC_HEADERS}")
 	addExportTarget(hpinuma_msource_s)
 	install(TARGETS hpinuma_msource_s
-		EXPORT ${package_name}Targets
+		EXPORT ${package_name}Targets COMPONENT dev
 		ARCHIVE DESTINATION "${INSTALL_LIB_DIR}" COMPONENT staticlib
 		PUBLIC_HEADER DESTINATION "${INSTALL_INCLUDE_DIR}" COMPONENT dev
 	)

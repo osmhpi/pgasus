@@ -41,7 +41,7 @@ set(include_dirs
 
 # Create Library
 add_library(hpinuma SHARED ${SOURCES})
-target_link_libraries(hpinuma 
+target_link_libraries(hpinuma
 	hpinuma_msource hpinuma_util
 	Boost::context
 	Boost::chrono
@@ -55,7 +55,7 @@ set_target_properties(hpinuma PROPERTIES
   PUBLIC_HEADER "${PUBLIC_HEADERS}")
 addExportTarget(hpinuma)
 install(TARGETS hpinuma
-    EXPORT ${package_name}Targets
+    EXPORT ${package_name}Targets COMPONENT dev
     RUNTIME DESTINATION "${INSTALL_BIN_DIR}" COMPONENT bin
     LIBRARY DESTINATION "${INSTALL_LIB_DIR}" COMPONENT shlib
     PUBLIC_HEADER DESTINATION "${INSTALL_INCLUDE_DIR}" COMPONENT dev
@@ -78,7 +78,7 @@ if (PGASUS_BUILD_STATIC_LIBRARIES)
 		PUBLIC_HEADER "${PUBLIC_HEADERS}")
 	addExportTarget(hpinuma_s)
 	install(TARGETS hpinuma_s
-		EXPORT ${package_name}Targets
+		EXPORT ${package_name}Targets COMPONENT dev
 		ARCHIVE DESTINATION "${INSTALL_LIB_DIR}" COMPONENT staticlib
 		PUBLIC_HEADER DESTINATION "${INSTALL_INCLUDE_DIR}" COMPONENT dev
 	)
