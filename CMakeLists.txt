@@ -8,13 +8,18 @@ project(LibNumaCpp VERSION 0.0.0 LANGUAGES C CXX)
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
+macro(add_PGASUS_option NAME DOC INITVALUE)
+	option(PGASUS_${NAME} ${DOC} ${INITVALUE})
+	if (PGASUS_${NAME})
+		set(${NAME} 1)
+	else()
+		set(${NAME} 0)
+	endif()
+endmacro()
+
 option(PGASUS_PROFILING_GPROF "Compile for profiling with gprof" OFF)
-option(PGASUS_MEM_SOURCE_USE_PTHREAD_SPINLOCK "Use pthread spinlocks instead of own implementation" OFF)
-if (PGASUS_MEM_SOURCE_USE_PTHREAD_SPINLOCK)
-	set(MEM_SOURCE_USE_PTHREAD_SPINLOCK 1)
-else()
-	set(MEM_SOURCE_USE_PTHREAD_SPINLOCK 0)
-endif()
+add_PGASUS_option(MEM_SOURCE_USE_PTHREAD_SPINLOCK
+	"Use pthread spinlocks instead of own implementation" OFF)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
 	set(LINUX 1)
@@ -85,10 +90,6 @@ else()
 endif()
 
 
-set(PGASUS_CONFIG_FILE ${PROJECT_BINARY_DIR}/src/PGASUS-config.h)
-configure_file(${PROJECT_SOURCE_DIR}/cmake/PGASUS-config.h.in ${PGASUS_CONFIG_FILE})
-
-
 # Set output directory
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
@@ -150,6 +151,12 @@ function(addExportTarget TARGET_NAME)
 	set(${targetVar} "${${targetVar}}${separator}${TARGET_NAME}"
 		CACHE INTERNAL "")
 endfunction()
+
+
+set(PGASUS_CONFIG_FILE ${PROJECT_BINARY_DIR}/src/PGASUS-config.h)
+configure_file(${PROJECT_SOURCE_DIR}/cmake/PGASUS-config.h.in ${PGASUS_CONFIG_FILE})
+install(FILES ${PGASUS_CONFIG_FILE} DESTINATION ${INSTALL_INCLUDE_DIR}
+	COMPONENT dev)
 
 
 # add sub-projects
