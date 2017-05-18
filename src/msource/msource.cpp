@@ -284,7 +284,7 @@ private:
 		// Init msource
 		node = n;
 		node_home = home;
-		mmap_threshold = (size_t)(1 << 18);
+		mmap_threshold = (size_t)(1 << 24);
 		mem_size = sz;
 		mmapped_chunk_head = nullptr;
 
