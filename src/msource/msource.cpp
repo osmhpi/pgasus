@@ -278,13 +278,13 @@ private:
 
 private:
 
-	MemSourceImpl(int n, size_t sz, const char *str, int home) {
+	MemSourceImpl(int n, size_t sz, const char *str, size_t _mmap_threshold, int home) {
 		strncpy(description, str, NAME_LENGTH);
 
 		// Init msource
 		node = n;
 		node_home = home;
-		mmap_threshold = (size_t)(1 << 24);
+		mmap_threshold = _mmap_threshold;
 		mem_size = sz;
 		mmapped_chunk_head = nullptr;
 
@@ -432,8 +432,8 @@ public:
 		return *msv;
 	}
 
-	static MemSourceImpl *create(int phys_node, size_t sz, const char *str, int phys_home_node) {
-		MemSourceImpl *ms = new (callMmap(sz, phys_node)) MemSourceImpl(phys_node, sz, str, phys_home_node);
+	static MemSourceImpl *create(int phys_node, size_t sz, const char *str, size_t mmap_threshold, int phys_home_node) {
+		MemSourceImpl *ms = new (callMmap(sz, phys_node)) MemSourceImpl(phys_node, sz, str, mmap_threshold, phys_home_node);
 		add_msource(ms);
 		return ms;
 	}
@@ -749,8 +749,8 @@ MemSource& MemSource::operator=(MemSource &&other) {
 	return *this;
 }
 
-MemSource MemSource::create(int phys_node, size_t sz, const char *str, int phys_home_node) {
-	msource::MemSourceImpl *impl = msource::MemSourceImpl::create(phys_node, sz, str, phys_home_node);
+MemSource MemSource::create(int phys_node, size_t sz, const char *str, size_t mmap_threshold, int phys_home_node) {
+	msource::MemSourceImpl *impl = msource::MemSourceImpl::create(phys_node, sz, str, mmap_threshold, phys_home_node);
 	numa::debug::log(numa::debug::DEBUG, "Created MemSource \"%s\" on node %d", str, phys_node);
 	return MemSource(impl);
 }
@@ -763,7 +763,7 @@ const MemSource& MemSource::global() {
 	{
 		std::lock_guard<numa::SpinLock> lock(global_msource_mutex);
 		if (!(valid = global_msource.valid()))
-			global_msource = MemSource(msource::MemSourceImpl::create(-1, 1LL<<24, "global", -1));
+			global_msource = MemSource(msource::MemSourceImpl::create(-1, 1LL << 24, "global", 1LL << 24, -1));
 	}
 
 	if (!valid)
@@ -796,7 +796,7 @@ const MemSource& MemSource::forNode(size_t phys_node) {
 	if (global_msources[phys_node] == nullptr) {
 		char buff[4096];
 		snprintf(buff, sizeof(buff) / sizeof(buff[0]), "node_global(%zd)", phys_node);
-		global_msources[phys_node] = msource::MemSourceImpl::create(phys_node, 1LL<<24, buff, -1);
+		global_msources[phys_node] = msource::MemSourceImpl::create(phys_node, 1LL<<24, buff, 1LL << 24, -1);
 		global_msource_ptrs[phys_node] = MemSource(global_msources[phys_node]);
 
 		numa::debug::log(numa::debug::DEBUG, "Created nodeGlobal MemSource (%zd)", phys_node);

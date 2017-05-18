@@ -42,7 +42,7 @@ public:
 	bool operator==(const MemSource &other) const { return _msource == other._msource; }
 	bool operator!=(const MemSource &other) const { return _msource != other._msource; }
 
-	static MemSource create(int phys_node, size_t sz, const char *str, int phys_home_node = -1);
+	static MemSource create(int phys_node, size_t sz, const char *str, size_t mmap_threshold = 1LL<<24, int phys_home_node = -1);
 	static const MemSource& global();
 	static const MemSource& forNode(size_t phys_node);
 
