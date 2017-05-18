@@ -18,7 +18,7 @@
 #include "util/topology.hpp"
 #include "util/debug.hpp"
 
-#ifdef MEM_SOURCE_USE_PTHREAD_SPINLOCK
+#if MEM_SOURCE_USE_PTHREAD_SPINLOCK
 #include <pthread.h>
 #endif
 
@@ -30,7 +30,7 @@ class MemSourceImpl
 {
 private:
 
-#ifdef MEM_SOURCE_USE_PTHREAD_SPINLOCK
+#if MEM_SOURCE_USE_PTHREAD_SPINLOCK
 	typedef pthread_spinlock_t SpinLock;
 	#define SpinLock_lock(s) pthread_spin_lock(&s)
 	#define SpinLock_unlock(s) pthread_spin_unlock(&s)
