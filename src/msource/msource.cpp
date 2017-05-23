@@ -191,8 +191,11 @@ private:
 
 			if (chunk != nullptr) {
 				// update alloc end ptr
-				size_t rel_chunk_start = (intptr_t)chunk - (intptr_t)this;
-				alloc_end = std::max(alloc_end, rel_chunk_start + sz);
+				const size_t rel_chunk_start = (intptr_t)chunk - (intptr_t)this;
+				const size_t current_end = rel_chunk_start + sz;
+				if (alloc_end < current_end) {
+					alloc_end = current_end;
+				}
 
 				chunk->source = msource;
 				chunk->arena = this;
