@@ -11,8 +11,6 @@ set(PUBLIC_HEADERS
 
 set(SOURCES
 	${PUBLIC_HEADERS}
-	malloc.c
-	malloc-numa.h
 	mmaphelper.cpp
 	msource.cpp
 	stackedmalloc.cpp
@@ -23,6 +21,43 @@ set(include_dirs
 		${PROJECT_SOURCE_DIR}/src
 )
 
+
+set(PGASUS_MALLOC_IMPLS ptmalloc3 dlmalloc)
+set(PGASUS_MALLOC_IMPL "ptmalloc3" CACHE STRING
+	"Malloc implementation that is used internally for PGASUS. Valid values: ${PGASUS_MALLOC_IMPLS}")
+set_property(CACHE PGASUS_MALLOC_IMPL PROPERTY STRINGS ${PGASUS_MALLOC_IMPLS})
+
+
+set(MALLOC_HEADER)
+set(MALLOC_SOURCES)
+set(MALLOC_DEFINES)
+
+if (PGASUS_MALLOC_IMPL STREQUAL "ptmalloc3")
+	set(MALLOC_HEADER ptmalloc3-malloc-numa.h)
+	set(MALLOC_SOURCES ptmalloc3-malloc.c)
+	if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+		set(MALLOC_DEFINES PRIVATE _GNU_SOURCE)	# for mremap function
+	endif()
+
+elseif(PGASUS_MALLOC_IMPL STREQUAL "dlmalloc")
+	set(MALLOC_HEADER dlmalloc-malloc-numa.h)
+	set(MALLOC_SOURCES dlmalloc-malloc.c)
+
+else()
+	string(REPLACE ";" ", " impls_msg "${PGASUS_MALLOC_IMPLS}")
+	message(FATAL_ERROR "Invalid value for PGASUS_MALLOC_IMPL: \"${PGASUS_MALLOC_IMPL}\" \
+Supported values are: ${impls_msg}.")
+endif()
+
+file(RELATIVE_PATH CURRENT_LIST_FILE_RELATIVE ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_LIST_FILE})
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/malloc-numa.h
+	"#pragma once\n\n// Generated in ${CURRENT_LIST_FILE_RELATIVE}\n\
+// Don't modify this file directly!\n\n\
+#include \"msource/${MALLOC_HEADER}\"\n")
+list(APPEND SOURCES ${MALLOC_SOURCES} ${MALLOC_HEADER}
+	${CMAKE_CURRENT_BINARY_DIR}/malloc-numa.h)
+
+
 add_library(hpinuma_msource SHARED ${SOURCES})
 target_link_libraries(hpinuma_msource
 	PUBLIC
@@ -31,9 +66,8 @@ target_link_libraries(hpinuma_msource
 		numa
 )
 target_include_directories(hpinuma_msource ${include_dirs})
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-	target_compile_definitions(hpinuma_msource
-		PRIVATE _GNU_SOURCE)	# for mremap function
+if (MALLOC_DEFINES)
+	target_compile_definitions(hpinuma_msource ${MALLOC_DEFINES})
 endif()
 
 # Create public exports
@@ -59,9 +93,8 @@ if (PGASUS_BUILD_STATIC_LIBRARIES)
 			numa
 	)
 	target_include_directories(hpinuma_msource_s ${include_dirs})
-	if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-		target_compile_definitions(hpinuma_msource_s
-			PRIVATE _GNU_SOURCE)	# for mremap function
+	if (MALLOC_DEFINES)
+		target_compile_definitions(hpinuma_msource_s ${MALLOC_DEFINES})
 	endif()
 	target_compile_definitions(hpinuma_msource_s ${DEFAULT_COMPILE_DEFINITIONS}
 		PUBLIC HPINUMA_MSOURCE_STATIC_DEFINE)

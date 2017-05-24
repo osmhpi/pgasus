@@ -9,9 +9,9 @@
 
 #include <numaif.h>
 
-#include "malloc-numa.h"
 #include "PGASUS-config.h"
 #include "base/spinlock.hpp"
+#include "msource/malloc-numa.h"
 #include "msource/msource_allocator.hpp"
 #include "msource/msource_types.hpp"
 #include "msource/mmaphelper.h"
