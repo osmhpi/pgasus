@@ -50,9 +50,12 @@ public:
 		return static_cast<pointer>(ms.alloc(sizeof(T) * n));
 	}
 	
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wunused-parameter"
 	inline void deallocate(pointer p, size_type n) {
 		ms.free(static_cast<void_pointer>(p));
 	}
+	#pragma GCC diagnostic pop
 	
 	template<typename... Args>
 	inline void construct(pointer p, Args&&... args) {

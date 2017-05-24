@@ -13,7 +13,10 @@
 
 #include "malloc.hpp"
 
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wtype-limits"
+#pragma GCC diagnostic ignored "-Wsign-compare"
 /**
  * Contains node-local msources
  */
@@ -416,3 +419,4 @@ extern "C" int mallopt(int cmd, int value) throw() {
   return 0;
 }
 
+#pragma GCC diagnostic pop
