@@ -4,6 +4,7 @@
 #include <sys/mman.h>    /* for mmap */
 #include <stddef.h>
 #include "base/node.hpp"
+#include "msource/hpinuma_msource_export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -12,33 +13,33 @@ extern "C" {
 /** 
  * Allocate sz bytes from system. If node >= 0, bind them to the given NUMA node
  */
-void *callMmap(size_t sz, int node);
+HPINUMA_MSOURCE_EXPORT void *callMmap(size_t sz, int node);
 
 /**
  * Bind memory region to given NUMA node. Returns mbind() return value.
  */
-int bindMemory(void *p, size_t sz, int node);
+HPINUMA_MSOURCE_EXPORT int bindMemory(void *p, size_t sz, int node);
 
 /**
  * Return NUMA node location of data pointed to by ptr, as returned by move_pages
  */
-int getNumaNodeForMemory(const void *ptr);
+HPINUMA_MSOURCE_EXPORT int getNumaNodeForMemory(const void *ptr);
 
 /**
  * Stores NUMA node locations of data pointed to by ptr into results. Returns 
  * return value of move_pages()
  */
-int getNumaNodeForMemory_n(size_t count, const void **ptrs, int *results);
+HPINUMA_MSOURCE_EXPORT int getNumaNodeForMemory_n(size_t count, const void **ptrs, int *results);
 
 /**
  * Move memory region to given node
  */
-int moveMemory(void *p, size_t sz, int node);
+HPINUMA_MSOURCE_EXPORT int moveMemory(void *p, size_t sz, int node);
 
 /**
  * Touches every page from given memory region, to make it page-fault into working set
  */
-void touchMemory(void *p, size_t sz);
+HPINUMA_MSOURCE_EXPORT void touchMemory(void *p, size_t sz);
 
 
 #ifdef __cplusplus
@@ -72,7 +73,7 @@ namespace util {
 	/**
 	 * Get NUMA node locations for given chunk of memory
 	 */
-	std::vector<int> getNumaNodeForMemory(const void *p, size_t sz);
+	HPINUMA_MSOURCE_EXPORT std::vector<int> getNumaNodeForMemory(const void *p, size_t sz);
 	
 	/**
 	 * Memory allocator that uses mmap() directly

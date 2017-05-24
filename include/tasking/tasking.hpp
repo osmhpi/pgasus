@@ -3,6 +3,7 @@
 #include <list>
 
 #include "base/node.hpp"
+#include "hpinuma_export.h"
 #include "tasking/synchronizable.hpp"
 #include "tasking/task.hpp"
 
@@ -12,18 +13,18 @@ namespace numa {
 
 namespace tasking {
 class Task;
-void spawn_task(const Node &node, Task *task);
+HPINUMA_EXPORT void spawn_task(const Node &node, Task *task);
 }
 
-void wait(const std::list<TriggerableRef> &tasks);
-void wait(const TriggerableRef &ref);
-void yield();
+HPINUMA_EXPORT void wait(const std::list<TriggerableRef> &tasks);
+HPINUMA_EXPORT void wait(const TriggerableRef &ref);
+HPINUMA_EXPORT void yield();
 
 /**
  * Makes sure the worker thread's thread-local msources
  * are populated with enough pages
  */
-void prefaultWorkerThreadStorages(size_t bytes);
+HPINUMA_EXPORT void prefaultWorkerThreadStorages(size_t bytes);
 
 /**
  * Waits for task completion and returns result
@@ -54,7 +55,8 @@ TaskRef<T> async(const numa::tasking::TaskFunction<T> &fun, Priority prio, const
  * Spawns the given task on each worker thread's task queue on all
  * the given nodes
  */
-std::list<TriggerableRef> forEachThread(const NodeList &nodes, const numa::tasking::TaskFunction<void> &fun, Priority prio);
+HPINUMA_EXPORT std::list<TriggerableRef> forEachThread(
+	const NodeList &nodes, const numa::tasking::TaskFunction<void> &fun, Priority prio);
 
 template <class T>
 struct DistributedExec {

@@ -38,6 +38,8 @@ if (DEFAULT_COMPILE_DEFINITIONS)
 endif()
 
 # Create public exports
+generate_export_header(hpinuma_util)
+list(APPEND PUBLIC_HEADERS "${CMAKE_CURRENT_BINARY_DIR}/hpinuma_util_export.h")
 set_target_properties(hpinuma_util PROPERTIES
   PUBLIC_HEADER "${PUBLIC_HEADERS}")
 addExportTarget(hpinuma_util)
@@ -53,9 +55,8 @@ if (PGASUS_BUILD_STATIC_LIBRARIES)
 	target_link_libraries(hpinuma_util_s
 		PUBLIC hwloc)
 	target_include_directories(hpinuma_util_s ${include_dirs})
-	if (DEFAULT_COMPILE_DEFINITIONS)
-		target_compile_definitions(hpinuma_util_s ${DEFAULT_COMPILE_DEFINITIONS})
-	endif()
+	target_compile_definitions(hpinuma_util_s ${DEFAULT_COMPILE_DEFINITIONS}
+		PUBLIC HPINUMA_UTIL_STATIC_DEFINE)
 
 	set_target_properties(hpinuma_util_s PROPERTIES
 		PUBLIC_HEADER "${PUBLIC_HEADERS}")

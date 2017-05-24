@@ -8,8 +8,6 @@ set(PUBLIC_HEADERS
 	../include/tasking/task.hpp
 	../include/tasking/tasking.hpp
 	../include/mutex.hpp
-	../include/init.hpp
-	../include/malloc.hpp
 	../include/hashtable/containers.hpp
 	../include/hashtable/hashtable.hpp
 	../include/hashtable/hashtable_lockfree.hpp
@@ -51,6 +49,8 @@ target_link_libraries(hpinuma
 target_include_directories(hpinuma ${include_dirs})
 
 # Create public exports
+generate_export_header(hpinuma)
+list(APPEND PUBLIC_HEADERS "${CMAKE_CURRENT_BINARY_DIR}/hpinuma_export.h")
 set_target_properties(hpinuma PROPERTIES
   PUBLIC_HEADER "${PUBLIC_HEADERS}")
 addExportTarget(hpinuma)
@@ -73,6 +73,8 @@ if (PGASUS_BUILD_STATIC_LIBRARIES)
 		Boost::thread
 	)
 	target_include_directories(hpinuma_s ${include_dirs})
+	target_compile_definitions(hpinuma_s ${DEFAULT_COMPILE_DEFINITIONS}
+		PUBLIC HPINUMA_STATIC_DEFINE)
 
 	set_target_properties(hpinuma_s PROPERTIES
 		PUBLIC_HEADER "${PUBLIC_HEADERS}")

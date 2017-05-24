@@ -2,6 +2,7 @@
 
 #include <string>
 #include "base/node.hpp"
+#include "msource/hpinuma_msource_export.h"
 
 namespace numa {
 
@@ -9,7 +10,7 @@ namespace msource {
 class MemSourceImpl;
 }
 
-struct msource_info
+struct HPINUMA_MSOURCE_EXPORT msource_info
 {
 	size_t hugeobj_count;
 	size_t hugeobj_used;
@@ -22,7 +23,7 @@ struct msource_info
 
 static constexpr size_t MEM_PAGE_SIZE = 4096;
 
-class MemSource
+class HPINUMA_MSOURCE_EXPORT MemSource
 {
 private:
 	msource::MemSourceImpl *_msource;

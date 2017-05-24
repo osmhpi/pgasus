@@ -15,6 +15,7 @@
 #include "msource/msource.hpp"
 #include "tasking/synchronizable.hpp"
 #include "tasking/task.hpp"
+#include "tasking/tasking.hpp"
 #include "tasking/task_scheduler.hpp"
 #include "tasking/worker_thread.hpp"
 #include "util/debug.hpp"

@@ -2,13 +2,14 @@
 
 #include "base/node.hpp"
 #include "msource/msource.hpp"
+#include "msource/hpinuma_msource_export.h"
 
 #include <vector>
 #include <cassert>
 
 namespace numa {
 
-struct Place {
+struct HPINUMA_MSOURCE_EXPORT Place {
 	MemSource       msource;
 	Node            node;
 	
@@ -30,19 +31,19 @@ struct Place {
 };
 
 namespace malloc {
-typedef std::vector<Place> PlaceStack;
+using PlaceStack = std::vector<Place>;
 static constexpr size_t MEM_PAGE_SIZE = 4096;
 
-void push(const Place &p);
-void push_all(const PlaceStack &places);
+HPINUMA_MSOURCE_EXPORT void push(const Place &p);
+HPINUMA_MSOURCE_EXPORT void push_all(const PlaceStack &places);
 
-Place pop();
-PlaceStack pop_all();
+HPINUMA_MSOURCE_EXPORT Place pop();
+HPINUMA_MSOURCE_EXPORT PlaceStack pop_all();
 
-MemSource curr_msource();
+HPINUMA_MSOURCE_EXPORT MemSource curr_msource();
 }
 
-class PlaceGuard {
+class HPINUMA_MSOURCE_EXPORT PlaceGuard {
 private:
 	Place       _place;
 public:
@@ -54,7 +55,7 @@ public:
 
 namespace malloc {
 
-class PlaceGuardForIfHack : public PlaceGuard {
+class HPINUMA_MSOURCE_EXPORT PlaceGuardForIfHack : public PlaceGuard {
 public:
 	inline PlaceGuardForIfHack(const Node &n) : PlaceGuard(n) {}
 	inline PlaceGuardForIfHack(const MemSource &ms) : PlaceGuard(ms) {}

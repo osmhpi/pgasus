@@ -2,6 +2,7 @@
 
 #include <string>
 
+#include "util/hpinuma_util_export.h"
 #include "PGASUS-config.h"
 
 namespace numa {
@@ -15,8 +16,8 @@ enum DebugLevel {
 };
 
 #if ENABLE_DEBUG_LOG
-void log(DebugLevel lvl, const char *fmt, ...);
-void log_id(DebugLevel lvl, int cpuid, const char *fmt, ...);
+void HPINUMA_UTIL_EXPORT log(DebugLevel lvl, const char *fmt, ...);
+void HPINUMA_UTIL_EXPORT log_id(DebugLevel lvl, int cpuid, const char *fmt, ...);
 #else
 inline void log(DebugLevel lvl, const char *fmt, ...) {}
 inline void log_id(DebugLevel lvl, int id, const char *fmt, ...) {}

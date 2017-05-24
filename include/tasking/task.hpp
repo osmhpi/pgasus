@@ -5,12 +5,13 @@
 
 #include "base/spinlock.hpp"
 #include "base/ref_ptr.hpp"
+#include "hpinuma_export.h"
 #include "malloc.hpp"
 #include "tasking/synchronizable.hpp"
 
 namespace numa {
 
-struct Priority {
+struct HPINUMA_EXPORT Priority {
 	int_least8_t value;
 	
 	Priority() : value(min().value) {}
@@ -43,7 +44,7 @@ class WorkerThread;
  * It is exported to the user through a RefPtr<Task>.
  * Schedulers and threads call state change methods.
  */
-class Task : public TwoPhaseTriggerable, public Synchronizer
+class HPINUMA_EXPORT Task : public TwoPhaseTriggerable, public Synchronizer
 {
 	friend class Scheduler;
 	friend class WorkerThread;

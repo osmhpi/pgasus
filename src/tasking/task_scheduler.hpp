@@ -7,6 +7,7 @@
 #include "msource/msource.hpp"
 #include "base/spinlock.hpp"
 
+#include "hpinuma_export.h"
 #include "tasking/context.hpp"
 
 
@@ -22,7 +23,7 @@ class WorkerThread;
 /**
  * Encapsulates all priorities within one scheduling domain
  */
-class SchedulingDomain
+class HPINUMA_EXPORT SchedulingDomain
 {
 private:
 	typedef numa::SpinLock Lock;
@@ -83,7 +84,7 @@ public:
 /**
  * Holds all to-be-scheduled tasks for a set of managed worker threads.
  */
-class Scheduler
+class HPINUMA_EXPORT Scheduler
 {
 private:
 	

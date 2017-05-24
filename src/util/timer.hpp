@@ -16,13 +16,15 @@
 #include <windows.h>
 #if !defined(_WINSOCK2API_) && !defined(_WINSOCKAPI_)
 struct timeval {
-    long tv_sec;
-    long tv_usec;
+	long tv_sec;
+	long tv_usec;
 };
 #endif
 #else//_WIN32
 #include <sys/time.h>
 #endif//_WIN32
+
+#include "util/hpinuma_util_export.h"
 
 
 template <typename timer_dt> 
@@ -52,7 +54,7 @@ public:
 
 // Definition
 #ifdef _WIN32
-int gettimeofday(struct timeval* tv, int t) {
+HPINUMA_UTIL_EXPORT int gettimeofday(struct timeval* tv, int t) {
 	union {
 		long long ns100;
 		FILETIME ft;

@@ -4,6 +4,7 @@
 
 #include "msource/msource_types.hpp"
 
+#include "hpinuma_export.h"
 #include "tasking/task.hpp"
 #include "tasking/task_scheduler.hpp"
 #include "tasking/thread_manager.hpp"
@@ -21,7 +22,7 @@ class Task;
  * A WorkerThread represents a running thread that executes Tasks that it 
  * receives from the associated Scheduler
  */
-class WorkerThread : public ThreadBase
+class HPINUMA_EXPORT WorkerThread : public ThreadBase
 {
 private:
 	typedef numa::msvector<Context*> ContextVec;

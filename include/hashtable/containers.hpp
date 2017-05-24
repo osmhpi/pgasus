@@ -9,6 +9,7 @@
 #include <tuple>
 
 #include "msource/node_replicated.hpp"
+#include "hpinuma_export.h"
 #include "tasking/tasking.hpp"
 
 namespace numa {
@@ -327,12 +328,12 @@ public:
 	}
 };
 
-struct IgnorePlacement {
+struct HPINUMA_EXPORT IgnorePlacement {
 	template <class iterator_type>
 	inline Node operator()(const iterator_type &) { return numa::Node(); }
 };
 
-struct MemSourceCreationPlacement {
+struct HPINUMA_EXPORT MemSourceCreationPlacement {
 	template <class iterator_type>
 	inline Node operator()(const iterator_type &it) {
 		return numa::MemSource::nodeOf((void*) &(*it));

@@ -1,17 +1,18 @@
 #pragma once
 
 #include <atomic>
+#include "hpinuma_export.h"
 #include "tasking/tasking.hpp"
 
 namespace numa {
 
-class Mutex
+class HPINUMA_EXPORT Mutex
 {
 private:
 	/**
 	 * If spinlock could not be acquired, wait for this
 	 */
-	struct WaitObject : public Triggerable
+	struct HPINUMA_EXPORT WaitObject : public Triggerable
 	{
 		WaitObject()
 		{

@@ -4,11 +4,13 @@
 #include <cstdint>
 #include <cstddef>
 
+#include "util/hpinuma_util_export.h"
+
 namespace numa {
 
 class Node;
 
-class NodeList : public std::vector<Node> {
+class HPINUMA_UTIL_EXPORT NodeList : public std::vector<Node> {
 	static NodeList createAllNodesList();
 public:
 	static const NodeList& allNodes();
@@ -16,10 +18,10 @@ public:
 	static size_t physicalNodesCount();
 };
 
-typedef int CpuId;
-typedef std::vector<CpuId> CpuSet;
+using CpuId = int;
+using CpuSet = std::vector<CpuId>;
 
-class Node {
+class HPINUMA_UTIL_EXPORT Node {
 private:
 	int16_t _index;
 	int16_t _physical_node;

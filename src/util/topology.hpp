@@ -4,13 +4,14 @@
 #include <vector>
 #include <iostream>
 #include <hwloc.h>
+#include "util/hpinuma_util_export.h"
 
 
 namespace numa {
 namespace util {
 
 
-class Topology {
+class HPINUMA_UTIL_EXPORT Topology {
 public:
 	struct NumaNode {
 		int                     id;

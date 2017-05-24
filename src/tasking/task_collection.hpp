@@ -9,6 +9,7 @@
 
 #include "base/spinlock.hpp"
 #include "msource/msource_types.hpp"
+#include "hpinuma_export.h"
 #include "synced_containers.hpp"
 
 
@@ -22,7 +23,7 @@ class Task;
  * All tasks that are to run on a number of threads. Contains a local thread
  * queue for each thread, as well as a global queue of untied threads.
  */
-class TaskCollection
+class HPINUMA_EXPORT TaskCollection
 {
 private:
 	typedef numa::util::SyncDeque<Task*, numa::MemSourceAllocator<Task*>> TaskQueue;

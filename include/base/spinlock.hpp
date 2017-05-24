@@ -117,6 +117,6 @@ public:
 	}
 };
 
-typedef SpinLockType<ExponentialBackOff<16,1<<10>> SpinLock;
+using SpinLock = SpinLockType<ExponentialBackOff<16,1<<10>>;
 
 }

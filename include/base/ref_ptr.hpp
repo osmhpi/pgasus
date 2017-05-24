@@ -4,6 +4,8 @@
 #include <atomic>
 #include <functional>
 
+#include "util/hpinuma_util_export.h"
+
 namespace numa {
 
 /** 
@@ -96,7 +98,7 @@ public:
  * Base class for ref-counted objects. Must NOT be allocated on the stack,
  * but using new().
  */
-class Referenced
+class HPINUMA_UTIL_EXPORT Referenced
 {
 private:
 	std::atomic_int_least32_t   _ref_count;

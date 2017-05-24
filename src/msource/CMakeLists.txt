@@ -1,5 +1,6 @@
 
 set(PUBLIC_HEADERS
+	../../include/malloc.hpp
 	../../include/msource/mmaphelper.h
 	../../include/msource/msource.hpp
 	../../include/msource/msource_allocator.hpp
@@ -29,13 +30,14 @@ target_link_libraries(hpinuma_msource
 		numa
 )
 target_include_directories(hpinuma_msource ${include_dirs})
-target_compile_definitions(hpinuma_msource PRIVATE HAVE_MMAP)
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
 	target_compile_definitions(hpinuma_msource
 		PRIVATE _GNU_SOURCE)	# for mremap function
 endif()
 
 # Create public exports
+generate_export_header(hpinuma_msource)
+list(APPEND PUBLIC_HEADERS "${CMAKE_CURRENT_BINARY_DIR}/hpinuma_msource_export.h")
 set_target_properties(hpinuma_msource PROPERTIES
   PUBLIC_HEADER "${PUBLIC_HEADERS}")
 addExportTarget(hpinuma_msource)
@@ -56,11 +58,12 @@ if (PGASUS_BUILD_STATIC_LIBRARIES)
 			numa
 	)
 	target_include_directories(hpinuma_msource_s ${include_dirs})
-	target_compile_definitions(hpinuma_msource_s PRIVATE HAVE_MMAP)
 	if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
 		target_compile_definitions(hpinuma_msource_s
 			PRIVATE _GNU_SOURCE)	# for mremap function
 	endif()
+	target_compile_definitions(hpinuma_msource_s ${DEFAULT_COMPILE_DEFINITIONS}
+		PUBLIC HPINUMA_MSOURCE_STATIC_DEFINE)
 
 	set_target_properties(hpinuma_msource_s PROPERTIES
 		PUBLIC_HEADER "${PUBLIC_HEADERS}")
