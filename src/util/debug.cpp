@@ -1,10 +1,13 @@
+#include "util/debug.hpp"
+
+#if ENABLE_DEBUG_LOG
+
 #include <cstdio>
 #include <cstdarg>
 #include <cstdlib>
 #include <cstring>
 
 #include "base/node.hpp"
-#include "util/debug.hpp"
 #include "util/timer.hpp"
 
 namespace numa {
@@ -97,3 +100,5 @@ void set_logging_enabled(bool enabled)
 
 }
 }
+
+#endif

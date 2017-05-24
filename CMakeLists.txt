@@ -20,6 +20,7 @@ endmacro()
 option(PGASUS_PROFILING_GPROF "Compile for profiling with gprof" OFF)
 add_PGASUS_option(MEM_SOURCE_USE_PTHREAD_SPINLOCK
 	"Use pthread spinlocks instead of own implementation" OFF)
+add_PGASUS_option(ENABLE_DEBUG_LOG "Enable debug log for PGASUS/NUMA operations" OFF)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
 	set(LINUX 1)

@@ -2,7 +2,7 @@
 
 #include <string>
 
-#define NUMA_ENABLE_DEBUG 1
+#include "PGASUS-config.h"
 
 namespace numa {
 namespace debug {
@@ -14,12 +14,12 @@ enum DebugLevel {
 	NONE = 4
 };
 
-#if NUMA_ENABLE_DEBUG
+#if ENABLE_DEBUG_LOG
 void log(DebugLevel lvl, const char *fmt, ...);
 void log_id(DebugLevel lvl, int cpuid, const char *fmt, ...);
 #else
-static inline void log(DebugLevel lvl, const char *fmt, ...) {}
-static inline void log_id(DebugLevel lvl, int id, const char *fmt, ...) {}
+inline void log(DebugLevel lvl, const char *fmt, ...) {}
+inline void log_id(DebugLevel lvl, int id, const char *fmt, ...) {}
 #endif
 
 }
