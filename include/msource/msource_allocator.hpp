@@ -36,8 +36,8 @@ public:
 	
 	~MemSourceAllocator() {}
 	
-	template <class U> MemSourceAllocator& operator=(const MemSourceAllocator<U>& other) { ms = other.ms; }
-	template <class U> MemSourceAllocator& operator=(MemSourceAllocator<U>&& other) { ms = other.ms; }
+	template <class U> void operator=(const MemSourceAllocator<U>& other) { ms = other.ms; }
+	template <class U> void operator=(MemSourceAllocator<U>&& other) { ms = other.ms; }
 	
 public:
 	inline const MemSource& msource() const { return ms; }
