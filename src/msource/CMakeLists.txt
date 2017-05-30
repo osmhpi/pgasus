@@ -15,6 +15,7 @@ set(SOURCES
 	malloc-numa.h
 	mmaphelper.cpp
 	msource.cpp
+	stackedmalloc.cpp
 )
 
 set(include_dirs

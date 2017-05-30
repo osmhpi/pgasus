@@ -18,7 +18,6 @@ set(PUBLIC_HEADERS
 # main library
 set(SOURCES
 	${PUBLIC_HEADERS}
-	stackedmalloc/stackedmalloc.cpp
 	tasking/context.hpp
 	tasking/task_base.cpp
 	tasking/task_collection.cpp
