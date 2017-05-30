@@ -7,6 +7,21 @@
 
 namespace numa {
 
+namespace
+{
+	inline void instruction_pause()
+	{
+#if defined(__powerpc64__) || defined(__ppc64__) || defined(__PPC64__)
+	// http://stackoverflow.com/a/7588941
+	// See: IBM POWER ISA v2.07
+	// Alternatives: yield, mdoio, mdoom
+		asm("mdoom");
+#else
+		asm("pause");
+#endif
+	}
+}
+
 template <size_t INITIAL = 16, size_t MAXBKOFF = (1<<10)>
 struct ExponentialBackOff {
 	size_t curr;
@@ -16,7 +31,7 @@ struct ExponentialBackOff {
 
 	inline bool backoff() {
 		for (size_t i = 0; i < curr; i++)
-			asm("pause");
+			instruction_pause();
 		if (curr < MAXBKOFF) {
 			curr <<= 1;
 			return true;
@@ -38,7 +53,7 @@ struct LinearBackOff {
 
 	inline bool backoff() {
 		for (size_t i = 0; i < curr; i++)
-			asm("pause");
+			instruction_pause();
 		if (curr < MAX) {
 			curr += STEP;
 			return true;
@@ -65,7 +80,12 @@ class SpinLockType {
 
 	static size_t rdtsc() {
 		uint_least32_t hi, lo;
+#if defined(__powerpc64__) || defined(__ppc64__) || defined(__PPC64__)
+/// DCL TODO adjust for POWER 64 LE
+	FIXME;
+#else
 		__asm__ volatile("rdtsc": "=a"(lo), "=d"(hi));
+#endif
 		return (size_t)lo | ((size_t)hi << 32);
 	}
 #endif
