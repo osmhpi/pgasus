@@ -71,7 +71,7 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
 	if (PGASUS_PROFILING_GPROF)
 		add_compile_options(-g -pg)
-        link_libraries(-g -pg)
+		link_libraries(-g -pg)
 	endif()
 
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
