@@ -53,7 +53,7 @@ struct MapBenchmarker
 		std::atomic_size_t *counter = new std::atomic_size_t(0);
 		size_t step = 5000;
 
-		numa::wait(numa::forEachThread(numa::NodeList::allNodes(), [=]() {
+		numa::wait(numa::forEachThread(numa::NodeList::logicalNodes(), [=]() {
 			id->fetch_add(1);
 			Generator<typename CRTP::KeyType> gen;
 
@@ -69,7 +69,7 @@ struct MapBenchmarker
 		int tInsert = timer.stop_get_start();
 
 
-		numa::wait(numa::forEachThread(numa::NodeList::allNodes(), [=]() {
+		numa::wait(numa::forEachThread(numa::NodeList::logicalNodes(), [=]() {
 			size_t totalLookups = elems;
 			size_t myLookups = totalLookups / id->load();
 			size_t maxId = elems / hit;
@@ -92,7 +92,7 @@ struct MapBenchmarker
 
 		counter->store(0);
 
-		numa::wait(numa::forEachThread(numa::NodeList::allNodes(), [=]() {
+		numa::wait(numa::forEachThread(numa::NodeList::logicalNodes(), [=]() {
 			Generator<typename CRTP::KeyType> gen;
 
 			while (true) {

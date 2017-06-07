@@ -42,7 +42,7 @@ int main (int argc, char const* argv[])
 	srand(time(0));
 
 	// go through all node combinations
-	numa::NodeList allNodes = numa::NodeList::allNodes();
+	numa::NodeList allNodes = numa::NodeList::logicalNodesWithCPUs();
 	for (size_t fromNodeIdx = 0; fromNodeIdx < allNodes.size(); fromNodeIdx++) {
 		numa::Node fromNode = allNodes[fromNodeIdx];
 

@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
 	std::atomic_size_t threads(0);
 
 	// startup worker threads
-	numa::wait(numa::forEachThread(numa::NodeList::allNodes(), [&threads](){
+	numa::wait(numa::forEachThread(numa::NodeList::logicalNodesWithCPUs(), [&threads](){
 		threads++;
 	}, 0));
 	int tStart = globalTimer.stop_get_start();
@@ -130,7 +130,7 @@ int main(int argc, char *argv[])
 	numa::NodeReplicated<SyncVec<int>> threadTimers;
 
 	// start paging
-	numa::wait(numa::forEachThread(numa::NodeList::allNodes(), [=, &threadTimers]() {
+	numa::wait(numa::forEachThread(numa::NodeList::logicalNodesWithCPUs(), [=, &threadTimers]() {
 		Timer<int> localTimer(true);
 
 		int flags = huge ? (MAP_HUGETLB) : 0;
@@ -166,7 +166,7 @@ int main(int argc, char *argv[])
 		printf("node\ttotal\tlocal\tstd.dev\n");
 	}
 
-	for (numa::Node node : numa::NodeList::allNodes()) {
+	for (numa::Node node : numa::NodeList::logicalNodesWithCPUs()) {
 		const SyncVec<int> &times = threadTimers.get(node);
 
 		// calc. local bandwidth for each thread

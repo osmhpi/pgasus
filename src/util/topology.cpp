@@ -2,8 +2,9 @@
 #include <cassert>
 #include <cstdio>
 #include <fstream>
+#include <iomanip>
+#include <stdexcept>
 #include <string>
-#include <vector>
 
 #include <sched.h>
 #include <hwloc.h>
@@ -28,34 +29,47 @@ inline static T& insert_into_vector(std::vector<T> &vec, size_t idx, const T& va
 namespace numa {
 namespace util {
 
-int Topology::NumaNode::core_of(int cpuid) const {
-	for (size_t i = 0; i < cpus.size(); i++)
-		if (cpuid == cpus[i])
-			return i;
-	return -1;
+int Topology::NumaNode::core_of(const int cpuid) const {
+	const auto it = std::find(cpus.begin(), cpus.end(), cpuid);
+	if (it == cpus.end()) {
+		return -1;
+	}
+	return it - cpus.begin();
 }
 
 const Topology* Topology::get() {
-	static Topology s_instance;
+	static const Topology s_instance;
 	return &s_instance;
 }
 
 Topology::Topology() {
 	if (hwloc_topology_init(&_topology) != 0) {
-		assert(false);
+		throw std::runtime_error("PGASUS Topology: Initializing hwloc failed!");
 	}
 	// TODO distance matrix?
 	if (hwloc_topology_load(_topology) != 0) {
-		assert(false);
+		throw std::runtime_error("PGASUS Topology: Loading hwloc topology failed!");
 	}
 	
 	// get ptr to first numa node
-	int numa_depth = hwloc_get_type_or_below_depth(_topology, HWLOC_OBJ_NUMANODE);
+	const int numa_depth = hwloc_get_type_or_below_depth(_topology, HWLOC_OBJ_NUMANODE);
+	if (numa_depth == HWLOC_TYPE_DEPTH_MULTIPLE) {
+		throw std::runtime_error("PGASUS Topology: Hwloc reports NUMA nodes at "
+			"multiple depths. This is not supported.");
+	}
 	hwloc_obj_t node = hwloc_get_obj_by_depth(_topology, numa_depth, 0);
+
+	_total_cpu_count = 0;
 	
 	// iterate through NUMA nodes
 	while (node != nullptr) {
-		int node_id = node->os_index;
+		const int node_id = node->os_index;
+		if (node_id < 0) {
+			throw std::runtime_error("PGASUS Topology: Unexpected negative NUMA "
+				"node id: " + std::to_string(node_id));
+		}
+
+		_nodeIds.push_back(node_id);
 		
 		// create numa node struct
 		NumaNode *node_obj = insert_into_vector(_nodes, node_id, new NumaNode());
@@ -66,28 +80,57 @@ Topology::Topology() {
 		hwloc_bitmap_foreach_begin(cpu_id, node->cpuset) {
 			node_obj->cpus.push_back(cpu_id);
 			insert_into_vector(_cpu_to_node, cpu_id, node_obj);
+			_total_cpu_count++;
 		}
 		hwloc_bitmap_foreach_end();
 		
 		node = node->next_cousin;
 	}
-	
+
+	// hwloc reported node IDs are not always sorted, but a sorted index list is
+	// easier to handle at other places in the library.
+	std::sort(_nodeIds.begin(), _nodeIds.end());
+
 	// assign topology distances
-	for (size_t idx = 0; idx < _nodes.size(); idx++) {
-		_nodes[idx]->distances.resize(_nodes.size(), -1);
+	for (const int nodeId : _nodeIds) {
+		NumaNode* node = _nodes[static_cast<size_t>(nodeId)];
+		assert(node);
+		// distances to non-assigned nodes ids will be marked with -1
+		node->distances.resize(_nodes.size(), -1);
 		
 		std::string node_file_name = "/sys/devices/system/node/node";
-		node_file_name += std::to_string(idx);
+		node_file_name += std::to_string(nodeId);
 		node_file_name += "/distance";
-		
 		std::fstream node_file(node_file_name, std::ios_base::in);
-		for (size_t k = 0; k < _nodes.size(); k++)
-			node_file >> _nodes[idx]->distances[k];
-		
-		// fail?
-		if (std::count(_nodes[idx]->distances.begin(), _nodes[idx]->distances.end(), -1) > 0) {
-			fprintf(stderr, "Topology init: Invalid node distances read from %s\n", node_file_name.c_str());
+
+		if (!node_file.good()) {
+			fprintf(stderr,
+				"PGASUS Topology init: node file not readable (%s).\n",
+				node_file_name.c_str());
+			continue;
 		}
+
+		for (const int cousin : _nodeIds) {
+			int distance;
+			node_file >> distance;
+			if (!node_file) {
+				fprintf(stderr, "PGASUS Topology init: could not read node "
+					"distance %i->%i from %s\n", nodeId, cousin,
+					node_file_name.c_str());
+				continue;
+			}
+			node->distances[static_cast<size_t>(cousin)] = distance;
+			// Insert into neighbor list, yet unordered.
+			node->nearestNeighbors.emplace_back(distance,
+				_nodes[static_cast<size_t>(cousin)]);
+		}
+		std::sort(node->nearestNeighbors.begin(), node->nearestNeighbors.end(),
+			[] (const std::pair<int, NumaNode*> &lhs,
+				const std::pair<int, NumaNode*> &rhs) -> bool {
+				return lhs.first < rhs.first
+					|| (lhs.first == rhs.first
+						&& lhs.second->id < rhs.second->id);
+			});
 	}
 }
 
@@ -100,12 +143,16 @@ int Topology::curr_cpu_id() {
 	return sched_getcpu();
 }
 
-int Topology::max_node_id() const {
-	return _nodes.size()-1;
+const std::vector<int> & Topology::node_ids() const {
+	return _nodeIds;
 }
 
-int Topology::max_cpu_id() const {
-	return _cpu_to_node.size() - 1;
+size_t Topology::number_of_nodes() const {
+	return _nodeIds.size();
+}
+
+size_t Topology::total_cpu_count() const {
+	return _total_cpu_count;
 }
 
 const Topology::NumaNode* Topology::get_node(int n) const {
@@ -122,8 +169,9 @@ const Topology::NumaNode* Topology::curr_numa_node() const {
 	return node_of_cpuid(curr_cpu_id());
 }
 
-int Topology::cores_on_node(int n) const {	// how many cores on this node?
-	return get_node(n)->cpus.size();
+int Topology::cores_on_node(int n) const {
+	const NumaNode * node = get_node(n);
+	return node ? node->cpus.size() : -1;
 }
 
 int Topology::core_of_cpuid(int cpu) const {	// return on-chip core no.
@@ -131,16 +179,33 @@ int Topology::core_of_cpuid(int cpu) const {	// return on-chip core no.
 }
 
 void Topology::print(std::ostream &stream) const {
-	for (size_t i = 0; i < _nodes.size(); i++) {
-		if (_nodes[i] == nullptr) continue;
+	stream << "Total number of CPUs: " << _total_cpu_count << std::endl;
+	for (const int nodeId : _nodeIds) {
+		const NumaNode * node = _nodes[static_cast<size_t>(nodeId)];
 		
-		stream << "Node [" << i << "]\n";
-		stream << "\tCpus: [ ";
-		for (auto cpu : _nodes[i]->cpus) stream << cpu << " ";
-		stream << "]\n";
-		stream << "\tDistances: [ ";
-		for (auto dist : _nodes[i]->distances) stream << dist << " ";
-		stream << "]\n";
+		stream << "Node [" << nodeId << "]" << std::endl;
+		stream << "\tCPUs: [ ";
+		for (const int cpu : node->cpus) stream << cpu << " ";
+		stream << "]" << std::endl;
+		stream << "\tNearest Neighbors: ";
+		for (const auto &dn : node->nearestNeighbors) {
+			stream << '(' << dn.first << ", " << dn.second->id << ") ";
+		}
+		stream << std::endl;
+	}
+
+	stream << "# Distance matrix:" << std::endl;
+	stream << "     ";
+	for (const int nodeX : _nodeIds) {
+		stream << std::setw(4) << nodeX;
+	}
+	stream << std::endl;
+	for (const int nodeY : _nodeIds) {
+		stream << std::setw(4) << nodeY << " ";
+		for (const int nodeX : _nodeIds) {
+			stream << std::setw(4) << _nodes[nodeX]->distances[nodeY];
+		}
+		stream << std::endl;
 	}
 }
 

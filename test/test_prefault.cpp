@@ -36,7 +36,7 @@ int main (int argc, char const* argv[])
 
 	// spawn some long-running tasks to test if every core
 	// actually received a prefaulting task
-	for (size_t i = 0; i < numa::NodeList::allNodesCount() * 2; i++) {
+	for (size_t i = 0; i < numa::NodeList::logicalNodesCount() * 2; i++) {
 		waitList.push_back(numa::async<float>([]() -> float {
 			printf("dummy start\n");
 			float ret = 0.f;

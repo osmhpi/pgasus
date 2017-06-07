@@ -19,7 +19,7 @@ int main (int argc, char const* argv[])
 {
 	testing::initialize();
 
-	numa::HashTable<std::string, int, 5> table(numa::NodeList::allNodes());
+	numa::HashTable<std::string, int, 5> table(numa::NodeList::logicalNodes());
 	
 	int count = 100000;
 	

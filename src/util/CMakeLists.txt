@@ -66,4 +66,17 @@ if (PGASUS_BUILD_STATIC_LIBRARIES)
 		ARCHIVE DESTINATION "${INSTALL_LIB_DIR}" COMPONENT staticlib
 		PUBLIC_HEADER DESTINATION "${INSTALL_INCLUDE_DIR}" COMPONENT dev
 	)
+
+endif()
+
+add_executable(hpinuma_util_tool
+	hpinuma_util_tool.cpp)
+if (DEFAULT_COMPILE_DEFINITIONS)
+	target_compile_definitions(hpinuma_util_tool ${DEFAULT_COMPILE_DEFINITIONS})
+endif()
+target_include_directories(hpinuma_util_tool ${include_dirs})
+if (PGASUS_BUILD_STATIC_LIBRARIES)
+	target_link_libraries(hpinuma_util_tool hpinuma_util_s)
+else()
+	target_link_libraries(hpinuma_util_tool hpinuma_util)
 endif()

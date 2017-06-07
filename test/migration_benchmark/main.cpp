@@ -202,7 +202,7 @@ int main (int argc, char const* argv[])
 {
 	testing::initialize();
 
-	numa::NodeList nodes = numa::NodeList::allNodes();
+	numa::NodeList nodes = numa::NodeList::logicalNodes();
 
 	numa::Node from = nodes.front();
 	numa::Node to = nodes.back();

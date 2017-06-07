@@ -19,7 +19,7 @@ class NumaExecutor : public Executor {
 
 public:
 
-	NumaExecutor() : files(numa::NodeList::allNodes()) {}
+	NumaExecutor() : files(numa::NodeList::logicalNodes()) {}
 
 	virtual std::vector<TextFile*> allFiles() {
 		std::vector<TextFile*> f;

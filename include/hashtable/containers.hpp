@@ -120,12 +120,19 @@ private:
 	}
 
 public:
-	DistributedIteration(Iterable &iterable, int min_units) {
+	DistributedIteration(Iterable &iterable, const int min_units) {
 		_nodes = iterable.nodes();
-		size_t min_node_units = (_nodes.size() + min_units) / _nodes.size();
-		_iterations.resize(numa::NodeList::allNodesCount(), nullptr);
+		const size_t min_node_units = (_nodes.size() + min_units) / _nodes.size();
+		const NodeList &nodes = numa::NodeList::logicalNodesWithCPUs();
 
-		for (numa::Node node : numa::NodeList::allNodes()) {
+		// There might be logical nodes without CPUs assigned (POWER...), these
+		// are skipped here. Make sure that logicalId is still usable as index
+		// on the vector.
+		const size_t numIdsToReserve = nodes.empty() ? 0
+			: nodes.back().logicalId() + 1; // nodes is sorted by
+		_iterations.resize(numIdsToReserve, nullptr);
+
+		for (const numa::Node &node : numa::NodeList::logicalNodesWithCPUs()) {
 			_iterations.at(node.logicalId()) = iterable.iterate(node, min_node_units);
 		}
 		_global_iteration = iterable.iterate(Node(), min_node_units);
@@ -148,7 +155,7 @@ public:
 			Node node = Node::curr();
 			iterate(_iterations.at(node.logicalId()), fun, threadData);
 
-			for (const Node& neighbor : node.nearestNeighbors()) {
+			for (const Node& neighbor : node.nearestNeighborsWithCPUs()) {
 				iterate(_iterations.at(neighbor.logicalId()), fun, threadData);
 			}
 
@@ -281,7 +288,7 @@ public:
 		, policy(p)
 		, maxChunk((size_t)-1)
 		, created(false)
-		, iterationNodes(NodeList::allNodes())
+		, iterationNodes(NodeList::logicalNodesWithCPUs())
 	{
 		ms = MemSource::create(0, 10000000, "foobar");
 	}
@@ -300,7 +307,7 @@ public:
 			created = true;
 
 			// create ParallelIteration objects
-			for (Node node : NodeList::allNodes())
+			for (const Node &node : NodeList::logicalNodesWithCPUs())
 				iters[node] = new ParallelIteration(ms);
 			iters[Node()] = new ParallelIteration(ms);
 

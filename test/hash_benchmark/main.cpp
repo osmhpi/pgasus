@@ -134,7 +134,7 @@ struct NumaHashTableBench : public MapBenchmarker<NumaHashTableBench<_KeyType>>
 
 	MapType map;
 
-	NumaHashTableBench() : map(numa::NodeList::allNodes()) {}
+	NumaHashTableBench() : map(numa::NodeList::logicalNodes()) {}
 
 	inline const char *name() const { return "numa::HashTable"; }
 	size_t count() { return map.size(); }
