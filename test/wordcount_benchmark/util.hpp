@@ -1,16 +1,17 @@
 #pragma once
 
-#include <string>
-#include <vector>
-#include <map>
-#include <unordered_map>
-#include <mutex>
 #include <list>
+#include <map>
+#include <memory>
+#include <mutex>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 #include "buffer.hpp"
 
-typedef std::map<std::string, size_t> WordCount;
-typedef std::pair<std::string, size_t> Word;
+using WordCount = std::map<std::string, size_t>;
+using Word = std::pair<std::string, size_t>;
 
 struct TextFile {
 public:
@@ -19,17 +20,17 @@ public:
 	TextFile(const std::string &fname);
 	~TextFile();
 
-    WordCount *countWords() const;
+    std::unique_ptr<WordCount> countWords() const;
 	size_t count(const std::string &word) const;
 
 	std::unordered_map<size_t, WordList> lines;
     std::string fileName;
-    Buffer *fileData;
+    std::unique_ptr<Buffer> fileData;
 	size_t totalWordCount;
 
 private:
 	static WordList wordsFromLine(const std::string &line);
-	void doExtractLines(Buffer *buf);
+	void doExtractLines(Buffer &buf);
 };
 
 // returns file data of all files listed in given file
