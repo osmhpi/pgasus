@@ -135,6 +135,9 @@ Topology::Topology() {
 }
 
 Topology::~Topology() {
+	for (NumaNode *node : _nodes) {
+		delete node;
+	}
 	hwloc_topology_destroy(_topology);
 }
 

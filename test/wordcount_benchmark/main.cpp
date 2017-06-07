@@ -40,7 +40,7 @@ int main (int argc, char const* argv[])
 		return 1;
 	}
 
-	Executor *exec = createExecutor();
+	std::unique_ptr<Executor> exec = createExecutor();
 	Timer<int> timer(true);
 
 	// load files

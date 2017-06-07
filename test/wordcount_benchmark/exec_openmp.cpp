@@ -1,27 +1,29 @@
 #include <algorithm>
+#include <memory>
 #include <unordered_map>
 #include "exec.hpp"
 
 class OpenMPExecutor : public Executor {
 	// data storage
-	using FileCache = std::unordered_map<std::string, TextFile*>;
+	using FileCache = std::unordered_map<std::string, std::unique_ptr<TextFile>>;
 	FileCache files;
 
 public:
 
 	virtual std::vector<TextFile*> allFiles() {
 		std::vector<TextFile*> f;
-		std::transform(files.begin(), files.end(), std::back_inserter(f), [](FileCache::value_type v) { return v.second; });
+		std::transform(files.begin(), files.end(), std::back_inserter(f),
+			[](const FileCache::value_type & v) { return v.second.get(); });
 		return f;
 	}
 
 	virtual void loadFiles(const std::vector<std::string> &fileNames) {
 		#pragma omp parallel for
 		for (size_t i = 0; i < fileNames.size(); i++) {
-			TextFile *f = new TextFile(fileNames[i]);
+			auto f = std::unique_ptr<TextFile>(new TextFile(fileNames[i]));
 
 			#pragma omp critical(fileaccess)
-			files[fileNames[i]] = f;
+			files[fileNames[i]] = std::move(f);
 		}
 	}
 
@@ -45,6 +47,6 @@ public:
 	}
 };
 
-Executor *createExecutor() {
-	return new OpenMPExecutor();
+std::unique_ptr<Executor> createExecutor() {
+	return std::unique_ptr<Executor>(new OpenMPExecutor());
 }

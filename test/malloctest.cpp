@@ -107,6 +107,7 @@ int main (int argc, char const* argv[])
 			ASSERT_TRUE(pthread_create(&th, &attr, thfun, reinterpret_cast<void*>(k)) == 0);
 			threads.push_back(th);
 		}
+		ASSERT_TRUE(pthread_attr_destroy(&attr) == 0);
 	}
 
 	// go

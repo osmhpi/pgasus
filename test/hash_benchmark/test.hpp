@@ -110,5 +110,8 @@ struct MapBenchmarker
 
 		printf("elems=[%zd,%zd], sum=%zd, insert=%d, lookup=%d, iterate=%d, remove=%d\t\t%s\n",
 			   sz2, sz1, sum, tInsert, tLookup, tIterate, tRemove, crtp->name());
+
+		delete counter;
+		delete id;
 	}
 };

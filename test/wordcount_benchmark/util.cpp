@@ -85,7 +85,7 @@ TextFile::TextFile(const std::string &fname) {
 
 TextFile::~TextFile() = default;
 
- std::unique_ptr<WordCount>TextFile::countWords() const {
+ std::unique_ptr<WordCount> TextFile::countWords() const {
 	std::string delimiters = " .,!?;:\"'-/()";
 
 	std::unique_ptr<WordCount> wc = std::unique_ptr<WordCount>(new WordCount);
