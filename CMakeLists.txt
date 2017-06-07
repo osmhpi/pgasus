@@ -24,18 +24,41 @@ macro(add_PGASUS_option NAME DOC INITVALUE)
 	endif()
 endmacro()
 
-option(PGASUS_PROFILING_GPROF "Compile for profiling with gprof" OFF)
-add_PGASUS_option(MEM_SOURCE_USE_PTHREAD_SPINLOCK
-	"Use pthread spinlocks instead of own implementation" OFF)
-add_PGASUS_option(ENABLE_DEBUG_LOG "Enable debug log for PGASUS/NUMA operations" OFF)
-
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
 	set(LINUX 1)
 endif()
 
-if (CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "ppc64le")
-	message("Detected a POWER system")
-	set(PPC64LE 1)
+
+set(PGASUS_PLATFORM_X86_64 0)
+set(PGASUS_PLATFORM_PPC64LE 0)
+if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
+	set(PGASUS_PLATFORM_X86_64 1)
+elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL "ppc64le")
+	set(PGASUS_PLATFORM_PPC64LE 1)
+else()
+	message(WARNING "Unsupported platform: \"${CMAKE_SYSTEM_PROCESSOR}\"")
+endif()
+
+
+set(MEM_SOURCE_USE_PTHREAD_SPINLOCK_doc
+	"Use pthread spinlocks instead of own implementation")
+set(MEM_SOURCE_USE_PTHREAD_SPINLOCK_default OFF)
+if (PGASUS_PLATFORM_PPC64LE)
+	set(MEM_SOURCE_USE_PTHREAD_SPINLOCK_default ON)
+endif()
+option(PGASUS_PROFILING_GPROF "Compile for profiling with gprof" OFF)
+add_PGASUS_option(ENABLE_DEBUG_LOG "Enable debug log for PGASUS/NUMA operations" OFF)
+if (PGASUS_PLATFORM_PPC64LE AND PGASUS_ENABLE_DEBUG_LOG)
+	message(WARNING "PGASUS_ENABLE_DEBUG_LOG is set, but most performance logs "
+		"are not implemented for POWER platforms.")
+endif()
+add_PGASUS_option(MEM_SOURCE_USE_PTHREAD_SPINLOCK
+	${MEM_SOURCE_USE_PTHREAD_SPINLOCK_doc} ${MEM_SOURCE_USE_PTHREAD_SPINLOCK_default})
+if (PGASUS_PLATFORM_PPC64LE AND NOT PGASUS_MEM_SOURCE_USE_PTHREAD_SPINLOCK)
+	message("Spinlocks are not implemented on your platform. "
+		"Using pthread spinlocks instead (see PGASUS_MEM_SOURCE_USE_PTHREAD_SPINLOCK).")
+	set(PGASUS_MEM_SOURCE_USE_PTHREAD_SPINLOCK ON CACHE BOOL
+		${MEM_SOURCE_USE_PTHREAD_SPINLOCK_doc} FORCE)
 endif()
 
 
@@ -67,7 +90,7 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 		$<$<CONFIG:Debug>:-ggdb3>
 	)
 
-	if (NOT PPC64LE)
+	if (NOT PGASUS_PLATFORM_PPC64LE)
 		add_compile_options(
 			-march=native
 		)

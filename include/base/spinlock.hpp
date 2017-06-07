@@ -11,11 +11,12 @@ namespace
 {
 	inline void instruction_pause()
 	{
-#if defined(__powerpc64__) || defined(__ppc64__) || defined(__PPC64__)
+#if PGASUS_PLATFORM_PPC64LE
 	// http://stackoverflow.com/a/7588941
 	// See: IBM POWER ISA v2.07
 	// Alternatives: yield, mdoio, mdoom
-		asm("mdoom");
+		// same as asm("mdoom"); (not supported on clang 3.8)
+		asm("or 30,30,30");
 #else
 		asm("pause");
 #endif
@@ -80,7 +81,7 @@ class SpinLockType {
 
 	static size_t rdtsc() {
 		uint_least32_t hi, lo;
-#if defined(__powerpc64__) || defined(__ppc64__) || defined(__PPC64__)
+#if PGASUS_PLATFORM_PPC64LE
 /// DCL TODO adjust for POWER 64 LE
 	FIXME;
 #else

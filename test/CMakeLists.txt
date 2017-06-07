@@ -3,11 +3,12 @@ option(PGASUS_BUILD_TESTS "Build the tests and benchmarks (requires further 3rd 
 mark_as_advanced(PGASUS_BUILD_TESTS)
 
 if (NOT PGASUS_BUILD_TESTS)
-    return()
+	return()
 endif()
 
 option(PGASUS_TEST_WITH_FAKE_TOPOLOGY
 	"Simulate POWER-like virtualized topology by overriding some hwloc functions." OFF)
+mark_as_advanced(PGASUS_TEST_WITH_FAKE_TOPOLOGY)
 if (PGASUS_TEST_WITH_FAKE_TOPOLOGY)
 	if (NOT PGASUS_BUILD_STATIC_LIBRARIES)
 		message(WARNING "PGASUS_TEST_WITH_FAKE_TOPOLOGY requires PGASUS_BUILD_STATIC_LIBRARIES to be set.")
@@ -107,9 +108,11 @@ add_test_without_ctest(NAME test_msource SOURCES mspacetest.cpp
 add_benchmark(NAME bench_pagefault SOURCES bench_pagefault.cpp LIBS hpinuma
 	PARAMS 100)
 
-add_benchmark(NAME bench_accessremote SOURCES bench_accessremote.cpp
-	LIBS hpinuma
-	PARAMS 10)
+if (NOT PGASUS_PLATFORM_PPC64LE)
+	add_benchmark(NAME bench_accessremote SOURCES bench_accessremote.cpp
+		LIBS hpinuma
+		PARAMS 10)
+endif()
 
 add_test_without_ctest(NAME test_tasking SOURCES tasking_test.cpp LIBS hpinuma
 	PARAMS 1200 16)

@@ -22,8 +22,14 @@ set(include_dirs
 )
 
 
-set(PGASUS_MALLOC_IMPLS ptmalloc3 dlmalloc)
-set(PGASUS_MALLOC_IMPL "ptmalloc3" CACHE STRING
+set(PGASUS_MALLOC_IMPLS "dlmalloc")
+set(default_malloc_impl "dlmalloc")
+if (NOT PGASUS_PLATFORM_PPC64LE)
+	list(APPEND PGASUS_MALLOC_IMPLS "ptmalloc3")
+	# stick to the original malloc implementation if supported
+	set(default_malloc_impl "ptmalloc3")
+endif()
+set(PGASUS_MALLOC_IMPL ${default_malloc_impl} CACHE STRING
 	"Malloc implementation that is used internally for PGASUS. Valid values: ${PGASUS_MALLOC_IMPLS}")
 set_property(CACHE PGASUS_MALLOC_IMPL PROPERTY STRINGS ${PGASUS_MALLOC_IMPLS})
 
@@ -33,6 +39,9 @@ set(MALLOC_SOURCES)
 set(MALLOC_DEFINES)
 
 if (PGASUS_MALLOC_IMPL STREQUAL "ptmalloc3")
+	if (PGASUS_PLATFORM_PPC64LE)
+		message(FATAL_ERROR "ptmalloc3 does not support POWER platforms. ")
+	endif()
 	set(MALLOC_HEADER ptmalloc3-malloc-numa.h)
 	set(MALLOC_SOURCES ptmalloc3-malloc.c)
 	if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
