@@ -38,6 +38,7 @@ if (CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "ppc64le")
 	set(PPC64LE 1)
 endif()
 
+
 set(DEFAULT_COMPILE_DEFINITIONS)
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
@@ -46,6 +47,12 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 		-Wall
 		-Wno-missing-braces
 	)
+	if (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.8)
+		set(OPTION_CLANG_DEBUGGER gdb CACHE STRING
+			"Debugger for that clang optimizes the DWARF debugging information")
+		set_property(CACHE OPTION_CLANG_DEBUGGER PROPERTY STRINGS gdb lldb)
+		add_compile_options($<$<CONFIG:Debug>:-g${OPTION_CLANG_DEBUGGER}>)
+	endif()
 	if (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS "4.0")
 		add_compile_options(
 			$<$<CONFIG:Debug>:-fno-limit-debug-info>
@@ -56,6 +63,8 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	add_compile_options(
 		-Wpedantic
 		-Wall
+
+		$<$<CONFIG:Debug>:-ggdb3>
 	)
 
 	if (NOT PPC64LE)
@@ -69,6 +78,10 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 			PUBLIC GLIBCXX_USE_CXX11_ABI)
 	endif()
 
+	list(APPEND DEFAULT_COMPILE_DEFINITIONS
+		$<$<CONFIG:Debug>:_GLIBCXX_DEBUG>
+	)
+
 	if (PGASUS_PROFILING_GPROF)
 		add_compile_options(-g -pg)
 		link_libraries(-g -pg)
@@ -76,6 +89,13 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
 	add_compile_options(-Wall $<$<CONFIG:Release>:-Ofast -no-prec-div -xHOST>)
+
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "XL") # IBM XLC
+	add_compile_options(
+		# CMake does not know to configure XLC for C++11
+		$<$<COMPILE_LANGUAGE:CXX>:-std=c++11>
+		$<$<COMPILE_LANGUAGE:C>:-std=c11>
+	)
 endif()
 
 
