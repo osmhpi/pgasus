@@ -9,6 +9,7 @@ class MemSourceAllocator
 {
 private:
 	MemSource ms;
+	size_t _align;
 
 public:
 	typedef T*                  pointer;
@@ -30,24 +31,32 @@ public:
 	friend class MemSourceAllocator;
 
 public:
-	MemSourceAllocator(const MemSource &m) : ms(m) {}
-	template <class U> MemSourceAllocator(const MemSourceAllocator<U> &other) : ms(other.ms) {}
-	template <class U> MemSourceAllocator(MemSourceAllocator<U> &&other) : ms(other.ms) {}
+	MemSourceAllocator(const MemSource &m, const size_t align = 0) : ms(m), _align(align) {}
+	template <class U> MemSourceAllocator(const MemSourceAllocator<U> &other) : ms(other.ms), _align(other._align) {}
+	template <class U> MemSourceAllocator(MemSourceAllocator<U> &&other) : ms(other.ms), _align(other._align) {}
 	
 	~MemSourceAllocator() {}
 	
-	template <class U> void operator=(const MemSourceAllocator<U>& other) { ms = other.ms; }
-	template <class U> void operator=(MemSourceAllocator<U>&& other) { ms = other.ms; }
+	template <class U> void operator=(const MemSourceAllocator<U>& other) { ms = other.ms; _align = other._align; }
+	template <class U> void operator=(MemSourceAllocator<U>&& other) { ms = other.ms; _align = other._align; }
 	
 public:
 	inline const MemSource& msource() const { return ms; }
 	
 	inline pointer allocate(size_type n) {
-		return static_cast<pointer>(ms.alloc(sizeof(T) * n));
+		if (_align == 0) {
+			return static_cast<pointer>(ms.alloc(sizeof(T) * n));
+		} else {
+			return static_cast<pointer>(ms.allocAligned(_align, sizeof(T) * n));
+		}
 	}
 	
 	inline pointer allocate(pointer p, size_type n) {
-		return static_cast<pointer>(ms.alloc(sizeof(T) * n));
+		if (_align == 0) {
+			return static_cast<pointer>(ms.alloc(sizeof(T) * n));
+		} else {
+			return static_cast<pointer>(ms.allocAligned(_align, sizeof(T) * n));
+		}
 	}
 	
 	#pragma GCC diagnostic push
@@ -68,12 +77,12 @@ public:
 	
 	template <class T2>
 	inline bool operator==(const MemSourceAllocator<T2> &a2) const {
-		return msource() == a2.msource();
+		return msource() == a2.msource() && _align == a2._align;
 	}
 	
 	template <class T2>
 	inline bool operator!=(const MemSourceAllocator<T2> &a2) const {
-		return msource() != a2.msource();
+		return msource() != a2.msource() && _align == a2._align;
 	}
 };
 
