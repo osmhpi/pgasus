@@ -84,6 +84,9 @@ public:
 	size_t threadCount() const;
 	int indexOfCpuid(CpuId id) const;
 
+	size_t memorySize() const;
+	size_t freeMemory() const;
+
 	NodeList nearestNeighbors(
 		size_t maxCount = std::numeric_limits<size_t>::max(), /* all */
 		bool withCPUsOnly = false) const;

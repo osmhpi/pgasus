@@ -1,8 +1,3 @@
-#include "base/node.hpp"
-#include "util/topology.hpp"
-#include "util/strutil.hpp"
-#include "util/debug.hpp"
-
 #include <algorithm>
 #include <cstdlib>
 #include <cstdio>
@@ -11,6 +6,13 @@
 #include <sstream>
 #include <string>
 #include <vector>
+
+#include <numa.h>
+
+#include "base/node.hpp"
+#include "util/debug.hpp"
+#include "util/strutil.hpp"
+#include "util/topology.hpp"
 
 namespace {
 
@@ -228,6 +230,16 @@ size_t Node::threadCount() const {
 		return 0u;
 	}
 	return logicalNodeThreadCounts()[static_cast<size_t>(_logical_id)];
+}
+
+size_t Node::memorySize() const {
+	return util::Topology::get()->get_node(physicalId())->memorySize;
+}
+
+size_t Node::freeMemory() const {
+	long long freeMem = -1;
+	numa_node_size64(physicalId(), &freeMem);
+	return static_cast<size_t>(freeMem > 0 ? freeMem : 0);
 }
 
 NodeList Node::nearestNeighbors(const size_t maxCount, const bool withCPUsOnly) const {

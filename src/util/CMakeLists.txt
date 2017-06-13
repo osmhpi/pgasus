@@ -31,7 +31,10 @@ set(include_dirs
 
 add_library(hpinuma_util SHARED ${SOURCES})
 target_link_libraries(hpinuma_util
-	PUBLIC hwloc)
+	PUBLIC
+		hwloc
+		numa
+)
 target_include_directories(hpinuma_util ${include_dirs})
 if (DEFAULT_COMPILE_DEFINITIONS)
 	target_compile_definitions(hpinuma_util ${DEFAULT_COMPILE_DEFINITIONS})
@@ -53,7 +56,10 @@ install(TARGETS hpinuma_util
 if (PGASUS_BUILD_STATIC_LIBRARIES)
 	add_library(hpinuma_util_s STATIC ${SOURCES})
 	target_link_libraries(hpinuma_util_s
-		PUBLIC hwloc)
+		PUBLIC
+			hwloc
+			numa
+	)
 	target_include_directories(hpinuma_util_s ${include_dirs})
 	target_compile_definitions(hpinuma_util_s ${DEFAULT_COMPILE_DEFINITIONS}
 		PUBLIC HPINUMA_UTIL_STATIC_DEFINE)

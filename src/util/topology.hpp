@@ -21,6 +21,7 @@ public:
 		/** Distances to other NUMA nodes sorted with nearest first.
 		  * For same distances, the neighbor with smaller ID is listed first. */
 		std::vector<std::pair<int, NumaNode*>> nearestNeighbors;
+		size_t memorySize;
 		
 		int core_of(int cpuid) const;
 	};

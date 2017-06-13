@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <cstdio>
 #include <fstream>
@@ -6,7 +7,7 @@
 #include <stdexcept>
 #include <string>
 
-#include <sched.h>
+#include <numa.h>
 #include <hwloc.h>
 
 #include "util/topology.hpp"
@@ -83,7 +84,12 @@ Topology::Topology() {
 			_total_cpu_count++;
 		}
 		hwloc_bitmap_foreach_end();
-		
+
+		// determine node local memory size
+		const long long nodeSize = numa_node_size64(node_id, nullptr);
+		node_obj->memorySize = static_cast<size_t>(
+			nodeSize >= 0 ? nodeSize : 0);
+
 		node = node->next_cousin;
 	}
 
@@ -93,7 +99,7 @@ Topology::Topology() {
 
 	// assign topology distances
 	for (const int nodeId : _nodeIds) {
-		NumaNode* node = _nodes[static_cast<size_t>(nodeId)];
+		NumaNode *node = _nodes[static_cast<size_t>(nodeId)];
 		assert(node);
 		// distances to non-assigned nodes ids will be marked with -1
 		node->distances.resize(_nodes.size(), -1);
@@ -184,7 +190,7 @@ int Topology::core_of_cpuid(int cpu) const {	// return on-chip core no.
 void Topology::print(std::ostream &stream) const {
 	stream << "Total number of CPUs: " << _total_cpu_count << std::endl;
 	for (const int nodeId : _nodeIds) {
-		const NumaNode * node = _nodes[static_cast<size_t>(nodeId)];
+		const NumaNode *node = _nodes[static_cast<size_t>(nodeId)];
 		
 		stream << "Node [" << nodeId << "]" << std::endl;
 		stream << "\tCPUs: [ ";
@@ -193,6 +199,18 @@ void Topology::print(std::ostream &stream) const {
 		stream << "\tNearest Neighbors: ";
 		for (const auto &dn : node->nearestNeighbors) {
 			stream << '(' << dn.first << ", " << dn.second->id << ") ";
+		}
+		stream << std::endl;
+		stream << "\tMemory Size: " << node->memorySize << " bytes";
+		if (node->memorySize >= 1024) {
+			unsigned unit = 0;
+			double memInUnit = static_cast<double>(node->memorySize);
+			static const std::array<std::string, 8> units
+				{{ "Ki", "Mi", "Gi", "Ti", "Pi", "Ei", "Zi", "Yi" }};
+			for (; memInUnit >= 1024.0 && unit < units.size();
+				memInUnit /= 1024.0, ++unit) {}
+			stream << " (" << std::fixed << std::setprecision(1) << memInUnit
+				<< ' ' << units[unit-1] << "B)";
 		}
 		stream << std::endl;
 	}
