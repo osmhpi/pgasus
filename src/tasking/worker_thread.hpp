@@ -8,8 +8,11 @@
 #include "tasking/task.hpp"
 #include "tasking/task_scheduler.hpp"
 #include "tasking/thread_manager.hpp"
+#include "PGASUS-config.h"
 
+#if ENABLE_DEBUG_LOG && !PGASUS_PLATFORM_PPC64LE
 #include "base/tsc.hpp"
+#endif
 
 
 namespace numa {
@@ -50,6 +53,7 @@ private:
 	
 	sem_t                       _sleep;
 	
+#if ENABLE_DEBUG_LOG && !PGASUS_PLATFORM_PPC64LE
 	/**
 	 * Collect fine-grained performance data about where time is spent
 	 */
@@ -69,6 +73,7 @@ private:
 		_curr_time = numa::util::rdtsc();
 		return _curr_time - old;
 	}
+#endif
 	
 public:
 	

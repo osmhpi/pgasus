@@ -32,6 +32,7 @@ void runAt(numa::Node node, const std::function<void()> &function) {
 	ASSERT_TRUE(pthread_attr_setaffinity_np(&attr, sizeof(cpu_set), &cpu_set) == 0);
 	ASSERT_TRUE(pthread_create(&handle, &attr, thread_func, (void*) &function) == 0);
 	ASSERT_TRUE(pthread_join(handle, nullptr) == 0);
+	ASSERT_TRUE(pthread_attr_destroy(&attr) == 0);
 }
 
 int NodeLocalityChecker::get(void *p) {

@@ -14,17 +14,17 @@ using numa::TriggerableRef;
 
 class NumaExecutor : public Executor {
 	// data storage
-	using FileCache = numa::HashTable<std::string, TextFile*, 6>;
+	using FileCache = numa::HashTable<std::string, std::unique_ptr<TextFile>, 6>;
 	FileCache files;
 
 public:
 
-	NumaExecutor() : files(numa::NodeList::allNodes()) {}
+	NumaExecutor() : files(numa::NodeList::logicalNodes()) {}
 
 	virtual std::vector<TextFile*> allFiles() {
 		std::vector<TextFile*> f;
 		for (auto it = files.begin(); !it.is_end(); it.next())
-			f.push_back(it->second);
+			f.push_back(it->second.get());
 		return f;
 	}
 
@@ -33,7 +33,7 @@ public:
 
 		for (const std::string &file : fileNames) {
 			waitList.push_back(files.insertAsync(file, [file]() {
-				return new TextFile(file);
+				return std::unique_ptr<TextFile>(new TextFile(file));
 			}));
 		}
 
@@ -62,6 +62,6 @@ public:
 	}
 };
 
-Executor *createExecutor() {
-	return new NumaExecutor();
+std::unique_ptr<Executor> createExecutor() {
+	return std::unique_ptr<Executor>(new NumaExecutor());
 }

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <string>
 #include <vector>
 #include "util.hpp"
@@ -12,4 +13,4 @@ public:
 	virtual size_t countWords(const std::string &w) = 0;
 };
 
-Executor *createExecutor();
+std::unique_ptr<Executor> createExecutor();

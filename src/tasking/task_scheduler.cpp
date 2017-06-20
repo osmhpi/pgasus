@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <atomic>
 #include <cassert>
 #include <list>
@@ -25,6 +26,8 @@
 namespace numa {
 namespace tasking {
 
+namespace {
+
 struct GlobalInitializer {
 	SchedulingDomain domain;
 	NodeReplicated<Scheduler> *schedulers;
@@ -39,17 +42,19 @@ struct GlobalInitializer {
 	}
 };
 
-static GlobalInitializer& initer() {
+GlobalInitializer& initer() {
 	static GlobalInitializer gi;
 	return gi;
 }
 
-static NodeReplicated<Scheduler>& getNodeSchedulers() {
+NodeReplicated<Scheduler>& getNodeSchedulers() {
 	return *initer().schedulers;
 }
 
-static SchedulingDomain* globalDomain() {
+SchedulingDomain* globalDomain() {
 	return &initer().domain;
+}
+
 }
 
 /**
@@ -101,7 +106,7 @@ void SchedulingDomain::put_task(Task* t, int thid) {
 			const util::Topology *topo = util::Topology::get();
 			int physNode = _msource.getPhysicalNode();
 			size_t cpuCount = (physNode >= 0) ? topo->get_node(physNode)->cpus.size()
-											  : topo->max_cpu_id() + 1;
+											  : topo->total_cpu_count();
 
 			TaskCollection *tc = TaskCollection::create(_msource, cpuCount);
 			_priorities[idx].count = 0;
@@ -142,7 +147,7 @@ void SchedulingDomain::add_thread(int idx) {
 }
 
 /** Removes given thread ID from task collections */
-void SchedulingDomain::remove_thread(int idx) {
+void SchedulingDomain::remove_thread(const int idx) {
 	for (auto &p : _priorities) p.mutex.lock();
 	_active_thread_ids_mutex.lock();
 
@@ -152,15 +157,11 @@ void SchedulingDomain::remove_thread(int idx) {
 	}
 
 	// delete index from list
-	auto it = _active_thread_ids.begin();
-	while (it != _active_thread_ids.end()) {
-		if (*it == idx) {
-			_active_thread_ids.erase(it);
-			break;
-		}
-		++it;
-	}
+	const auto it = std::find(_active_thread_ids.begin(), _active_thread_ids.end(), idx);
 	assert(it != _active_thread_ids.end());
+	_active_thread_ids.erase(it);
+	assert(std::find(_active_thread_ids.begin(), _active_thread_ids.end(), idx)
+		== _active_thread_ids.end());
 
 	_active_thread_ids_mutex.unlock();
 	for (auto &p : _priorities) p.mutex.unlock();
@@ -307,7 +308,7 @@ void Scheduler::set_threads(const std::vector<int> &core_ids) {
 /**
  * Sets worker thread count
  */
-void Scheduler::set_thread_count(int count) {
+void Scheduler::set_thread_count(const int count) {
 	std::lock_guard<std::recursive_mutex> lock(_workers_lock);
 
 	assert(count >= 0 && count <= _cores);
@@ -394,7 +395,7 @@ void Scheduler::spawn_task(Scheduler *sched, Task *task) {
 	if (sched == nullptr) {
 		globalDomain()->put_task(task, -1);
 
-		for (const Node &node : NodeList::allNodes())
+		for (const Node &node : NodeList::logicalNodesWithCPUs())
 			getNodeSchedulers().get(node).taskAvailable();
 	}
 	// local?

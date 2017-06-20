@@ -1,4 +1,4 @@
-#include "malloc-numa.h"
+#include "ptmalloc3-malloc-numa.h"
 
 /*------------------------------ internal #includes ---------------------- */
 

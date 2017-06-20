@@ -53,11 +53,6 @@ public:
 	static size_t allocatedSize(void *p);
 
 	template <class T, class ... Args>
-	inline T* construct(const Args&... args) const {
-		return new (alloc(sizeof(T))) T(args...);
-	}
-
-	template <class T, class ... Args>
 	inline T* construct(Args&&... args) const {
 		return new (alloc(sizeof(T))) T(std::forward<Args>(args)...);
 	}

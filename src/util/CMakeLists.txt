@@ -31,7 +31,10 @@ set(include_dirs
 
 add_library(hpinuma_util SHARED ${SOURCES})
 target_link_libraries(hpinuma_util
-	PUBLIC hwloc)
+	PUBLIC
+		hwloc
+		numa
+)
 target_include_directories(hpinuma_util ${include_dirs})
 if (DEFAULT_COMPILE_DEFINITIONS)
 	target_compile_definitions(hpinuma_util ${DEFAULT_COMPILE_DEFINITIONS})
@@ -53,7 +56,10 @@ install(TARGETS hpinuma_util
 if (PGASUS_BUILD_STATIC_LIBRARIES)
 	add_library(hpinuma_util_s STATIC ${SOURCES})
 	target_link_libraries(hpinuma_util_s
-		PUBLIC hwloc)
+		PUBLIC
+			hwloc
+			numa
+	)
 	target_include_directories(hpinuma_util_s ${include_dirs})
 	target_compile_definitions(hpinuma_util_s ${DEFAULT_COMPILE_DEFINITIONS}
 		PUBLIC HPINUMA_UTIL_STATIC_DEFINE)
@@ -66,4 +72,17 @@ if (PGASUS_BUILD_STATIC_LIBRARIES)
 		ARCHIVE DESTINATION "${INSTALL_LIB_DIR}" COMPONENT staticlib
 		PUBLIC_HEADER DESTINATION "${INSTALL_INCLUDE_DIR}" COMPONENT dev
 	)
+
+endif()
+
+add_executable(hpinuma_util_tool
+	hpinuma_util_tool.cpp)
+if (DEFAULT_COMPILE_DEFINITIONS)
+	target_compile_definitions(hpinuma_util_tool ${DEFAULT_COMPILE_DEFINITIONS})
+endif()
+target_include_directories(hpinuma_util_tool ${include_dirs})
+if (PGASUS_BUILD_STATIC_LIBRARIES)
+	target_link_libraries(hpinuma_util_tool hpinuma_util_s)
+else()
+	target_link_libraries(hpinuma_util_tool hpinuma_util)
 endif()

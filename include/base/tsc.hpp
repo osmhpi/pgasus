@@ -1,7 +1,14 @@
 #pragma once
 
+#include "PGASUS-config.h"
+
 namespace numa {
 namespace util {
+
+#if PGASUS_PLATFORM_PPC64LE
+static_assert(false,
+	"No useful rdtsc equivalent available on the current platform.");
+#else
 
 typedef uint_fast64_t TscTime;
 
@@ -28,6 +35,8 @@ public:
 	}
 };
 
+
+#endif
 
 }
 }

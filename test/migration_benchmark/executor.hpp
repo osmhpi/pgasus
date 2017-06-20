@@ -97,13 +97,17 @@ public:
 		// check source object location
 		if (_check) {
 			NodeLocalityChecker checker;
-			int wrong = 0;
+			size_t wrong = 0, total = 0;
 			for (auto col : cols) {
-				for (const T* val : exec->items(col)) {
+				const auto &items = exec->items(col);
+				total += items.size();
+				for (const T* val : items) {
 					if (!IsOnNode<T>::get(checker, val, _from.physicalId())) wrong++;
 				}
 			}
-			if (wrong > 0) printf("Fail: %d objs not on node %d after generation\n", wrong, _from.physicalId());
+			if (wrong > 0) printf(
+				"Fail: %zu/%zu objs not on node %d after migration\n",
+				wrong, total, _from.physicalId());
 		}
 		
 		// migrate
@@ -118,13 +122,17 @@ public:
 		// check dest object location
 		if (_check) {
 			NodeLocalityChecker checker;
-			int wrong = 0;
+			size_t wrong = 0, total = 0;
 			for (auto col : cols) {
-				for (const T* val : exec->items(col)) {
+				const auto &items = exec->items(col);
+				total += items.size();
+				for (const T* val : items) {
 					if (!IsOnNode<T>::get(checker, val, _to.physicalId())) wrong++;
 				}
 			}
-			if (wrong > 0) printf("Fail: %d objs not on node %d after migration\n", wrong, _from.physicalId());
+			if (wrong > 0) printf(
+				"Fail: %zu/%zu objs not on node %d after migration\n",
+				wrong, total, _to.physicalId());
 		}
 		
 		// cleanup

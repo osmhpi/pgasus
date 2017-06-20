@@ -9,9 +9,9 @@
 #include "test.hpp"
 
 #include <libcuckoo/cuckoohash_map.hh>
-#include <tbb44/tbb/concurrent_hash_map.h>
-#include <tbb44/tbb/parallel_for.h>
-#include <tbb44/tbb/parallel_reduce.h>
+#include <tbb/concurrent_hash_map.h>
+#include <tbb/parallel_for.h>
+#include <tbb/parallel_reduce.h>
 #include "hashtable/hashtable.hpp"
 
 //
@@ -134,7 +134,7 @@ struct NumaHashTableBench : public MapBenchmarker<NumaHashTableBench<_KeyType>>
 
 	MapType map;
 
-	NumaHashTableBench() : map(numa::NodeList::allNodes()) {}
+	NumaHashTableBench() : map(numa::NodeList::logicalNodes()) {}
 
 	inline const char *name() const { return "numa::HashTable"; }
 	size_t count() { return map.size(); }

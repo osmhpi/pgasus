@@ -50,7 +50,7 @@ int main (int argc, char const* argv[])
 	std::atomic<size_t> ids(0);
 
 	timer.start();
-	numa::forEachThread(numa::NodeList::allNodes(), [&]() {
+	numa::forEachThread(numa::NodeList::logicalNodes(), [&]() {
 		taskfun(ids.fetch_add(1), 100, 0);
 	}, 0);
 

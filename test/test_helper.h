@@ -61,9 +61,18 @@ inline void initialize()
  * ASSERT_TRUE test macro that is meant to be replaceable by google test macros.
  */
 #define ASSERT_TRUE(X) \
-	if (!(X)) {\
+	if (!(X)) { \
 		const std::string msg = "Test failed in " + std::string(__FILE__) \
 			+ ":" + std::to_string(__LINE__) + " - " + std::string(__func__) \
-			+ "\n\tTest expression: " + std::string(#X); \
+			+ "\n\tTest expression: " + std::string(#X) + "\n"; \
+		throw testing::TestFailure(msg); \
+	}
+
+#define ASSERT_EQ(X, Y) \
+	if (!((X) == (Y))) { \
+		const std::string msg = "Test failed in " + std::string(__FILE__) \
+			+ ":" + std::to_string(__LINE__) + " - " + std::string(__func__) \
+			+ "\n\tTest expression: (" \
+				+ std::string(#X) + ") == (" + std::string(#Y) + ")\n"; \
 		throw testing::TestFailure(msg); \
 	}

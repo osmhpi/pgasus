@@ -40,13 +40,14 @@ TextFile::WordList TextFile::wordsFromLine(const std::string &line) {
 
 }
 
-void TextFile::doExtractLines(Buffer *buf) {
+void TextFile::doExtractLines(Buffer &buf) {
 	std::string line;
 	std::stringstream sstream;
-	sstream.rdbuf()->pubsetbuf(buf->data(), buf->size());
+	sstream.rdbuf()->pubsetbuf(buf.data(), buf.size());
 	size_t curr = 0;
 
 	while (std::getline(sstream, line)) {
+		if (line.empty()) continue;
 		if (line.back() == '\r') line.pop_back();
 		lines[curr] = wordsFromLine(line);
 		totalWordCount += lines[curr].size();
@@ -57,7 +58,7 @@ void TextFile::doExtractLines(Buffer *buf) {
 std::vector<std::string> loadFiles(const std::string &fname) {
 	std::vector<std::string> ret;
 
-	Buffer *buf = Buffer::fromFile(fname.c_str());
+	std::unique_ptr<Buffer> buf = Buffer::fromFile(fname.c_str());
 	std::string line;
 	std::stringstream sstream;
 	sstream.rdbuf()->pubsetbuf(buf->data(), buf->size());
@@ -66,7 +67,6 @@ std::vector<std::string> loadFiles(const std::string &fname) {
 		if (line.back() == '\r') line.pop_back();
 		ret.push_back(line);
 	}
-	delete buf;
 
 	return ret;
 }
@@ -78,22 +78,17 @@ TextFile::TextFile(const std::string &fname) {
 
 	//zipped?
 	if ((fileData->name().substr(fileData->name().size()-3) == ".gz")) {
-		Buffer *unzipped = Buffer::unzip(fileData);
-		doExtractLines(unzipped);
-		delete unzipped;
-	} else {
-		doExtractLines(fileData);
+		fileData = Buffer::unzip(*fileData);
 	}
+	doExtractLines(*fileData);
 }
 
-TextFile::~TextFile() {
-	delete fileData;
-}
+TextFile::~TextFile() = default;
 
-WordCount *TextFile::countWords() const {
+ std::unique_ptr<WordCount> TextFile::countWords() const {
 	std::string delimiters = " .,!?;:\"'-/()";
 
-	WordCount *wc = new WordCount();
+	std::unique_ptr<WordCount> wc = std::unique_ptr<WordCount>(new WordCount);
 
 	for (auto it = lines.begin(); it != lines.end(); ++it) {
 		for (const auto &w : it->second) {

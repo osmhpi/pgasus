@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <memory>
 #include <string>
 
 /**
@@ -8,17 +9,18 @@
  */
 class Buffer {
 private:
-	char *_data;
+	std::unique_ptr<char[]> _data;
 	std::string _name;
 	size_t _size;
-	Buffer() : _data(0), _size(0) {}
-
 public:
-	char *data() { return _data; }
-	size_t size() { return _size; }
-	std::string name() { return _name; }
-
-	static Buffer *fromFile(const char *fname);
-	static Buffer *unzip(Buffer *other);
+	Buffer();
 	~Buffer();
+
+	char *data() { return _data.get(); }
+	const char *data() const { return _data.get(); }
+	size_t size() const { return _size; }
+	const std::string& name() const { return _name; }
+
+	static std::unique_ptr<Buffer> fromFile(const std::string &fname);
+	static std::unique_ptr<Buffer> unzip(const Buffer &other);
 };

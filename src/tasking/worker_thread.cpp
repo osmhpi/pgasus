@@ -17,7 +17,6 @@
 #include "tasking/worker_thread.hpp"
 #include "util/debug.hpp"
 #include "util/timer.hpp"
-#include "base/tsc.hpp"
 
 
 namespace numa {
@@ -67,16 +66,19 @@ WorkerThread::WorkerThread(size_t id, Scheduler *sched, const MemSource &ms)
 void WorkerThread::run() {
 	set_tls(this);
 
+#if ENABLE_DEBUG_LOG && !PGASUS_PLATFORM_PPC64LE
 	Counter start_cycles = numa::util::rdtsc();		// count cycles
 	Timer<int> timer(true);							// count wall-time
 
 	reset_get_delta();
+#endif
 
 	// create new neutral context, start execution in that context,
 	// saving the root context locally
 	_curr_ctx = get_neutral_context();
 	_curr_ctx->jump_from(&_native_context, (intptr_t)this);
 
+#if ENABLE_DEBUG_LOG && !PGASUS_PLATFORM_PPC64LE
 	int total_time = timer.stop_get();
 	Counter total_cycles = numa::util::rdtsc() - start_cycles;
 
@@ -92,6 +94,7 @@ void WorkerThread::run() {
 		(float)_time_task_done    / (float)total_cycles,
 		(float)_time_unemployment / (float)total_cycles
 	);
+#endif
 
 	// we are done here
 }
@@ -141,7 +144,9 @@ void WorkerThread::start_new_context(intptr_t ptr) {
 	WorkerThread *self = reinterpret_cast<WorkerThread*>(ptr);
 
 	while (self->_done.load() == 0) {
+#if ENABLE_DEBUG_LOG && !PGASUS_PLATFORM_PPC64LE
 		self->_time_running += self->reset_get_delta();
+#endif
 
 		// if we have a current task that means the task was interrupted.
 		// the context of the tasks is stored therein.
@@ -151,7 +156,9 @@ void WorkerThread::start_new_context(intptr_t ptr) {
 				self->_curr_task->yield(self->id());
 				self->_curr_task = nullptr;
 
+#if ENABLE_DEBUG_LOG && !PGASUS_PLATFORM_PPC64LE
 				self->_time_task_yield += self->reset_get_delta();
+#endif
 			}
 			else {
 				if (self->_curr_task->wait(self->_task_waits)) {
@@ -160,7 +167,9 @@ void WorkerThread::start_new_context(intptr_t ptr) {
 				// else just resume task
 				self->_task_waits.clear();
 
+#if ENABLE_DEBUG_LOG && !PGASUS_PLATFORM_PPC64LE
 				self->_time_task_wait += self->reset_get_delta();
+#endif
 			}
 		}
 
@@ -174,27 +183,36 @@ void WorkerThread::start_new_context(intptr_t ptr) {
 		// start task?
 		if (!self->_curr_task->has_started()) {
 			self->_curr_task->schedule(self);
+#if ENABLE_DEBUG_LOG && !PGASUS_PLATFORM_PPC64LE
 			self->_time_task_sched += self->reset_get_delta();
+#endif
 
 			self = self->_curr_task->run(self->_curr_ctx);
+#if ENABLE_DEBUG_LOG && !PGASUS_PLATFORM_PPC64LE
 			self->_time_running += self->reset_get_delta();
-
+#endif
 			self->_curr_task->done();
 			self->_curr_task->unref();
 			self->_curr_task = nullptr;
+#if ENABLE_DEBUG_LOG && !PGASUS_PLATFORM_PPC64LE
 			self->_time_task_done += self->reset_get_delta();
+#endif
 		}
 		// continue task?
 		else {
 			{
 				self->_curr_task->schedule(self);
+#if ENABLE_DEBUG_LOG && !PGASUS_PLATFORM_PPC64LE
 				self->_time_task_sched += self->reset_get_delta();
+#endif
 			}
 			self = (WorkerThread*) self->_curr_ctx->jump_to(self->_curr_task->get_context(), self);
 		}
 	}
 
+#if ENABLE_DEBUG_LOG && !PGASUS_PLATFORM_PPC64LE
 	self->_time_running += self->reset_get_delta();
+#endif
 
 	// thread was commanded to stop. jump back to native ctx
 	self->_curr_ctx->jump_to(&self->_native_context, (void*) 0);

@@ -1,4 +1,54 @@
 
+option(PGASUS_BUILD_TESTS "Build the tests and benchmarks (requires further 3rd party libs)." ON)
+mark_as_advanced(PGASUS_BUILD_TESTS)
+
+if (NOT PGASUS_BUILD_TESTS)
+	return()
+endif()
+
+option(PGASUS_TEST_WITH_FAKE_TOPOLOGY
+	"Simulate POWER-like virtualized topology by overriding some hwloc functions." OFF)
+mark_as_advanced(PGASUS_TEST_WITH_FAKE_TOPOLOGY)
+if (PGASUS_TEST_WITH_FAKE_TOPOLOGY)
+	if (NOT PGASUS_BUILD_STATIC_LIBRARIES)
+		message(WARNING "PGASUS_TEST_WITH_FAKE_TOPOLOGY requires PGASUS_BUILD_STATIC_LIBRARIES to be set.")
+		set(PGASUS_TEST_WITH_FAKE_TOPOLOGY OFF)
+	else()
+		message("Replacing some hwloc calls by custom implementations.\n"
+			"This simulates a NUMA topology with unevenly distributed CPUs "
+			"and NUMA nodes without any CPU assigned.\n"
+			"Note that tests will fail if there are not at least 4 CPUs "
+			"(cores) available on the system.\n"
+			"Warnings regarding read failures in /sys/devices/... can be ignored.")
+	endif()
+endif()
+
+function(replace_by_static_libs LINK_LIST)
+	set(result)
+	set(target_libs hpinuma_util hpinuma_msource hpinuma)
+	set(replacement_libs hpinuma_util_s hpinuma_msource_s hpinuma_s)
+	foreach(lib ${${LINK_LIST}})
+		list(FIND target_libs ${lib} idx)
+		if (idx EQUAL -1)
+			list(APPEND result ${lib})
+		else()
+			list(GET replacement_libs ${idx} repl_lib)
+			list(APPEND result ${repl_lib})
+		endif()
+	endforeach()
+	set(${LINK_LIST} ${result} PARENT_SCOPE)
+endfunction()
+
+if (PGASUS_TEST_WITH_FAKE_TOPOLOGY)
+	set(lib_hpinuma_util hpinuma_util_s)
+	set(lib_hpinuma_msource hpinuma_msource_s)
+	set(lib_hpinuma hpinuma_s)
+else()
+	set(lib_hpinuma_util hpinuma_util)
+	set(lib_hpinuma_msource hpinuma_msource)
+	set(lib_hpinuma hpinuma)
+endif()
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 include(CMakeParseArguments)
@@ -20,12 +70,20 @@ function(add_target_helper)
 		"${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
 	if (param_SOURCES)
+		# inject fake hwloc functions if requested
+		if (PGASUS_TEST_WITH_FAKE_TOPOLOGY)
+			list(APPEND param_SOURCES fake_hwloc_topology.cpp)
+		endif()
 		add_executable(${param_NAME} ${param_SOURCES})
 	elseif(NOT TARGET ${param_NAME})
 		message(AUTHOR_WARNING "add_target_helper must either be supplied with \
 target source files (paramter SOURCES) or called for an existing target.")
 	endif()
 	if (param_LIBS)
+		# injecting fake hwloc functions requires static linkage
+		if (PGASUS_TEST_WITH_FAKE_TOPOLOGY)
+			replace_by_static_libs(param_LIBS)
+		endif()
 		target_link_libraries(${param_NAME} ${param_LIBS})
 	endif()
 
@@ -50,9 +108,11 @@ add_test_without_ctest(NAME test_msource SOURCES mspacetest.cpp
 add_benchmark(NAME bench_pagefault SOURCES bench_pagefault.cpp LIBS hpinuma
 	PARAMS 100)
 
-add_benchmark(NAME bench_accessremote SOURCES bench_accessremote.cpp
-	LIBS hpinuma
-	PARAMS 10)
+if (NOT PGASUS_PLATFORM_PPC64LE)
+	add_benchmark(NAME bench_accessremote SOURCES bench_accessremote.cpp
+		LIBS hpinuma
+		PARAMS 10)
+endif()
 
 add_test_without_ctest(NAME test_tasking SOURCES tasking_test.cpp LIBS hpinuma
 	PARAMS 1200 16)

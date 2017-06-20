@@ -18,6 +18,8 @@
 #include "util/topology.hpp"
 
 
+namespace {
+
 /**
  * Contains node-local msources
  */
@@ -25,7 +27,7 @@ class NodeLocalStorage
 {
 private:
 	size_t                          node;
-	size_t                          total_nodes;
+	size_t                          max_node_id;
 
 	// Allocate one msource for each node, that is, an msource that allocates
 	// memory from the given node. The data structures of the memsources will
@@ -36,22 +38,28 @@ private:
 	numa::SpinLock                  lock;
 
 public:
-	NodeLocalStorage(size_t n)
+	NodeLocalStorage(const size_t n)
 		: node(n)
-		, total_nodes(numa::util::Topology::get()->max_node_id() + 1)
+		, max_node_id(numa::util::Topology::get()->node_ids().back())
 		, local_msource(numa::MemSource::forNode(n))
 		, msources(local_msource)
 	{
-		assert(total_nodes >= 1);
+		/**
+		Note that "maxNodeID + 1 != nodeCount" on some systems.
+		We allocate msources based on maxNodeID, so that the physical ID can
+		always be used as index. Accepting that there can be gaps in the vector,
+		wasting a few bytes of memory.
+		*/
+
 		assert(local_msource.valid());
 
 		// make space for remote-node msources
-		msources.resize(total_nodes);
+		msources.resize(max_node_id + 1);
 		msources[node] = local_msource;
 	}
 
 	const numa::MemSource& get(size_t n) {
-		assert(n >= 0 && n < total_nodes);
+		assert(n <= max_node_id);
 
 		if (!msources[n].valid()) {
 			std::lock_guard<numa::SpinLock> guard(lock);
@@ -72,19 +80,21 @@ public:
 	}
 };
 
-/**
-  * Creates node-local storages
-  */
-static numa::msvector<NodeLocalStorage*> createNodeLocalStorages() {
-	numa::msvector<NodeLocalStorage*> result(numa::MemSource::global());
-	for (int i = 0; i <= numa::util::Topology::get()->max_node_id(); i++)
-		result.push_back(
-			numa::MemSource::forNode(size_t(i)).construct<NodeLocalStorage>(i));
-	return result;
-}
-
-static numa::msvector<NodeLocalStorage*>& getNodeLocalStorages() {
-	static numa::msvector<NodeLocalStorage*> nls = createNodeLocalStorages();
+numa::msvector<NodeLocalStorage*>& getNodeLocalStorages() {
+	static auto nls = [] () {
+		numa::msvector<NodeLocalStorage*> nls(numa::MemSource::global());
+		const std::vector<int> &node_ids = numa::util::Topology::get()->node_ids();
+		// There might be gaps in assigned NUMA node IDs, so that the node ID
+		// cannot be used as index on a vector. Work around this by creating the
+		// vector here with gaps if necessary.
+		const size_t numReservedIds = node_ids.empty() ? 0u :
+			static_cast<size_t>(node_ids.back() + 1u);	// node_ids is sorted
+		nls.resize(numReservedIds, nullptr);
+		for (const int i : numa::util::Topology::get()->node_ids())
+			nls[static_cast<size_t>(i)] =
+				numa::MemSource::forNode(size_t(i)).construct<NodeLocalStorage>(i);
+		return nls;
+	}();
 	return nls;
 }
 
@@ -162,10 +172,11 @@ public:
 		_tid = std::hash<std::thread::id>()(std::this_thread::get_id());
 
 		// get node-local storage
-		numa::msvector<NodeLocalStorage*>& nodeLocals = getNodeLocalStorages();
+		const numa::msvector<NodeLocalStorage*>& nodeLocals = getNodeLocalStorages();
 		_node = numa::util::Topology::get()->curr_numa_node()->id;
-		assert(_node >= 0 && _node < nodeLocals.size());
+		assert(_node < nodeLocals.size());
 		_node_storage = nodeLocals[_node];
+		assert(_node_storage);
 
 		// create msource
 		char buff[4096];
@@ -177,7 +188,6 @@ public:
 		_curr_msource = _thread_msource;
 		_initialization_done = true;
 
-		assert(_node_storage != nullptr);
 		assert(_thread_msource.valid());
 
 		return true;
@@ -227,7 +237,7 @@ public:
 //
 // TLS deleter
 //
-static void tlsDestructionFunc(void *data) {
+void tlsDestructionFunc(void *data) {
 	ThreadLocalStorage *ptr = (ThreadLocalStorage*) data;
 	if (ptr != nullptr) {
 		numa::MemSource::global().destruct(ptr);
@@ -237,26 +247,26 @@ static void tlsDestructionFunc(void *data) {
 //
 // PThread keys
 //
-static pthread_key_t createKey(void (*destr)(void*)) {
+pthread_key_t createKey(void (*destr)(void*)) {
 	pthread_key_t key;
 	pthread_key_create(&key, destr);
 	return key;
 }
 
-static pthread_key_t& getKey() {
+pthread_key_t& getKey() {
 	static pthread_key_t key = createKey(tlsDestructionFunc);
 	return key;
 }
 
 // make sure key is created upon program startup
-static struct GetKeyInitializer {
+struct GetKeyInitializer {
 	GetKeyInitializer() { getKey(); }
 } s_getKey;
 
 //
 // TLS getter
 //
-static ThreadLocalStorage &getTlsImpl() {
+ThreadLocalStorage &getTlsImpl() {
 	// the order is important here, as ThreadLocalStorage::init() will probably call malloc() again.
 	void *ptr = pthread_getspecific(getKey());
 	if (ptr == nullptr) {
@@ -268,9 +278,11 @@ static ThreadLocalStorage &getTlsImpl() {
 	return *((ThreadLocalStorage*) ptr);
 }
 
-static ThreadLocalStorage &getTls() {
+ThreadLocalStorage &getTls() {
 	ThreadLocalStorage &tls = getTlsImpl();
 	return tls;
+}
+
 }
 
 

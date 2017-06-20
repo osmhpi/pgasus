@@ -83,6 +83,7 @@ void ThreadBase::start() {
 	ASSERT_SUCCESS(pthread_attr_init(&attr));
 	ASSERT_SUCCESS(pthread_attr_setaffinity_np(&attr, sizeof(cpu_set), &cpu_set));
 	ASSERT_SUCCESS(pthread_create(&_thread_handle, &attr, thread_func, (void*) this));
+	ASSERT_SUCCESS(pthread_attr_destroy(&attr));
 }
 
 /** Waits for the thread to terminate */

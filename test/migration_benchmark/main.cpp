@@ -202,7 +202,14 @@ int main (int argc, char const* argv[])
 {
 	testing::initialize();
 
-	numa::NodeList nodes = numa::NodeList::allNodes();
+	const numa::NodeList &allNodes = numa::NodeList::logicalNodes();
+	numa::NodeList nodes;
+	for (const numa::Node &node : allNodes) {
+		if (node.memorySize() == 0 || node.cpuCount() == 0) {
+			continue;
+		}
+		nodes.push_back(node);
+	}
 
 	numa::Node from = nodes.front();
 	numa::Node to = nodes.back();

@@ -8,14 +8,14 @@
 #include <cstdio>
 #include <cstdlib>
 
-inline std::map<int,int> *randomMap(size_t size) {
-	std::map<int,int> *ret = new std::map<int,int>();
+inline std::map<unsigned int,unsigned int> *randomMap(size_t size) {
+	std::map<unsigned int,unsigned int> *ret = new std::map<unsigned int,unsigned int>();
 	while (ret->size() < size)
-		(*ret)[rand()] = rand();
+		(*ret)[(unsigned int)rand()] = (unsigned int)rand();
 	return ret;
 }
 
-int accessMap(const std::map<int,int> &map) {
+unsigned int accessMap(const std::map<unsigned int,unsigned int> &map) {
 	int ret = 0;
 	for (auto it = map.begin(); it != map.end(); ++it) {
 		ret += it->first + it->second;
@@ -42,13 +42,13 @@ int main (int argc, char const* argv[])
 	srand(time(0));
 
 	// go through all node combinations
-	numa::NodeList allNodes = numa::NodeList::allNodes();
+	numa::NodeList allNodes = numa::NodeList::logicalNodesWithCPUs();
 	for (size_t fromNodeIdx = 0; fromNodeIdx < allNodes.size(); fromNodeIdx++) {
 		numa::Node fromNode = allNodes[fromNodeIdx];
 
 		for (size_t toNodeIdx = fromNodeIdx; toNodeIdx < allNodes.size(); toNodeIdx++) {
 			numa::Node toNode = allNodes[toNodeIdx];
-			std::map<int,int> *map;
+			std::map<unsigned int,unsigned int> *map;
 			TscTime timeRemote = 0, timeMigrate = 0, timeLocal = 0;
 			size_t nPages = 0;
 
