@@ -62,7 +62,9 @@ if (PGASUS_PLATFORM_PPC64LE AND NOT PGASUS_MEM_SOURCE_USE_PTHREAD_SPINLOCK)
 endif()
 
 
-set(DEFAULT_COMPILE_DEFINITIONS)
+if (NOT DEFAULT_COMPILE_DEFINITIONS)
+	set(DEFAULT_COMPILE_DEFINITIONS)
+endif()
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 	add_compile_options(
@@ -101,13 +103,16 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 			PUBLIC GLIBCXX_USE_CXX11_ABI)
 	endif()
 
-	list(APPEND DEFAULT_COMPILE_DEFINITIONS
-		$<$<CONFIG:Debug>:_GLIBCXX_DEBUG>
-	)
-
 	if (PGASUS_PROFILING_GPROF)
 		add_compile_options(-g -pg)
 		link_libraries(-g -pg)
+	endif()
+
+	option(PGASUS_USE_GLIBCXX_DEBUG
+		"Enable libstdc++ debug mode (Define _GLIBCXX_DEBUG - container bounds checks)." OFF)
+	if (PGASUS_USE_GLIBCXX_DEBUG)
+		message("jo")
+		list(APPEND DEFAULT_COMPILE_DEFINITIONS PUBLIC _GLIBCXX_DEBUG)
 	endif()
 
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
