@@ -7,8 +7,8 @@
 #include <pthread.h>
 #include <sched.h>
 
-#include "base/node.hpp"
-#include "msource/mmaphelper.h"
+#include "PGASUS/base/node.hpp"
+#include "PGASUS/msource/mmaphelper.h"
 
 #include "test_helper.h"
 

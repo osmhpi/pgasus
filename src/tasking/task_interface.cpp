@@ -9,16 +9,16 @@
 
 #include <semaphore.h>
 
-#include "malloc.hpp"
-#include "base/node.hpp"
-#include "base/ref_ptr.hpp"
-#include "msource/msource.hpp"
-#include "tasking/synchronizable.hpp"
-#include "tasking/task.hpp"
-#include "tasking/tasking.hpp"
+#include "PGASUS/malloc.hpp"
+#include "PGASUS/base/node.hpp"
+#include "PGASUS/base/ref_ptr.hpp"
+#include "PGASUS/msource/msource.hpp"
+#include "PGASUS/tasking/synchronizable.hpp"
+#include "PGASUS/tasking/task.hpp"
+#include "PGASUS/tasking/tasking.hpp"
+#include "base/debug.hpp"
 #include "tasking/task_scheduler.hpp"
 #include "tasking/worker_thread.hpp"
-#include "util/debug.hpp"
 
 
 

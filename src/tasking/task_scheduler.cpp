@@ -11,16 +11,16 @@
 #include <sys/types.h>
 #include <time.h>
 
-#include "base/node.hpp"
-#include "msource/msource.hpp"
-#include "msource/msource_allocator.hpp"
-#include "msource/node_replicated.hpp"
-#include "tasking/task.hpp"
+#include "PGASUS/base/node.hpp"
+#include "PGASUS/msource/msource.hpp"
+#include "PGASUS/msource/msource_allocator.hpp"
+#include "PGASUS/msource/node_replicated.hpp"
+#include "PGASUS/tasking/task.hpp"
+#include "base/topology.hpp"
 #include "tasking/task_collection.hpp"
 #include "tasking/task_scheduler.hpp"
 #include "tasking/thread_manager.hpp"
 #include "tasking/worker_thread.hpp"
-#include "util/topology.hpp"
 
 
 namespace numa {

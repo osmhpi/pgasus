@@ -209,10 +209,14 @@ function(addExportTarget TARGET_NAME)
 endfunction()
 
 
-set(PGASUS_CONFIG_FILE ${PROJECT_BINARY_DIR}/src/PGASUS-config.h)
+set(PGASUS_CONFIG_FILE ${PROJECT_BINARY_DIR}/src/PGASUS/PGASUS-config.h)
 configure_file(${PROJECT_SOURCE_DIR}/cmake/PGASUS-config.h.in ${PGASUS_CONFIG_FILE})
-install(FILES ${PGASUS_CONFIG_FILE} DESTINATION ${INSTALL_INCLUDE_DIR}
-	COMPONENT dev)
+# Install the whole include/PGASUS/... tree, which are the public headers of the libraries
+# NOTE: Installation of only a subset of the libraries is not possible that way!
+install(DIRECTORY "${PROJECT_SOURCE_DIR}/include/PGASUS"
+	DESTINATION ${INSTALL_INCLUDE_DIR} COMPONENT dev)
+install(FILES ${PGASUS_CONFIG_FILE}
+	DESTINATION ${INSTALL_INCLUDE_DIR}/PGASUS COMPONENT dev)
 
 
 # add sub-projects

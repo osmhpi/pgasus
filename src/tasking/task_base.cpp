@@ -3,13 +3,13 @@
 #include <list>
 #include <mutex>
 
-#include "malloc.hpp"
-#include "base/node.hpp"
-#include "tasking/synchronizable.hpp"
-#include "tasking/task.hpp"
+#include "PGASUS/malloc.hpp"
+#include "PGASUS/base/node.hpp"
+#include "PGASUS/tasking/synchronizable.hpp"
+#include "PGASUS/tasking/task.hpp"
+#include "base/debug.hpp"
 #include "tasking/task_scheduler.hpp"
 #include "tasking/worker_thread.hpp"
-#include "util/debug.hpp"
 
 using numa::debug::log;
 using numa::debug::DebugLevel;

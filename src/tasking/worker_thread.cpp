@@ -7,16 +7,16 @@
 
 #include <semaphore.h>
 
-#include "base/spinlock.hpp"
-#include "msource/msource.hpp"
+#include "PGASUS/base/spinlock.hpp"
+#include "PGASUS/msource/msource.hpp"
+#include "PGASUS/tasking/synchronizable.hpp"
+#include "PGASUS/tasking/task.hpp"
+#include "base/debug.hpp"
+#include "base/timer.hpp"
 #include "tasking/context.hpp"
-#include "tasking/synchronizable.hpp"
-#include "tasking/task.hpp"
 #include "tasking/task_scheduler.hpp"
 #include "tasking/thread_manager.hpp"
 #include "tasking/worker_thread.hpp"
-#include "util/debug.hpp"
-#include "util/timer.hpp"
 
 
 namespace numa {

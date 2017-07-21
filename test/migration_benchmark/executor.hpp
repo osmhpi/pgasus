@@ -6,7 +6,7 @@
 #include <functional>
 #include <vector>
 
-#include "base/node.hpp"
+#include "PGASUS/base/node.hpp"
 #include "timer.hpp"
 
 // must be specialized for whatever classes

@@ -6,8 +6,8 @@
 #include <unistd.h>
 
 #include "executor.hpp"
-#include "msource/msource_allocator.hpp"
-#include "msource/mmaphelper.h"
+#include "PGASUS/msource/msource_allocator.hpp"
+#include "PGASUS/msource/mmaphelper.h"
 
 
 template <class T>

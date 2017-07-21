@@ -4,8 +4,8 @@
 #include <vector>
 #include <boost/context/fcontext.hpp>
 
-#include "msource/msource_types.hpp"
-#include "base/spinlock.hpp"
+#include "PGASUS/msource/msource_types.hpp"
+#include "PGASUS/base/spinlock.hpp"
 
 namespace numa {
 namespace tasking {

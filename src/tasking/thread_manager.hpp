@@ -2,8 +2,8 @@
 
 #include <mutex>
 
-#include "hpinuma_export.h"
-#include "msource/msource_types.hpp"
+#include "PGASUS/hpinuma_export.h"
+#include "PGASUS/msource/msource_types.hpp"
 
 
 namespace numa {

@@ -12,7 +12,7 @@
 #include <tbb/concurrent_hash_map.h>
 #include <tbb/parallel_for.h>
 #include <tbb/parallel_reduce.h>
-#include "hashtable/hashtable.hpp"
+#include "PGASUS/hashtable/hashtable.hpp"
 
 //
 // Key generators

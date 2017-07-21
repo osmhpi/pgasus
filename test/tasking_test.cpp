@@ -8,7 +8,7 @@
 #include <list>
 #include <iostream>
 
-#include "tasking/tasking.hpp"
+#include "PGASUS/tasking/tasking.hpp"
 #include "timer.hpp"
 #include "test_helper.h"
 

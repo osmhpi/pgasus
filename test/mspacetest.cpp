@@ -5,8 +5,8 @@
 #include <string>
 #include <vector>
 
-#include "base/node.hpp"
-#include "msource/msource.hpp"
+#include "PGASUS/base/node.hpp"
+#include "PGASUS/msource/msource.hpp"
 
 #include "test_helper.h"
 

@@ -1,8 +1,8 @@
 #include <atomic>
 #include <cstring>
 
-#include "malloc.hpp"
-#include "tasking/tasking.hpp"
+#include "PGASUS/malloc.hpp"
+#include "PGASUS/tasking/tasking.hpp"
 #include "timer.hpp"
 
 #include "test_helper.h"

@@ -7,10 +7,10 @@
 #include <random>
 #include <vector>
 
-#include "base/spinlock.hpp"
-#include "msource/msource_types.hpp"
-#include "hpinuma_export.h"
-#include "synced_containers.hpp"
+#include "PGASUS/base/spinlock.hpp"
+#include "PGASUS/msource/msource_types.hpp"
+#include "PGASUS/hpinuma_export.h"
+#include "PGASUS/synced_containers.hpp"
 
 
 namespace numa {
