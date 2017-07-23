@@ -109,10 +109,9 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	endif()
 
 	option(PGASUS_USE_GLIBCXX_DEBUG
-		"Enable libstdc++ debug mode (Define _GLIBCXX_DEBUG - container bounds checks)." OFF)
+		"Enable libstdc++ debug mode in Debug builds (Define _GLIBCXX_DEBUG - container bounds checks)." OFF)
 	if (PGASUS_USE_GLIBCXX_DEBUG)
-		message("jo")
-		list(APPEND DEFAULT_COMPILE_DEFINITIONS PUBLIC _GLIBCXX_DEBUG)
+		list(APPEND DEFAULT_COMPILE_DEFINITIONS $<$<CONFIG:Debug>:PUBLIC _GLIBCXX_DEBUG>)
 	endif()
 
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
@@ -217,6 +216,9 @@ install(DIRECTORY "${PROJECT_SOURCE_DIR}/include/PGASUS"
 	DESTINATION ${INSTALL_INCLUDE_DIR} COMPONENT dev)
 install(FILES ${PGASUS_CONFIG_FILE}
 	DESTINATION ${INSTALL_INCLUDE_DIR}/PGASUS COMPONENT dev)
+
+# Set postfix for debug versions of libraries. This does not apply to executables!
+set(CMAKE_DEBUG_POSTFIX "_d")
 
 
 # add sub-projects
