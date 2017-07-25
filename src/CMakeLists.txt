@@ -63,6 +63,8 @@ install(TARGETS hpinuma
 )
 install(FILES ${HPINUMA_EXPORT_HEADER} DESTINATION "${INSTALL_INCLUDE_DIR}/PGASUS" COMPONENT dev)
 
+add_sanitizers(hpinuma)
+
 
 # Create Library
 if (PGASUS_BUILD_STATIC_LIBRARIES)
@@ -84,4 +86,5 @@ if (PGASUS_BUILD_STATIC_LIBRARIES)
 		EXPORT ${package_name}Targets COMPONENT dev
 		ARCHIVE DESTINATION "${INSTALL_LIB_DIR}" COMPONENT staticlib
 	)
+	add_sanitizers(hpinuma_s)
 endif()

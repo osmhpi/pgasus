@@ -13,7 +13,11 @@ include(GenerateExportHeader)
 
 project(LibNumaCpp VERSION 0.0.0 LANGUAGES C CXX)
 
-list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
+set(CMAKE_MODULE_PATH
+	"${PROJECT_SOURCE_DIR}/cmake"
+	"${PROJECT_SOURCE_DIR}/3rdParty/sanitizers-cmake/cmake"
+	${CMAKE_MODULE_PATH}
+)
 
 macro(add_PGASUS_option NAME DOC INITVALUE)
 	option(PGASUS_${NAME} ${DOC} ${INITVALUE})
@@ -160,6 +164,7 @@ endif()
 find_package(ZLIB REQUIRED)
 find_package(NUMA REQUIRED)
 find_package(HWLOC REQUIRED)
+find_package(Sanitizers QUIET)
 
 
 set(package_name "PGASUS")

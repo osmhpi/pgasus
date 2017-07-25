@@ -95,6 +95,8 @@ install(TARGETS hpinuma_msource
 install(FILES ${HPINUMA_MSOURCE_EXPORT_HEADER}
 	DESTINATION "${INSTALL_INCLUDE_DIR}/PGASUS/msource" COMPONENT dev)
 
+add_sanitizers(hpinuma_msource)
+
 
 if (PGASUS_BUILD_STATIC_LIBRARIES)
 	add_library(hpinuma_msource_s STATIC ${SOURCES})
@@ -118,4 +120,5 @@ if (PGASUS_BUILD_STATIC_LIBRARIES)
 		EXPORT ${package_name}Targets COMPONENT dev
 		ARCHIVE DESTINATION "${INSTALL_LIB_DIR}" COMPONENT staticlib
 	)
+	add_sanitizers(hpinuma_msource_s)
 endif()
