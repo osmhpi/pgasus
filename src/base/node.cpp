@@ -221,7 +221,7 @@ int Node::indexOfCpuid(CpuId id) const {
 	return util::Topology::get()->get_node(physicalId())->core_of(id);
 }
 
-std::vector<CpuId> Node::cpuids() const {
+const std::vector<CpuId>& Node::cpuids() const {
 	return util::Topology::get()->get_node(physicalId())->cpus;
 }
 

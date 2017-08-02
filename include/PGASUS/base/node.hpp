@@ -64,7 +64,7 @@ public:
 	
 	static CpuId currCpuid();
 
-	std::vector<CpuId> cpuids() const;
+	const std::vector<CpuId>& cpuids() const;
 	
 	bool valid() const {
 		return _logical_id >= 0 && _physical_id >= 0;
