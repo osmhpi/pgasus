@@ -103,8 +103,28 @@ function(add_benchmark)
 	add_target_helper(SUPER_TARGET_NAME benchmarks ${ARGV})
 endfunction()
 
+
+add_test_without_ctest(NAME test_hashtable SOURCES hashtable_test.cpp
+	LIBS hpinuma)
+
+add_test_without_ctest(NAME test_malloc SOURCES malloctest.cpp LIBS hpinuma
+	PARAMS 10 32 1200)
+
 add_test_without_ctest(NAME test_msource SOURCES mspacetest.cpp
 	LIBS hpinuma_msource)
+
+add_subdirectory(migration_benchmark)
+# add_benchmark(NAME bench_migration)
+# add_benchmark(NAME bench_migration_s)
+
+
+# All other tests/benchmarks require the tasking module, which requires
+# boost <= 1.60, which you have to build manually on some systems.
+if (NOT PGASUS_WITH_TASKING)
+	return()
+endif()
+
+
 
 add_benchmark(NAME bench_pagefault SOURCES bench_pagefault.cpp LIBS hpinuma
 	PARAMS 100)
@@ -118,25 +138,16 @@ endif()
 add_test_without_ctest(NAME test_tasking SOURCES tasking_test.cpp LIBS hpinuma
 	PARAMS 1200 16)
 
-add_test_without_ctest(NAME test_mutex SOURCES mutextest.cpp LIBS hpinuma
-	PARAMS 1200)
-
-add_test_without_ctest(NAME test_malloc SOURCES malloctest.cpp LIBS hpinuma
-	PARAMS 10 32 1200)
-
 add_test_without_ctest(NAME test_stdcontainers SOURCES test_stdcontainers.cpp
 	LIBS hpinuma)
 
-add_test_without_ctest(NAME test_hashtable SOURCES hashtable_test.cpp
-	LIBS hpinuma)
+add_test_without_ctest(NAME test_mutex SOURCES mutextest.cpp LIBS hpinuma
+	PARAMS 1200)
 
 add_test_without_ctest(NAME test_prefault SOURCES test_prefault.cpp
 	LIBS hpinuma
 	PARAMS 2000)
 
-add_subdirectory(migration_benchmark)
-# add_benchmark(NAME bench_migration)
-# add_benchmark(NAME bench_migration_s)
 add_subdirectory(hash_benchmark)
 if (TARGET bench_hash)
 	add_benchmark(NAME bench_hash

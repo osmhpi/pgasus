@@ -65,6 +65,9 @@ if (PGASUS_PLATFORM_PPC64LE AND NOT PGASUS_MEM_SOURCE_USE_PTHREAD_SPINLOCK)
 		${MEM_SOURCE_USE_PTHREAD_SPINLOCK_doc} FORCE)
 endif()
 
+add_PGASUS_option(WITH_TASKING
+	"Include tasking support, currently requiring boost version >= 1.58 and <= 1.60." ON)
+
 
 if (NOT DEFAULT_COMPILE_DEFINITIONS)
 	set(DEFAULT_COMPILE_DEFINITIONS)
@@ -153,18 +156,25 @@ endif()
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-set(BOOST_MIN_REQUIRED_VERSION 1.56)
-set(BOOST_MAX_REQUIRED_VERSION 1.60)
-set(BOOST_REQUIRED_COMPONENTS context chrono thread system)
-find_package(Boost ${BOOST_MIN_REQUIRED_VERSION} COMPONENTS ${BOOST_REQUIRED_COMPONENTS} REQUIRED)
-set(BOOST_FOUND_VERSION ${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION}.${Boost_SUBMINOR_VERSION})
-if (BOOST_FOUND_VERSION VERSION_GREATER BOOST_MAX_REQUIRED_VERSION)
-	message(FATAL_ERROR "Boost version newer than ${BOOST_MAX_REQUIRED_VERSION} is currently not supported.")
+if (PGASUS_WITH_TASKING)
+	set(BOOST_MIN_REQUIRED_VERSION 1.56)
+	set(BOOST_MAX_REQUIRED_VERSION 1.60)
+	set(BOOST_REQUIRED_COMPONENTS context chrono thread system)
+	find_package(Boost ${BOOST_MIN_REQUIRED_VERSION} COMPONENTS ${BOOST_REQUIRED_COMPONENTS} REQUIRED)
+	set(BOOST_FOUND_VERSION ${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION}.${Boost_SUBMINOR_VERSION})
+	if (BOOST_FOUND_VERSION VERSION_GREATER BOOST_MAX_REQUIRED_VERSION)
+		message(FATAL_ERROR "Boost version newer than ${BOOST_MAX_REQUIRED_VERSION} is currently not supported. \
+Disable tasking support to omit the Boost dependency (See PGASUS_WITH_TASKING).")
+	endif()
 endif()
 find_package(ZLIB REQUIRED)
 find_package(NUMA REQUIRED)
 find_package(HWLOC REQUIRED)
 find_package(Sanitizers QUIET)
+if (NOT Sanitizers_FOUND)
+	function(add_sanitizers target)
+	endfunction()
+endif()
 
 
 set(package_name "PGASUS")
