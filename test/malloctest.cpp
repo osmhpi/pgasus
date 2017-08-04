@@ -6,8 +6,8 @@
 
 #include <semaphore.h>
 
+#include "PGASUS/base/topology.hpp"
 #include "../src/base/strutil.hpp"
-#include "../src/base/topology.hpp"
 
 #include "test_helper.h"
 

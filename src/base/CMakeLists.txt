@@ -1,9 +1,10 @@
 
 set(PUBLIC_HEADERS
 	${PROJECT_INCLUDE_DIR}/PGASUS/base/node.hpp
-	${PROJECT_INCLUDE_DIR}/PGASUS/base/ref_ptr.hpp
 	${PROJECT_INCLUDE_DIR}/PGASUS/base/spinlock.hpp
 	${PROJECT_INCLUDE_DIR}/PGASUS/base/tsc.hpp
+	${PROJECT_INCLUDE_DIR}/PGASUS/base/topology.hpp
+	${PROJECT_INCLUDE_DIR}/PGASUS/base/ref_ptr.hpp
 	${PROJECT_INCLUDE_DIR}/PGASUS/base/rwlock.hpp
 	${PROJECT_INCLUDE_DIR}/PGASUS/synced_containers.hpp
 )
@@ -17,7 +18,6 @@ set(SOURCES
 	strutil.hpp
 	timer.hpp
 	topology.cpp
-	topology.hpp
 )
 
 set(include_dirs

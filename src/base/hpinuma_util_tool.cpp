@@ -4,8 +4,8 @@
 #include <string>
 
 #include "PGASUS/base/node.hpp"
+#include "PGASUS/base/topology.hpp"
 #include "strutil.hpp"
-#include "topology.hpp"
 
 int main()
 {

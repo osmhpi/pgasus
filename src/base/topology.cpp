@@ -10,7 +10,7 @@
 #include <numa.h>
 #include <hwloc.h>
 
-#include "base/topology.hpp"
+#include "PGASUS/base/topology.hpp"
 
 
 /* There seems to be some confusion about naming hwloc types */

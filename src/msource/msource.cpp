@@ -11,10 +11,10 @@
 
 #include "PGASUS/PGASUS-config.h"
 #include "PGASUS/base/spinlock.hpp"
+#include "PGASUS/base/topology.hpp"
 #include "PGASUS/msource/msource_allocator.hpp"
 #include "PGASUS/msource/msource_types.hpp"
 #include "PGASUS/msource/mmaphelper.h"
-#include "base/topology.hpp"
 #include "base/debug.hpp"
 #include "msource/malloc-numa.h"
 

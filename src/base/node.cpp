@@ -10,9 +10,9 @@
 #include <numa.h>
 
 #include "PGASUS/base/node.hpp"
+#include "PGASUS/base/topology.hpp"
 #include "base/debug.hpp"
 #include "base/strutil.hpp"
-#include "base/topology.hpp"
 
 namespace {
 

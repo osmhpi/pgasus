@@ -13,9 +13,9 @@
 #include <vector>
 #include "PGASUS/base/node.hpp"
 #include "PGASUS/base/spinlock.hpp"
+#include "PGASUS/base/topology.hpp"
 #include "PGASUS/malloc.hpp"
 #include "PGASUS/msource/msource_types.hpp"
-#include "base/topology.hpp"
 
 
 namespace {

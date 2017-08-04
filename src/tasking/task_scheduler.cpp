@@ -12,11 +12,11 @@
 #include <time.h>
 
 #include "PGASUS/base/node.hpp"
+#include "PGASUS/base/topology.hpp"
 #include "PGASUS/msource/msource.hpp"
 #include "PGASUS/msource/msource_allocator.hpp"
 #include "PGASUS/msource/node_replicated.hpp"
 #include "PGASUS/tasking/task.hpp"
-#include "base/topology.hpp"
 #include "tasking/task_collection.hpp"
 #include "tasking/task_scheduler.hpp"
 #include "tasking/thread_manager.hpp"
