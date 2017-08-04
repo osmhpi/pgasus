@@ -86,11 +86,6 @@ void yield() {
 std::list<TriggerableRef> forEachThread(const NodeList &nodes, const numa::tasking::TaskFunction<void> &fun, Priority prio) {
 	std::list<TriggerableRef> waitList;
 
-	// get total thread count
-	size_t count = 0;
-	for (const Node& node : NodeList::logicalNodesWithCPUs())
-		count += tasking::Scheduler::get_scheduler(node)->worker_ids().size();
-
 	// spawn one task for each worker thread
 	for (const Node & node : nodes) {
 		if (node.cpuCount() == 0) {
