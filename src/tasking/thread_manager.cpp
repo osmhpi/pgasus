@@ -12,9 +12,9 @@
 #include <sched.h>
 #include <stdio.h>
 
-#include "base/node.hpp"
-#include "msource/msource.hpp"
-#include "msource/msource_allocator.hpp"
+#include "PGASUS/base/node.hpp"
+#include "PGASUS/msource/msource.hpp"
+#include "PGASUS/msource/msource_allocator.hpp"
 
 #include "tasking/thread_manager.hpp"
 

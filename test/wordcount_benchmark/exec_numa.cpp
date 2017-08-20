@@ -1,11 +1,11 @@
 #include <algorithm>
 #include <numeric>
 
-#include "tasking/tasking.hpp"
-#include "hashtable/containers.hpp"
-#include "hashtable/hashtable.hpp"
-#include "synced_containers.hpp"
-#include "malloc.hpp"
+#include "PGASUS/malloc.hpp"
+#include "PGASUS/synced_containers.hpp"
+#include "PGASUS/hashtable/hashtable.hpp"
+#include "PGASUS/hashtable/containers.hpp"
+#include "PGASUS/tasking/tasking.hpp"
 
 #include "exec.hpp"
 

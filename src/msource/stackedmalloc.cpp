@@ -11,11 +11,11 @@
 #include <mutex>
 #include <thread>
 #include <vector>
-#include "base/node.hpp"
-#include "base/spinlock.hpp"
-#include "malloc.hpp"
-#include "msource/msource_types.hpp"
-#include "util/topology.hpp"
+#include "PGASUS/base/node.hpp"
+#include "PGASUS/base/spinlock.hpp"
+#include "PGASUS/base/topology.hpp"
+#include "PGASUS/malloc.hpp"
+#include "PGASUS/msource/msource_types.hpp"
 
 
 namespace {

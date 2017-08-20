@@ -9,16 +9,16 @@
 
 #include <semaphore.h>
 
-#include "malloc.hpp"
-#include "base/node.hpp"
-#include "base/ref_ptr.hpp"
-#include "msource/msource.hpp"
-#include "tasking/synchronizable.hpp"
-#include "tasking/task.hpp"
-#include "tasking/tasking.hpp"
+#include "PGASUS/malloc.hpp"
+#include "PGASUS/base/node.hpp"
+#include "PGASUS/base/ref_ptr.hpp"
+#include "PGASUS/msource/msource.hpp"
+#include "PGASUS/tasking/synchronizable.hpp"
+#include "PGASUS/tasking/task.hpp"
+#include "PGASUS/tasking/tasking.hpp"
+#include "base/debug.hpp"
 #include "tasking/task_scheduler.hpp"
 #include "tasking/worker_thread.hpp"
-#include "util/debug.hpp"
 
 
 
@@ -85,11 +85,6 @@ void yield() {
  */
 std::list<TriggerableRef> forEachThread(const NodeList &nodes, const numa::tasking::TaskFunction<void> &fun, Priority prio) {
 	std::list<TriggerableRef> waitList;
-
-	// get total thread count
-	size_t count = 0;
-	for (const Node& node : NodeList::logicalNodesWithCPUs())
-		count += tasking::Scheduler::get_scheduler(node)->worker_ids().size();
 
 	// spawn one task for each worker thread
 	for (const Node & node : nodes) {

@@ -2,16 +2,15 @@
 
 #include <atomic>
 
-#include "msource/msource_types.hpp"
-
-#include "hpinuma_export.h"
-#include "tasking/task.hpp"
+#include "PGASUS/hpinuma_export.h"
+#include "PGASUS/PGASUS-config.h"
+#include "PGASUS/msource/msource_types.hpp"
+#include "PGASUS/tasking/task.hpp"
 #include "tasking/task_scheduler.hpp"
 #include "tasking/thread_manager.hpp"
-#include "PGASUS-config.h"
 
 #if ENABLE_DEBUG_LOG && !PGASUS_PLATFORM_PPC64LE
-#include "base/tsc.hpp"
+#include "PGASUS/base/tsc.hpp"
 #endif
 
 

@@ -4,10 +4,9 @@
 #include <mutex>
 #include <semaphore.h>
 
-#include "msource/msource.hpp"
-#include "base/spinlock.hpp"
-
-#include "hpinuma_export.h"
+#include "PGASUS/hpinuma_export.h"
+#include "PGASUS/base/spinlock.hpp"
+#include "PGASUS/msource/msource.hpp"
 #include "tasking/context.hpp"
 
 

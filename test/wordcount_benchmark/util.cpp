@@ -7,8 +7,8 @@
 #include <sstream>
 #include <iostream>
 
-#include "msource/msource.hpp"
-#include "msource/mmaphelper.h"
+#include "PGASUS/msource/msource.hpp"
+#include "PGASUS/msource/mmaphelper.h"
 #include "timer.hpp"
 #include "util.hpp"
 

@@ -94,6 +94,7 @@ target source files (paramter SOURCES) or called for an existing target.")
 		COMMAND ${CMAKE_COMMAND} -E echo ""
 		USES_TERMINAL
 		VERBATIM)
+	add_sanitizers(${param_NAME})
 endfunction()
 function(add_test_without_ctest)
 	add_target_helper(SUPER_TARGET_NAME tests ${ARGV})
@@ -102,8 +103,28 @@ function(add_benchmark)
 	add_target_helper(SUPER_TARGET_NAME benchmarks ${ARGV})
 endfunction()
 
+
+add_test_without_ctest(NAME test_hashtable SOURCES hashtable_test.cpp
+	LIBS hpinuma)
+
+add_test_without_ctest(NAME test_malloc SOURCES malloctest.cpp LIBS hpinuma
+	PARAMS 10 32 1200)
+
 add_test_without_ctest(NAME test_msource SOURCES mspacetest.cpp
 	LIBS hpinuma_msource)
+
+add_subdirectory(migration_benchmark)
+# add_benchmark(NAME bench_migration)
+# add_benchmark(NAME bench_migration_s)
+
+
+# All other tests/benchmarks require the tasking module, which requires
+# boost <= 1.60, which you have to build manually on some systems.
+if (NOT PGASUS_WITH_TASKING)
+	return()
+endif()
+
+
 
 add_benchmark(NAME bench_pagefault SOURCES bench_pagefault.cpp LIBS hpinuma
 	PARAMS 100)
@@ -117,30 +138,22 @@ endif()
 add_test_without_ctest(NAME test_tasking SOURCES tasking_test.cpp LIBS hpinuma
 	PARAMS 1200 16)
 
-add_test_without_ctest(NAME test_mutex SOURCES mutextest.cpp LIBS hpinuma
-	PARAMS 1200)
-
-add_test_without_ctest(NAME test_malloc SOURCES malloctest.cpp LIBS hpinuma
-	PARAMS 10 32 1200)
-
 add_test_without_ctest(NAME test_stdcontainers SOURCES test_stdcontainers.cpp
 	LIBS hpinuma)
 
-add_test_without_ctest(NAME test_hashtable SOURCES hashtable_test.cpp
-	LIBS hpinuma)
+add_test_without_ctest(NAME test_mutex SOURCES mutextest.cpp LIBS hpinuma
+	PARAMS 1200)
 
 add_test_without_ctest(NAME test_prefault SOURCES test_prefault.cpp
 	LIBS hpinuma
 	PARAMS 2000)
 
-add_subdirectory(migration_benchmark)
-# add_benchmark(NAME bench_migration)
-# add_benchmark(NAME bench_migration_s)
 add_subdirectory(hash_benchmark)
 if (TARGET bench_hash)
 	add_benchmark(NAME bench_hash
 		PARAMS 1000 std)
 	# add_benchmark(NAME bench_hash_s)
+	add_sanitizers(bench_hash_s)
 endif()
 add_subdirectory(wordcount_benchmark)
 set(wordcountBenchFile ${CMAKE_CURRENT_BINARY_DIR}/wordcount_bench_input.txt)
@@ -150,5 +163,6 @@ if (TARGET bench_wc_omp)
 endif()
 add_benchmark(NAME bench_wc_numa PARAMS ${wordcountBenchFile})
 # add_benchmark(NAME bench_wc_numa_s)
+add_sanitizers(bench_wc_numa_s)
 add_subdirectory(bench_tasks)
 add_benchmark(NAME bench_tasks_numa)

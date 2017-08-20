@@ -1,8 +1,8 @@
 #pragma once 
 
 #include "executor.hpp"
-#include "msource/msource.hpp"
-#include "malloc.hpp"
+#include "PGASUS/msource/msource.hpp"
+#include "PGASUS/malloc.hpp"
 #include "timer.hpp"
 
 #include <numaif.h>

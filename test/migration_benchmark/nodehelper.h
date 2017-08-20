@@ -3,7 +3,7 @@
 #include <functional>
 #include <map>
 
-#include "base/node.hpp"
+#include "PGASUS/base/node.hpp"
 
 void runAt(numa::Node node, const std::function<void()> &function);
 

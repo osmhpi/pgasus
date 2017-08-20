@@ -9,14 +9,14 @@
 
 #include <numaif.h>
 
-#include "PGASUS-config.h"
-#include "base/spinlock.hpp"
+#include "PGASUS/PGASUS-config.h"
+#include "PGASUS/base/spinlock.hpp"
+#include "PGASUS/base/topology.hpp"
+#include "PGASUS/msource/msource_allocator.hpp"
+#include "PGASUS/msource/msource_types.hpp"
+#include "PGASUS/msource/mmaphelper.h"
+#include "base/debug.hpp"
 #include "msource/malloc-numa.h"
-#include "msource/msource_allocator.hpp"
-#include "msource/msource_types.hpp"
-#include "msource/mmaphelper.h"
-#include "util/topology.hpp"
-#include "util/debug.hpp"
 
 #if MEM_SOURCE_USE_PTHREAD_SPINLOCK
 #include <pthread.h>

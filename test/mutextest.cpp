@@ -8,8 +8,8 @@
 #include <list>
 #include <iostream>
 
-#include "tasking/tasking.hpp"
-#include "mutex.hpp"
+#include "PGASUS/tasking/tasking.hpp"
+#include "PGASUS/mutex.hpp"
 
 #include "test_helper.h"
 #include "timer.hpp"

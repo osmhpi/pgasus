@@ -1,9 +1,9 @@
-#include "msource/msource.hpp"
-#include "msource/msource_types.hpp"
-#include "msource/mmaphelper.h"
+#include "PGASUS/msource/msource.hpp"
+#include "PGASUS/msource/msource_types.hpp"
+#include "PGASUS/msource/mmaphelper.h"
 
-#include "tasking/tasking.hpp"
-#include "base/tsc.hpp"
+#include "PGASUS/tasking/tasking.hpp"
+#include "PGASUS/base/tsc.hpp"
 
 #include <cstdio>
 #include <cstdlib>

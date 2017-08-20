@@ -3,7 +3,7 @@
 
 #include <hwloc.h>
 
-#include "../src/util/topology.hpp"
+#include "PGASUS/base/topology.hpp"
 #include "test_helper.h"
 
 

@@ -10,8 +10,8 @@
 #include <numeric>
 #include <vector>
 
-#include "tasking/tasking.hpp"
-#include "msource/node_replicated.hpp"
+#include "PGASUS/tasking/tasking.hpp"
+#include "PGASUS/msource/node_replicated.hpp"
 #include "timer.hpp"
 
 /**

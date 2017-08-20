@@ -13,7 +13,11 @@ include(GenerateExportHeader)
 
 project(LibNumaCpp VERSION 0.0.0 LANGUAGES C CXX)
 
-list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
+set(CMAKE_MODULE_PATH
+	"${PROJECT_SOURCE_DIR}/cmake"
+	"${PROJECT_SOURCE_DIR}/3rdParty/sanitizers-cmake/cmake"
+	${CMAKE_MODULE_PATH}
+)
 
 macro(add_PGASUS_option NAME DOC INITVALUE)
 	option(PGASUS_${NAME} ${DOC} ${INITVALUE})
@@ -61,6 +65,9 @@ if (PGASUS_PLATFORM_PPC64LE AND NOT PGASUS_MEM_SOURCE_USE_PTHREAD_SPINLOCK)
 		${MEM_SOURCE_USE_PTHREAD_SPINLOCK_doc} FORCE)
 endif()
 
+add_PGASUS_option(WITH_TASKING
+	"Include tasking support, currently requiring boost version >= 1.58 and <= 1.60." ON)
+
 
 if (NOT DEFAULT_COMPILE_DEFINITIONS)
 	set(DEFAULT_COMPILE_DEFINITIONS)
@@ -100,7 +107,7 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
 	if (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS "5.0")
 		list(APPEND DEFAULT_COMPILE_DEFINITIONS
-			PUBLIC GLIBCXX_USE_CXX11_ABI)
+			PUBLIC _GLIBCXX_USE_CXX11_ABI=1)
 	endif()
 
 	if (PGASUS_PROFILING_GPROF)
@@ -109,10 +116,9 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	endif()
 
 	option(PGASUS_USE_GLIBCXX_DEBUG
-		"Enable libstdc++ debug mode (Define _GLIBCXX_DEBUG - container bounds checks)." OFF)
+		"Enable libstdc++ debug mode in Debug builds (Define _GLIBCXX_DEBUG - container bounds checks)." OFF)
 	if (PGASUS_USE_GLIBCXX_DEBUG)
-		message("jo")
-		list(APPEND DEFAULT_COMPILE_DEFINITIONS PUBLIC _GLIBCXX_DEBUG)
+		list(APPEND DEFAULT_COMPILE_DEFINITIONS $<$<CONFIG:Debug>:PUBLIC _GLIBCXX_DEBUG>)
 	endif()
 
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
@@ -150,17 +156,25 @@ endif()
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-set(BOOST_MIN_REQUIRED_VERSION 1.56)
-set(BOOST_MAX_REQUIRED_VERSION 1.60)
-set(BOOST_REQUIRED_COMPONENTS context chrono thread system)
-find_package(Boost ${BOOST_MIN_REQUIRED_VERSION} COMPONENTS ${BOOST_REQUIRED_COMPONENTS} REQUIRED)
-set(BOOST_FOUND_VERSION ${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION}.${Boost_SUBMINOR_VERSION})
-if (BOOST_FOUND_VERSION VERSION_GREATER BOOST_MAX_REQUIRED_VERSION)
-	message(FATAL_ERROR "Boost version newer than ${BOOST_MAX_REQUIRED_VERSION} is currently not supported.")
+if (PGASUS_WITH_TASKING)
+	set(BOOST_MIN_REQUIRED_VERSION 1.56)
+	set(BOOST_MAX_REQUIRED_VERSION 1.60)
+	set(BOOST_REQUIRED_COMPONENTS context chrono thread system)
+	find_package(Boost ${BOOST_MIN_REQUIRED_VERSION} COMPONENTS ${BOOST_REQUIRED_COMPONENTS} REQUIRED)
+	set(BOOST_FOUND_VERSION ${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION}.${Boost_SUBMINOR_VERSION})
+	if (BOOST_FOUND_VERSION VERSION_GREATER BOOST_MAX_REQUIRED_VERSION)
+		message(FATAL_ERROR "Boost version newer than ${BOOST_MAX_REQUIRED_VERSION} is currently not supported. \
+Disable tasking support to omit the Boost dependency (See PGASUS_WITH_TASKING).")
+	endif()
 endif()
 find_package(ZLIB REQUIRED)
 find_package(NUMA REQUIRED)
 find_package(HWLOC REQUIRED)
+find_package(Sanitizers QUIET)
+if (NOT Sanitizers_FOUND)
+	function(add_sanitizers target)
+	endfunction()
+endif()
 
 
 set(package_name "PGASUS")
@@ -209,10 +223,17 @@ function(addExportTarget TARGET_NAME)
 endfunction()
 
 
-set(PGASUS_CONFIG_FILE ${PROJECT_BINARY_DIR}/src/PGASUS-config.h)
+set(PGASUS_CONFIG_FILE ${PROJECT_BINARY_DIR}/src/PGASUS/PGASUS-config.h)
 configure_file(${PROJECT_SOURCE_DIR}/cmake/PGASUS-config.h.in ${PGASUS_CONFIG_FILE})
-install(FILES ${PGASUS_CONFIG_FILE} DESTINATION ${INSTALL_INCLUDE_DIR}
-	COMPONENT dev)
+# Install the whole include/PGASUS/... tree, which are the public headers of the libraries
+# NOTE: Installation of only a subset of the libraries is not possible that way!
+install(DIRECTORY "${PROJECT_SOURCE_DIR}/include/PGASUS"
+	DESTINATION ${INSTALL_INCLUDE_DIR} COMPONENT dev)
+install(FILES ${PGASUS_CONFIG_FILE}
+	DESTINATION ${INSTALL_INCLUDE_DIR}/PGASUS COMPONENT dev)
+
+# Set postfix for debug versions of libraries. This does not apply to executables!
+set(CMAKE_DEBUG_POSTFIX "_d")
 
 
 # add sub-projects
