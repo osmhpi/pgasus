@@ -7,8 +7,6 @@
 #include <sstream>
 #include <iostream>
 
-#include "PGASUS/msource/msource.hpp"
-#include "PGASUS/msource/mmaphelper.h"
 #include "timer.hpp"
 #include "util.hpp"
 
@@ -44,14 +42,21 @@ void TextFile::doExtractLines(Buffer &buf) {
 	std::string line;
 	std::stringstream sstream;
 	sstream.rdbuf()->pubsetbuf(buf.data(), buf.size());
+#if WORDCOUNT_USE_WORD_MAP
 	size_t curr = 0;
+#endif
 
 	while (std::getline(sstream, line)) {
 		if (line.empty()) continue;
 		if (line.back() == '\r') line.pop_back();
+#if WORDCOUNT_USE_WORD_MAP
 		lines[curr] = wordsFromLine(line);
 		totalWordCount += lines[curr].size();
 		curr++;
+#else
+		lines.emplace_back(wordsFromLine(line));
+		totalWordCount += lines.back().size();
+#endif
 	}
 }
 
@@ -89,11 +94,19 @@ TextFile::~TextFile() = default;
  std::unique_ptr<WordCount> TextFile::countWords() const {
 	std::unique_ptr<WordCount> wc = std::unique_ptr<WordCount>(new WordCount);
 
+#if WORDCOUNT_USE_WORD_MAP
 	for (auto it = lines.begin(); it != lines.end(); ++it) {
 		for (const auto &w : it->second) {
 			(*wc)[w] += 1;
 		}
 	}
+#else
+	for (const auto &line : lines) {
+		for (const auto &w : line) {
+			(*wc)[w] += 1;
+		}
+	}
+#endif
 
 	return wc;
 }
@@ -103,12 +116,21 @@ size_t TextFile::count(const std::string &word) const {
 	std::string lowerword(word);
 	std::transform(word.begin(), word.end(), lowerword.begin(), ::tolower);
 
+#if WORDCOUNT_USE_WORD_MAP
 	for (auto it = lines.begin(); it != lines.end(); ++it) {
 		for (const auto &w : it->second) {
 			if (w == lowerword)
 				c++;
 		}
 	}
+#else
+	for (const auto &line : lines) {
+		for (const auto &w : line) {
+			if (w == lowerword)
+				c++;
+		}
+	}
+#endif
 
 	return c;
 

@@ -5,13 +5,17 @@
 #include <memory>
 #include <mutex>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 #include "buffer.hpp"
 
+#define WORDCOUNT_USE_WORD_MAP 0
+
+#if WORDCOUNT_USE_WORD_MAP
+#include <unordered_map>
+#endif
+
 using WordCount = std::map<std::string, size_t>;
-using Word = std::pair<std::string, size_t>;
 
 struct TextFile {
 public:
@@ -23,7 +27,11 @@ public:
     std::unique_ptr<WordCount> countWords() const;
 	size_t count(const std::string &word) const;
 
-	std::unordered_map<size_t, WordList> lines;
+#if WORDCOUNT_USE_WORD_MAP
+    std::unordered_map<size_t, WordList> lines;
+#else
+	std::vector<WordList> lines;
+#endif
     std::string fileName;
     std::unique_ptr<Buffer> fileData;
 	size_t totalWordCount;

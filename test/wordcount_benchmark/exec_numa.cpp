@@ -40,7 +40,7 @@ public:
 		numa::wait(waitList);
 	}
 
-	virtual void topWords(std::vector<std::string> fileNames) {
+	virtual void topWords(const std::vector<std::string> &fileNames) {
 		std::list<TriggerableRef> waitList;
 
 		for (const std::string &file : fileNames) {
@@ -52,13 +52,21 @@ public:
 		numa::wait(waitList);
 	}
 
-	virtual size_t countWords(const std::string &w) {
-		auto ret = numa::containers::for_each_distr<size_t>(files, [w](FileCache::value_type &value, size_t &acc) {
-			numa::PlaceGuard guard(numa::Node::curr());
-			acc += value.second->count(w);
-		}, files.size());
-
-		return std::accumulate(ret.begin(), ret.end(), 0, [](size_t v, size_t *acc) { return v + *acc; });
+	virtual std::vector<size_t> countWords(const std::vector<std::string> &words) {
+		std::vector<size_t> counts(words.size(), 0);
+		// TODO parallelize words processing
+		for (size_t wi = 0; wi < words.size(); ++wi) {
+			const std::string& w = words[wi];
+			auto ret = numa::containers::for_each_distr<size_t>(files, [w](FileCache::value_type &value, size_t &acc) {
+				numa::PlaceGuard guard(numa::Node::curr());
+				acc += value.second->count(w);
+			}, files.size());
+			const size_t count =
+				std::accumulate(ret.begin(), ret.end(), 0, [](size_t v, size_t *acc)
+					{ return v + *acc; });
+			counts[wi] = count;
+		}
+		return counts;
 	}
 };
 
