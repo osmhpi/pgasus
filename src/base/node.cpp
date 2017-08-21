@@ -262,10 +262,13 @@ NodeList Node::nearestNeighbors(const size_t maxCount, const bool withCPUsOnly) 
 		if (neighbors.size() == maxCount) {
 			break;
 		}
-		const size_t logicalNeighborId =
-			static_cast<size_t>(mapping[distance_physId.second->id]);
-		assert(logicalNeighborId < logicalNodes.size());
-		const Node &neighbor = logicalNodes[logicalNeighborId];
+		const int logicalNeighborId = mapping[distance_physId.second->id];
+		if (logicalNeighborId < 0) {
+			// Node not configured (see NUMA_NODES env)
+			continue;
+		}
+		assert(static_cast<size_t>(logicalNeighborId) < logicalNodes.size());
+		const Node &neighbor = logicalNodes[static_cast<size_t>(logicalNeighborId)];
 		if (withCPUsOnly && neighbor.cpuCount() == 0) {
 			continue;
 		}
