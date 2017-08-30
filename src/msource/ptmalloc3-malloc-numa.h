@@ -487,11 +487,14 @@ MAX_RELEASE_CHECK_RATE   default: 255 unless not HAVE_MMAP
 /*
   NUMA custom config
 */
+#include "PGASUS/PGASUS-config.h"
 #define HAVE_MMAP 1
 #define HAVE_MORECORE 0
 #define ONLY_MSPACES 1
 #define MSPACES 1
 #define USE_DL_PREFIX
+#define DEFAULT_MMAP_THRESHOLD PGASUS_MMAP_THRESHOLD
+#define DEFAULT_TRIM_THRESHOLD PGASUS_MMAP_THRESHOLD
 
 
 #ifndef WIN32

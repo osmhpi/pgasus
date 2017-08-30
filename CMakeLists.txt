@@ -65,6 +65,16 @@ if (PGASUS_PLATFORM_PPC64LE AND NOT PGASUS_MEM_SOURCE_USE_PTHREAD_SPINLOCK)
 		${MEM_SOURCE_USE_PTHREAD_SPINLOCK_doc} FORCE)
 endif()
 
+# "small allocation" threshold: On 64 bit systems, glibc's ptmalloc variant uses
+# 32MB. ptmalloc3 and dlmalloc default to 256KB.
+set(PGASUS_MMAP_THRESHOLD 33554432 CACHE STRING
+	"Minimum allocation size in bytes for using mmap to allocate memory \
+directly from the operating system.")
+if (NOT PGASUS_MMAP_THRESHOLD GREATER -1)
+	message(FATAL_ERROR "PGASUS_MMAP_THRESHOLD must be a positive integer. \
+Current value: ${PGASUS_MMAP_THRESHOLD}")
+endif()
+
 add_PGASUS_option(WITH_TASKING
 	"Include tasking support, currently requiring boost version >= 1.58 and <= 1.60." ON)
 

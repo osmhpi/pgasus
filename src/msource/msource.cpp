@@ -296,7 +296,7 @@ private:
 		// Init msource
 		node = n;
 		node_home = home;
-		mmap_threshold = (size_t)(1 << 18);
+		mmap_threshold = PGASUS_MMAP_THRESHOLD;
 		mem_size = sz;
 		mmapped_chunk_head = nullptr;
 

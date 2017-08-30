@@ -526,6 +526,7 @@ MAX_RELEASE_CHECK_RATE   default: 4095 unless not HAVE_MMAP
 /*
   PGASUS NUMA custom config
 */
+#include "PGASUS/PGASUS-config.h"
 #define HAVE_MMAP 1
 #define HAVE_MORECORE 0
 #define ONLY_MSPACES 1
@@ -535,6 +536,8 @@ MAX_RELEASE_CHECK_RATE   default: 4095 unless not HAVE_MMAP
 #define NO_MALLOC_STATS 1
 // Don't export dlmalloc symbols, their are required only inside PGASUS/libmsource
 #define DLMALLOC_EXPORT
+#define DEFAULT_MMAP_THRESHOLD PGASUS_MMAP_THRESHOLD
+#define DEFAULT_TRIM_THRESHOLD PGASUS_MMAP_THRESHOLD
 
 /*
   END PGASUS NUMA custom config
