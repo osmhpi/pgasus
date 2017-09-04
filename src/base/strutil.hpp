@@ -37,7 +37,7 @@ std::string concatGenerate(InputIt begin, InputIt end, const std::string &separa
 template<typename InputIt>
 std::string concat(InputIt begin, InputIt end, const std::string &separator = {}) {
     return concatGenerate(begin, end, separator,
-        [] (const InputIt &it) { return *it; });
+        [] (const InputIt &it) { return std::to_string(*it); });
 }
 
 }
