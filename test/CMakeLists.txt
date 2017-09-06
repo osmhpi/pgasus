@@ -104,14 +104,19 @@ function(add_benchmark)
 endfunction()
 
 
+add_test_without_ctest(NAME test_msource SOURCES mspacetest.cpp
+	LIBS hpinuma_msource)
+
+# TODO implement more tests/benchmarks that work with MemSources only
+if (NOT PGASUS_REPLACE_MALLOC)
+	return()
+endif()
+
 add_test_without_ctest(NAME test_hashtable SOURCES hashtable_test.cpp
 	LIBS hpinuma)
 
 add_test_without_ctest(NAME test_malloc SOURCES malloctest.cpp LIBS hpinuma
 	PARAMS 10 32 1200)
-
-add_test_without_ctest(NAME test_msource SOURCES mspacetest.cpp
-	LIBS hpinuma_msource)
 
 add_subdirectory(migration_benchmark)
 # add_benchmark(NAME bench_migration)
