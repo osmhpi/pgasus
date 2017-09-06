@@ -90,10 +90,10 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 		-Wno-missing-braces
 	)
 	if (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.8)
-		set(OPTION_CLANG_DEBUGGER gdb CACHE STRING
+		set(PGASUS_CLANG_DEBUGGER gdb CACHE STRING
 			"Debugger for that clang optimizes the DWARF debugging information")
-		set_property(CACHE OPTION_CLANG_DEBUGGER PROPERTY STRINGS gdb lldb)
-		add_compile_options($<$<CONFIG:Debug>:-g${OPTION_CLANG_DEBUGGER}>)
+		set_property(CACHE PGASUS_CLANG_DEBUGGER PROPERTY STRINGS gdb lldb)
+		add_compile_options($<$<CONFIG:Debug>:-g${PGASUS_CLANG_DEBUGGER}>)
 	endif()
 	if (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS "4.0")
 		add_compile_options(
