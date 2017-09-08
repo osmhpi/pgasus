@@ -23,6 +23,8 @@ if (PGASUS_TEST_WITH_FAKE_TOPOLOGY)
 	endif()
 endif()
 
+find_package(ZLIB REQUIRED)
+
 function(replace_by_static_libs LINK_LIST)
 	set(result)
 	set(target_libs hpinuma_util hpinuma_msource hpinuma)

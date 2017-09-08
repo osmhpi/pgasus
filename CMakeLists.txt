@@ -78,6 +78,9 @@ endif()
 add_PGASUS_option(WITH_TASKING
 	"Include tasking support, currently requiring boost version >= 1.58 and <= 1.60." ON)
 
+add_PGASUS_option(WITH_TESTS
+	"Compile tests for PGASUS." ON)
+
 
 if (NOT DEFAULT_COMPILE_DEFINITIONS)
 	set(DEFAULT_COMPILE_DEFINITIONS)
@@ -177,7 +180,6 @@ if (PGASUS_WITH_TASKING)
 Disable tasking support to omit the Boost dependency (See PGASUS_WITH_TASKING).")
 	endif()
 endif()
-find_package(ZLIB REQUIRED)
 find_package(NUMA REQUIRED)
 find_package(HWLOC REQUIRED)
 find_package(Sanitizers QUIET)
