@@ -93,7 +93,7 @@ public:
 	static MemSource create(Node node, size_t sz, const char *str, const Node& home_node = Node()) {
 		return create(node.physicalId(), sz, str, home_node.physicalId());
 	}
-	static MemSource forNode(const Node &node) {
+	static const MemSource& forNode(const Node &node) {
 		return forNode(node.physicalId());
 	}
 	size_t migrate(const Node& node) const {
