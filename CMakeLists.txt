@@ -75,8 +75,19 @@ if (NOT PGASUS_MMAP_THRESHOLD GREATER -1)
 Current value: ${PGASUS_MMAP_THRESHOLD}")
 endif()
 
+set(PGASUS_REPLACE_MALLOC ON CACHE BOOL
+	"Determines whether PGASUS replaces the process-wide malloc function.")
+
 add_PGASUS_option(WITH_TASKING
 	"Include tasking support, currently requiring boost version >= 1.58 and <= 1.60." ON)
+
+add_PGASUS_option(BUILD_TESTS "Build the tests and benchmarks (requires further 3rd party libs)." ON)
+
+add_PGASUS_option(TEST_WITH_FAKE_TOPOLOGY
+	"Simulate POWER-like virtualized topology by overriding some hwloc functions." OFF)
+mark_as_advanced(PGASUS_TEST_WITH_FAKE_TOPOLOGY)
+
+add_PGASUS_option(BUILD_DOCUMENTATION "Build the source documentation (requires doxygen)." ON)
 
 
 if (NOT DEFAULT_COMPILE_DEFINITIONS)
@@ -177,7 +188,6 @@ if (PGASUS_WITH_TASKING)
 Disable tasking support to omit the Boost dependency (See PGASUS_WITH_TASKING).")
 	endif()
 endif()
-find_package(ZLIB REQUIRED)
 find_package(NUMA REQUIRED)
 find_package(HWLOC REQUIRED)
 find_package(Sanitizers QUIET)
