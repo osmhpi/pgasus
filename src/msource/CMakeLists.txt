@@ -1,7 +1,4 @@
 
-set(PGASUS_REPLACE_MALLOC ON CACHE BOOL
-	"Determines whether PGASUS replaces the process-wide malloc function.")
-
 set(PUBLIC_HEADERS
 	${PROJECT_INCLUDE_DIR}/PGASUS/msource/mmaphelper.h
 	${PROJECT_INCLUDE_DIR}/PGASUS/msource/msource.hpp

@@ -1,14 +1,8 @@
 
-option(PGASUS_BUILD_TESTS "Build the tests and benchmarks (requires further 3rd party libs)." ON)
-mark_as_advanced(PGASUS_BUILD_TESTS)
-
 if (NOT PGASUS_BUILD_TESTS)
 	return()
 endif()
 
-option(PGASUS_TEST_WITH_FAKE_TOPOLOGY
-	"Simulate POWER-like virtualized topology by overriding some hwloc functions." OFF)
-mark_as_advanced(PGASUS_TEST_WITH_FAKE_TOPOLOGY)
 if (PGASUS_TEST_WITH_FAKE_TOPOLOGY)
 	if (NOT PGASUS_BUILD_STATIC_LIBRARIES)
 		message(WARNING "PGASUS_TEST_WITH_FAKE_TOPOLOGY requires PGASUS_BUILD_STATIC_LIBRARIES to be set.")
