@@ -38,7 +38,7 @@ private:
 	numa::SpinLock                  lock;
 
 public:
-	NodeLocalStorage(const size_t n)
+	explicit NodeLocalStorage(const size_t n)
 		: node(n)
 		, max_node_id(numa::util::Topology::get()->node_ids().back())
 		, local_msource(numa::MemSource::forNode(n))
@@ -66,7 +66,7 @@ public:
 
 			if (!msources[n].valid()) {
 				char buff[4096];
-				snprintf(buff, sizeof(buff) / sizeof(buff[0]), "nodeLocal(src=%zd dst=%zd)",
+				snprintf(buff, sizeof(buff) / sizeof(buff[0]), "nodeLocal(src=%zu dst=%zu)",
 						node, n);
 				msources[n] = numa::MemSource::create(n, 1LL<<24, buff, node);
 			}
@@ -120,10 +120,6 @@ private:
 	numa::MemSource             _curr_msource;
 
 	static const size_t         s_local_source_size = (size_t)(1 << 24);
-
-	inline bool is_inited() {
-		return _initialization_done.load() || init();
-	}
 
 	inline const numa::MemSource& get_node_msource(int n) {
 		return (n >= 0 && size_t(n) == _node)
@@ -238,7 +234,7 @@ public:
 // TLS deleter
 //
 void tlsDestructionFunc(void *data) {
-	ThreadLocalStorage *ptr = (ThreadLocalStorage*) data;
+	ThreadLocalStorage *ptr = static_cast<ThreadLocalStorage*>(data);
 	if (ptr != nullptr) {
 		numa::MemSource::global().destruct(ptr);
 	}
@@ -272,10 +268,10 @@ ThreadLocalStorage &getTlsImpl() {
 	if (ptr == nullptr) {
 		ptr = (void*) numa::MemSource::global().construct<ThreadLocalStorage>();
 		pthread_setspecific(getKey(), ptr);
-		((ThreadLocalStorage*) ptr)->init();
+		static_cast<ThreadLocalStorage*>(ptr)->init();
 	}
 
-	return *((ThreadLocalStorage*) ptr);
+	return *static_cast<ThreadLocalStorage*>(ptr);
 }
 
 ThreadLocalStorage &getTls() {

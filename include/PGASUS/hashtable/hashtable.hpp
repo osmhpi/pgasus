@@ -110,13 +110,13 @@ private:
 		std::atomic_size_t generation;
 		
 		Bucket(const numa::MemSource &ms, size_t idx, size_t bin_generation)
-			: NodeList(ms), index(idx), generation(bin_generation << 32)
+			: NodeList(ms), lock(), index(idx), generation(bin_generation << 32)
 		{
 			static_assert(sizeof(size_t) > 4, "size_t needs to be 64bit");
 		}
 		
 		Bucket(Bucket &&other)
-			: NodeList(other), index(other.index), generation(other.generation.load())
+			: NodeList(other), lock(), index(other.index), generation(other.generation.load())
 		{
 		}
 	};
@@ -140,8 +140,8 @@ private:
 			_curr_node = (_index != _bucket->end()) ? *_index : nullptr;
 		}
 	public:
-		inline BucketIterator() : _bucket(), _curr_node() {}
-		inline BucketIterator(BucketPtr bucket) : _bucket(bucket), _curr_node(nullptr)
+		inline BucketIterator() : _bucket(), _generation(0u), _curr_node() {}
+		explicit inline BucketIterator(BucketPtr bucket) : _bucket(bucket), _curr_node(nullptr)
 		{
 			auto guard = _bucket->lock.read_guard();
 			_generation = _bucket->generation.load();
@@ -422,7 +422,7 @@ private:
 		/** Return value for key, or default-constructed value */
 		struct Get : public OperationBase<bool, false, false> {
 			T *&ret;
-			Get(T *&t) : ret(t) {}
+			explicit Get(T *&t) : ret(t) {}
 
 			inline bool found(NodeListIterator &it, BinData*, Bucket&, const Key&) const {
 				ret = &((*it)->value());
@@ -437,7 +437,7 @@ private:
 		template <class Value>
 		struct SetValue : public OperationBase<T&, true, true> {
 			Value value;
-			SetValue(Value v) : value(v) {}
+			explicit SetValue(Value v) : value(v) {}
 			
 			inline T& found(NodeListIterator &it, BinData*, Bucket&, const Key&) const {
 				return ((*it)->value = value);
@@ -507,7 +507,7 @@ private:
 	
 public:
 
-	HashTable(const numa::NodeList &nodes) {
+	explicit HashTable(const numa::NodeList &nodes) {
 		for (size_t idx = 0; idx < BinCount; idx++) {
 			int nodeIdx = (idx * nodes.size() / BinCount);
 			_bin_nodes[idx] = nodes[nodeIdx];

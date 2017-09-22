@@ -59,7 +59,7 @@ int main (int argc, char const* argv[])
 		totalWords += lf->totalWordCount;
 	}
 	printf("%d\ttime(Loaded Files)\n", tLoad);
-	printf("%zd\tcount(FilesTotal)\n", allFiles.size());
+	printf("%zu\tcount(FilesTotal)\n", allFiles.size());
 	printf("%.2f\tcount(M LinesTotal)\n", totalLines / 1000000.f);
 	printf("%.2f\tcount(M WordsTotal)\n", totalWords / 1000000.f);
 	printf("%.2f\tavg(M WordsLoad / sec)\n", totalWords / (1000.f * tLoad));

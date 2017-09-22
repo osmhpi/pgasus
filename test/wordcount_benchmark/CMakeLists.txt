@@ -24,6 +24,7 @@ endif()
 
 add_executable(bench_wc_numa main.cpp exec_numa.cpp ${SRC_UTIL})
 target_link_libraries(bench_wc_numa hpinuma ${ZLIB_LIBRARIES})
+cppcheck_target(bench_wc_numa)
 
 add_executable(bench_wc_numa_s main.cpp exec_numa.cpp ${SRC_UTIL})
 target_link_libraries(bench_wc_numa_s hpinuma_s ${ZLIB_LIBRARIES})

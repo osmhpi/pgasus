@@ -71,11 +71,12 @@ std::vector<std::string> loadFiles(const std::string &fname) {
 	return ret;
 }
 
-TextFile::TextFile(const std::string &fname) {
-	fileName = fname;
-	fileData = Buffer::fromFile(fname.c_str());
-	totalWordCount = 0;
-
+TextFile::TextFile(const std::string &fname)
+	: lines{}
+	, fileName{ fname }
+	, fileData{ Buffer::fromFile(fname.c_str()) }
+	, totalWordCount{ 0u }
+{
 	//zipped?
 	if ((fileData->name().substr(fileData->name().size()-3) == ".gz")) {
 		fileData = Buffer::unzip(*fileData);
@@ -86,8 +87,6 @@ TextFile::TextFile(const std::string &fname) {
 TextFile::~TextFile() = default;
 
  std::unique_ptr<WordCount> TextFile::countWords() const {
-	std::string delimiters = " .,!?;:\"'-/()";
-
 	std::unique_ptr<WordCount> wc = std::unique_ptr<WordCount>(new WordCount);
 
 	for (auto it = lines.begin(); it != lines.end(); ++it) {
@@ -100,7 +99,6 @@ TextFile::~TextFile() = default;
 }
 
 size_t TextFile::count(const std::string &word) const {
-	std::string delimiters = " .,!?;:\"'-/()";
 	size_t c = 0;
 	std::string lowerword(word);
 	std::transform(word.begin(), word.end(), lowerword.begin(), ::tolower);

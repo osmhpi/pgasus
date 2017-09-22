@@ -818,11 +818,11 @@ const MemSource& MemSource::forNode(const size_t phys_node) {
 
 	if (global_msource_impls[phys_node] == nullptr) {
 		char buff[4096];
-		snprintf(buff, sizeof(buff) / sizeof(buff[0]), "node_global(%zd)", phys_node);
+		snprintf(buff, sizeof(buff) / sizeof(buff[0]), "node_global(%zu)", phys_node);
 		global_msource_impls[phys_node] = msource::MemSourceImpl::create(phys_node, 1LL<<24, buff, -1);
 		global_msource_ptrs[phys_node] = MemSource(global_msource_impls[phys_node]);
 
-		numa::debug::log(numa::debug::DEBUG, "Created nodeGlobal MemSource (%zd)", phys_node);
+		numa::debug::log(numa::debug::DEBUG, "Created nodeGlobal MemSource (%zu)", phys_node);
 	}
 
 	return global_msource_ptrs[phys_node];

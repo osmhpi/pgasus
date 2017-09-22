@@ -6,7 +6,7 @@
 
 #include "PGASUS/msource/msource_types.hpp"
 
-#include "util/spinlock.hpp"
+#include "PGASUS/base/spinlock.hpp"
 
 namespace numa {
 namespace msource {
@@ -43,14 +43,15 @@ class Singleton
 		}
 	
 	public:
-		Singleton(ArgTypes ... args)
+		explicit Singleton(ArgTypes ... args)
 			: _args(std::forward<ArgTypes>(args)...)
 		{
 			_initialized = 1;
 		}
 		
 		Singleton(Singleton &&other)
-			: _global_data(other._global_data)
+			: _global_lock{}
+			, _global_data(other._global_data)
 			, _args(other._args)
 		{
 			other._global_data = nullptr;
@@ -72,6 +73,7 @@ class Singleton
 			this->_global_data = other._global_data;
 			this->_args = other._args;
 			other._global_data = nullptr;
+			return *this;
 		}
 		
 		T *get() {

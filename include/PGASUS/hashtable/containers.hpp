@@ -232,7 +232,7 @@ private:
 public:
 	typedef StdIteratorAdapter<StdIterator> Iterator;
 
-	StdParallelIteration(const MemSource &ms) : msource(ms), currIndex(0) {}
+	explicit StdParallelIteration(const MemSource &ms) : msource(ms), currIndex(0) {}
 	~StdParallelIteration() {}
 
 	void addIteratorPair(const StdIterator &begin, const StdIterator &end, size_t elems) {

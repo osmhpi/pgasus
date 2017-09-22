@@ -92,9 +92,7 @@ class SpinLockType {
 #endif
 
 public:
-	SpinLockType() {
-		memset((void*) this, 0, sizeof(*this)); // nullify memory for fun
-	}
+	SpinLockType() { }
 
 	void lock() {
 #if NUMA_PROFILE_SPINLOCK

@@ -107,9 +107,11 @@ namespace util {
 	
 		template <class U> MmapAllocator& operator=(const MmapAllocator<U>& other) {
 			node = other.node;
+			return *this;
 		}
 		template <class U> MmapAllocator& operator=(MmapAllocator<U>&& other) {
 			node = other.node;
+			return *this;
 		}
 	
 	public:

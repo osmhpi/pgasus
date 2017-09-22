@@ -39,6 +39,7 @@ target_include_directories(hpinuma_base ${include_dirs})
 if (DEFAULT_COMPILE_DEFINITIONS)
 	target_compile_definitions(hpinuma_base ${DEFAULT_COMPILE_DEFINITIONS})
 endif()
+cppcheck_target(hpinuma_base)
 
 # Create public exports
 set(HPINUMA_BASE_EXPORT_HEADER "${PROJECT_BINARY_DIR}/src/PGASUS/base/hpinuma_base_export.h")

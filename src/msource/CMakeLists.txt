@@ -82,6 +82,7 @@ target_include_directories(hpinuma_msource ${include_dirs})
 if (MALLOC_DEFINES)
 	target_compile_definitions(hpinuma_msource ${MALLOC_DEFINES})
 endif()
+cppcheck_target(hpinuma_msource)
 
 # Create public exports
 set(HPINUMA_MSOURCE_EXPORT_HEADER "${PROJECT_BINARY_DIR}/src/PGASUS/msource/hpinuma_msource_export.h")

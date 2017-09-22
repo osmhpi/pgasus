@@ -89,7 +89,7 @@ protected:
 	/**
 	 * Create the task, bind it to the given scheduler
 	 */
-	Task(Priority prio);
+	explicit Task(Priority prio);
 
 	virtual ~Task();
 	

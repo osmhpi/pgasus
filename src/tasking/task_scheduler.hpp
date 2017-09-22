@@ -58,7 +58,7 @@ private:
 
 public:
 
-	SchedulingDomain(const numa::MemSource &ms);
+	explicit SchedulingDomain(const numa::MemSource &ms);
 	~SchedulingDomain();
 	
 	/**
@@ -134,7 +134,7 @@ private:
 	
 	
 public:
-	Scheduler(const Node &node);
+	explicit Scheduler(const Node &node);
 	~Scheduler();
 	
 	inline ContextCache& context_cache() { return _ctx_cache; }

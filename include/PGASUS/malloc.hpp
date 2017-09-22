@@ -47,9 +47,9 @@ class HPINUMA_MSOURCE_EXPORT PlaceGuard {
 private:
 	Place       _place;
 public:
-	inline PlaceGuard(const Node &node) : _place(node) { malloc::push(_place); }
-	inline PlaceGuard(const MemSource &ms) : _place(ms) { malloc::push(_place); }
-	inline PlaceGuard(const Place &p) : _place(p) { malloc::push(_place); }
+	explicit inline PlaceGuard(const Node &node) : _place(node) { malloc::push(_place); }
+	explicit inline PlaceGuard(const MemSource &ms) : _place(ms) { malloc::push(_place); }
+	explicit inline PlaceGuard(const Place &p) : _place(p) { malloc::push(_place); }
 	inline ~PlaceGuard() { malloc::pop(); }
 };
 
@@ -57,9 +57,9 @@ namespace malloc {
 
 class HPINUMA_MSOURCE_EXPORT PlaceGuardForIfHack : public PlaceGuard {
 public:
-	inline PlaceGuardForIfHack(const Node &n) : PlaceGuard(n) {}
-	inline PlaceGuardForIfHack(const MemSource &ms) : PlaceGuard(ms) {}
-	inline PlaceGuardForIfHack(const Place &p) : PlaceGuard(p) {}
+	explicit inline PlaceGuardForIfHack(const Node &n) : PlaceGuard(n) {}
+	explicit inline PlaceGuardForIfHack(const MemSource &ms) : PlaceGuard(ms) {}
+	explicit inline PlaceGuardForIfHack(const Place &p) : PlaceGuard(p) {}
 	inline operator bool() const { return true; }
 };
 

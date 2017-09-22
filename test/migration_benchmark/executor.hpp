@@ -84,7 +84,7 @@ public:
 		std::vector<typename Executor::Collection*> cols;
 		cols.reserve(runCount);
 		
-		Executor *exec = ((Executor*)this);
+		Executor *exec = static_cast<Executor*>(this);
 		int t = 0;
 		
 		// generate

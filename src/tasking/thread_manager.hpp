@@ -56,7 +56,7 @@ protected:
 	const numa::MemSource& msource() const { return _msource; }
 
 public:
-	ThreadBase(const numa::MemSource &ms);
+	explicit ThreadBase(const numa::MemSource &ms);
 	virtual ~ThreadBase();
 	
 	/** Associate with given manager. Can only start if associated. */

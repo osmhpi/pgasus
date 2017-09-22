@@ -11,7 +11,7 @@ namespace testing
 class TestFailure : public std::exception
 {
 public:
-	TestFailure(const std::string & what = {})
+	explicit TestFailure(const std::string & what = {})
 		: m_what{ what }
 	{
 	}

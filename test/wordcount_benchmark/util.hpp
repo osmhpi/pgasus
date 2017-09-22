@@ -17,7 +17,7 @@ struct TextFile {
 public:
 	using WordList = std::vector<std::string>;
 
-	TextFile(const std::string &fname);
+	explicit TextFile(const std::string &fname);
 	~TextFile();
 
     std::unique_ptr<WordCount> countWords() const;

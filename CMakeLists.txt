@@ -13,6 +13,8 @@ include(GenerateExportHeader)
 
 project(LibNumaCpp VERSION 0.0.0 LANGUAGES C CXX)
 
+include(cmake/CppCheckTargets.cmake)
+
 set(CMAKE_MODULE_PATH
 	"${PROJECT_SOURCE_DIR}/cmake"
 	"${PROJECT_SOURCE_DIR}/3rdParty/sanitizers-cmake/cmake"
@@ -88,6 +90,8 @@ add_PGASUS_option(TEST_WITH_FAKE_TOPOLOGY
 mark_as_advanced(PGASUS_TEST_WITH_FAKE_TOPOLOGY)
 
 add_PGASUS_option(BUILD_DOCUMENTATION "Build the source documentation (requires doxygen)." ON)
+
+option(PGASUS_ADD_CPPCHECK_TARGETS "Add a cppcheck target per C++-target." ON)
 
 
 if (NOT DEFAULT_COMPILE_DEFINITIONS)
@@ -255,12 +259,14 @@ install(FILES ${PGASUS_CONFIG_FILE}
 # Set postfix for debug versions of libraries. This does not apply to executables!
 set(CMAKE_DEBUG_POSTFIX "_d")
 
+generate_cppcheck_suppressions()
 
 # add sub-projects
 add_subdirectory(src)
 add_subdirectory(test)
 add_subdirectory(docs)
 
+create_cppcheck_ALL_target()
 
 # Export to be usable in external projects
 set(export_targets ${export_targets_bin} ${export_targets_shlib} ${export_targets_staticlib})

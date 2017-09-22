@@ -71,6 +71,7 @@ function(add_target_helper)
 			list(APPEND param_SOURCES fake_hwloc_topology.cpp)
 		endif()
 		add_executable(${param_NAME} ${param_SOURCES})
+		cppcheck_target(${param_NAME})
 	elseif(NOT TARGET ${param_NAME})
 		message(AUTHOR_WARNING "add_target_helper must either be supplied with \
 target source files (paramter SOURCES) or called for an existing target.")

@@ -70,6 +70,6 @@ std::unique_ptr<Buffer> Buffer::unzip(const Buffer &other) {
 	return buf;
 }
 
-Buffer::Buffer() { }
+Buffer::Buffer() : _size{ 0u }{ }
 
 Buffer::~Buffer() = default;

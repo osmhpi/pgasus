@@ -97,7 +97,7 @@ public:
 		RWLock *ref;
 
 	public:
-		inline ReadGuard(RWLock *r) : ref(r) {
+		explicit inline ReadGuard(RWLock *r) : ref(r) {
 			if (ref != nullptr) ref->read_lock();
 		}
 		
@@ -122,7 +122,7 @@ public:
 		RWLock *ref;
 
 	public:
-		inline WriteGuard(RWLock *r) : ref(r) {
+		explicit inline WriteGuard(RWLock *r) : ref(r) {
 			if (ref != nullptr) ref->write_lock();
 		}
 		

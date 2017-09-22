@@ -35,7 +35,7 @@ std::vector<std::string> split(const std::string &s, char delim) {
 void toSizeString(size_t sz, char *buf, size_t len)
 {
 	if (sz < 10000) {
-		snprintf(buf, len, "%zd", sz);
+		snprintf(buf, len, "%zu", sz);
 		return;
 	}
 
@@ -51,7 +51,7 @@ void toSizeString(size_t sz, char *buf, size_t len)
 		return;
 	}
 
-	snprintf(buf, len, "%zd%s", (size_t)v, pfs.back());
+	snprintf(buf, len, "%zu%s", (size_t)v, pfs.back());
 }
 
 std::string toSizeString(size_t sz)

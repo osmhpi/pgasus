@@ -20,7 +20,7 @@
 template <> struct Generator<std::string> {
 	static inline std::string generate(size_t idx) {
 		char buff[256];
-		sprintf(buff, "string%zdfoobar", idx ^ 0xDEADBEEF);
+		sprintf(buff, "string%zufoobar", idx ^ 0xDEADBEEF);
 		return std::string(buff);
 	}
 };
@@ -46,7 +46,7 @@ struct StdMapBench : public MapBenchmarker<StdMapBench<_MapType, _KeyType>>
 	std::mutex mutex;
 	const char *n;
 
-	StdMapBench(const char *nn) : n(nn) {}
+	explicit StdMapBench(const char *nn) : n(nn) {}
 	inline const char *name() const { return n; }
 	size_t count() { return map.size(); }
 

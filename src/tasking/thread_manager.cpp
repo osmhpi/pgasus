@@ -98,7 +98,7 @@ void ThreadBase::join() {
 }
 
 void* ThreadBase::thread_func(void *arg) {
-	ThreadBase *thread = (ThreadBase*) arg;
+	ThreadBase *thread = static_cast<ThreadBase*>(arg);
 
 	assert(thread->state() == RUNNING);
 

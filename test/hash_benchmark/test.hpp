@@ -108,7 +108,7 @@ struct MapBenchmarker
 
 		size_t sz2 = crtp->size();
 
-		printf("elems=[%zd,%zd], sum=%zd, insert=%d, lookup=%d, iterate=%d, remove=%d\t\t%s\n",
+		printf("elems=[%zu,%zu], sum=%zu, insert=%d, lookup=%d, iterate=%d, remove=%d\t\t%s\n",
 			   sz2, sz1, sum, tInsert, tLookup, tIterate, tRemove, crtp->name());
 
 		delete counter;

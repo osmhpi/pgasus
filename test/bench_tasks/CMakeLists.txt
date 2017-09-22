@@ -1,3 +1,4 @@
 
 add_executable(bench_tasks_numa bench_tasks.cpp)
 target_link_libraries(bench_tasks_numa hpinuma)
+cppcheck_target(bench_tasks_numa)

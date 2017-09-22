@@ -93,7 +93,7 @@ int main (int argc, char const* argv[])
 			//
 			// print result
 			//
-			printf("src=%d dst=%d remote=%zd migrate=%zd (%zd pages) local=%zd\n",
+			printf("src=%d dst=%d remote=%zd migrate=%zd (%zu pages) local=%zd\n",
 				   fromNode.physicalId(), toNode.physicalId(), timeRemote/1000, timeMigrate/1000, nPages, timeLocal/1000);
 		}
 	}

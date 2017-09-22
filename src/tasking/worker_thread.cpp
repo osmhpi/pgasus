@@ -206,7 +206,7 @@ void WorkerThread::start_new_context(intptr_t ptr) {
 				self->_time_task_sched += self->reset_get_delta();
 #endif
 			}
-			self = (WorkerThread*) self->_curr_ctx->jump_to(self->_curr_task->get_context(), self);
+			self = static_cast<WorkerThread*>(self->_curr_ctx->jump_to(self->_curr_task->get_context(), self));
 		}
 	}
 
@@ -225,7 +225,7 @@ void WorkerThread::start_new_context(intptr_t ptr) {
 void WorkerThread::drop_task(WorkerThread *self) {
 	// switch to some acquired neutral context, send task information,
 	self->_curr_ctx = self->get_neutral_context();
-	self = (WorkerThread*) self->_curr_task->get_context()->jump_to(self->_curr_ctx, self);
+	self = static_cast<WorkerThread*>(self->_curr_task->get_context()->jump_to(self->_curr_ctx, self));
 
 	// stash away old context
 	// TODO: what to do with that in the long term?

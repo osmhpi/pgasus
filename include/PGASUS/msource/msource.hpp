@@ -29,7 +29,7 @@ private:
 	msource::MemSourceImpl *_msource;
 	static Node getNodeOf(void *p);
 	
-	MemSource(msource::MemSourceImpl *ms);
+	explicit MemSource(msource::MemSourceImpl *ms);
 
 public:
 	MemSource();

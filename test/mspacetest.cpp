@@ -39,7 +39,7 @@ Memories fill(MemSource src, const MemSizes &mems) {
 void printInfo(MemSource src) {
 	numa::msource_info info = src.stats();
 	
-	printf("Space [%s]: %zd arenas (%zd alloc, %zd used), %zd mmaps (%zd alloc, %zd used)\n",
+	printf("Space [%s]: %zu arenas (%zu alloc, %zu used), %zu mmaps (%zu alloc, %zu used)\n",
 		src.getDescription().c_str(),
 		info.arena_count, info.arena_size, info.arena_used,
 		info.hugeobj_count, info.hugeobj_size, info.hugeobj_used);

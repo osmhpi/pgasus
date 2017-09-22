@@ -93,12 +93,13 @@ struct TestRunner {
 	int runCount;
 	std::function<T()> generator;
 	
-	TestRunner(numa::Node _from, numa::Node _to, int _elems, int _runCount, const std::function<T()> &_gen) {
-		from = _from;
-		to = _to;
-		elements = _elems;
-		runCount = _runCount;
-		generator = _gen;
+	TestRunner(numa::Node _from, numa::Node _to, int _elems, int _runCount, const std::function<T()> &_gen)
+		: from{ _from }
+		, to{ _to }
+		, elements{ _elems }
+		, runCount{ _runCount }
+		, generator{ _gen }
+	{
 	}
 	
 	template <class Executor>

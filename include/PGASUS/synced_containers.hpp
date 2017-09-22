@@ -24,7 +24,7 @@ private:
 	Lock                _mutex;
 
 public:
-	SyncDeque(const Allocator& alloc = Allocator())
+	explicit SyncDeque(const Allocator& alloc = Allocator())
 		: _container(alloc)
 	{
 	}

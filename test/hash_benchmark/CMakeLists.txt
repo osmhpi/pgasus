@@ -27,6 +27,7 @@ target_include_directories(bench_hash
 	PUBLIC
 		${libcuckoo_INCLUDE_DIRS}
 )
+cppcheck_target(bench_hash)
 
 add_executable(bench_hash_s ${SOURCES})
 target_link_libraries(bench_hash_s

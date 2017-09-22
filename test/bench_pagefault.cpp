@@ -62,7 +62,7 @@ class SyncVec : public std::vector<T> {
 private:
 	std::mutex _mutex;
 public:
-	SyncVec(const numa::Node &node) {
+	explicit SyncVec(const numa::Node &node) {
 	}
 
 	void addSynced(const T &v) {
@@ -113,9 +113,9 @@ int main(int argc, char *argv[])
 	size_t writeMask = pageSize / sizeof(size_t) - 1;
 
 	if (!quiet) {
-		printf("pageSize: %zd\n", pageSize);
-		printf("pageCount: %zd\n", pageCount);
-		printf("pageWrites: %zd * %zd bytes\n", pageWrites, sizeof(size_t));
+		printf("pageSize: %zu\n", pageSize);
+		printf("pageCount: %zu\n", pageCount);
+		printf("pageWrites: %zu * %zu bytes\n", pageWrites, sizeof(size_t));
 	}
 
 	Timer<int> globalTimer(true);

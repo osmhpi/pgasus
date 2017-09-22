@@ -21,7 +21,7 @@ struct MovePagesExecutor : public AbstractExecutor<MovePagesExecutor<T>, T> {
 		return static_cast<BaseClass*>(this);
 	}
 	
-	MovePagesExecutor(MigrationPolicy mp)
+	explicit MovePagesExecutor(MigrationPolicy mp)
 		: AbstractExecutor<MovePagesExecutor<T>,T>()
 	{
 		static_assert(std::is_pod<T>::value, "MovePages: POD only!");

@@ -66,6 +66,7 @@ target_include_directories(hpinuma ${include_dirs})
 if (PGASUS_WITH_TASKING)
 	target_link_libraries(hpinuma PUBLIC ${Boost_LIBRARIES})
 endif()
+cppcheck_target(hpinuma)
 
 # Create public exports
 set(HPINUMA_EXPORT_HEADER "${PROJECT_BINARY_DIR}/src/PGASUS/hpinuma_export.h")

@@ -285,13 +285,6 @@ void Scheduler::stop_wait_thread(int core) {
 void Scheduler::set_threads(const std::vector<int> &core_ids) {
 	std::lock_guard<std::recursive_mutex> lock(_workers_lock);
 
-	// cpuset list -> bitmap
-	std::vector<bool> oncore(_cores, false);
-	for (int c : core_ids) {
-		assert(c >= 0 && c < _cores);
-		oncore[c] = true;
-	}
-
 	for (int c = 0; c < _cores; c++) {
 		// create thread?
 		if (core_ids[c] && _workers[c] == nullptr) {

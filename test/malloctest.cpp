@@ -50,7 +50,7 @@ static void* thfun(void *data) {
 	std::vector<void*> allocs;
 	allocs.reserve(blocks);
 
-	printf("%zd/%d\n", reinterpret_cast<size_t>(data), nthreads);
+	printf("%zu/%d\n", reinterpret_cast<size_t>(data), nthreads);
 
 	for (int i = 0; i < blocks; i++) {
 		allocs.push_back(malloc((i << 3) & 0x1FF));

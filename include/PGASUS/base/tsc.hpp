@@ -25,7 +25,7 @@ private:
 	T &dst;
 	TscTime start;
 public:
-	inline TscCounter(T &d)
+	explicit inline TscCounter(T &d)
 		: dst(d), start(rdtsc())
 	{
 	}

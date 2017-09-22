@@ -12,6 +12,7 @@ set(SOURCES
 add_executable(bench_migration ${SOURCES})
 target_link_libraries(bench_migration hpinuma)
 add_sanitizers(bench_migration)
+cppcheck_target(bench_migration)
 
 add_executable(bench_migration_s ${SOURCES})
 target_link_libraries(bench_migration_s hpinuma_s)
