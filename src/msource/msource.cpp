@@ -264,8 +264,6 @@ private:
 	static constexpr size_t     NAME_LENGTH = 128;
 	char                        description[NAME_LENGTH];
 
-	void                       *user_data;
-
 	int                         node;             // where the memory comes from
 	int                         node_home;        // where the data structs lie, or -1, if its the same
 
