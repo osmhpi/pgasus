@@ -13,9 +13,15 @@ static_assert(false,
 typedef uint_fast64_t TscTime;
 
 static inline TscTime rdtsc() {
+#if PGASUS_PLATFORM_S390X
+	uint64_t tsc;
+	__asm__ volatile("stckf %0" : "=Q" (tsc) : : "cc");
+	return tsc;
+#else
 	uint_least32_t hi, lo;
 	__asm__ volatile("rdtsc": "=a"(lo), "=d"(hi));
 	return (TscTime)lo | ((TscTime)hi << 32);
+#endif
 }
 
 template <class T>
