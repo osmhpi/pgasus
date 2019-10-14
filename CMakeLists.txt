@@ -97,6 +97,8 @@ if (NOT DEFAULT_COMPILE_DEFINITIONS)
 	set(DEFAULT_COMPILE_DEFINITIONS)
 endif()
 
+add_compile_options(-fPIC)
+
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 	add_compile_options(
 		-Wpedantic
