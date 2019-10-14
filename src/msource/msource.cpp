@@ -699,23 +699,6 @@ public:
 	}
 };
 
-// debug output msources before program shutdown - this should
-// be handled in stackedmalloc, etc, where msources are allocated.
-// but TLS support is a grand fuckup.
-static struct StaticMsourceDtor {
-	StaticMsourceDtor() {
-	}
-	~StaticMsourceDtor() {
-		for (MemSourceImpl *ms : MemSourceImpl::s_allsources()) {
-			if (ms == nullptr) continue;
-			char buff[4096];
-			ms->getDescription(buff, 4096);
-			numa::debug::log(numa::debug::DEBUG, "OnExit MemSource %s", buff);
-		}
-	}
-} _static_msource_dtor;
-
-
 } // namespace msource
 
 MemSource::MemSource() : _msource(nullptr) {}
