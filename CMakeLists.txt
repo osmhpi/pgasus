@@ -104,6 +104,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 		-Wpedantic
 		-Wall
 		-Wno-missing-braces
+		-Wno-unused-function
 	)
 	if (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.8)
 		set(PGASUS_CLANG_DEBUGGER gdb CACHE STRING
@@ -121,6 +122,7 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	add_compile_options(
 		-Wpedantic
 		-Wall
+		-Wno-unused-function
 
 		$<$<CONFIG:Debug>:-ggdb3>
 	)
