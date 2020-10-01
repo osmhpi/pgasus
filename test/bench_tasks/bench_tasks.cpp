@@ -1,6 +1,6 @@
 #include <cstdio>
 #include <cassert>
-#include "tasking/tasking.hpp"
+#include "PGASUS/tasking/tasking.hpp"
 #include "timer.hpp"
 #include <unistd.h>
 
@@ -50,16 +50,22 @@ int main (int argc, char const* argv[])
 	std::atomic<size_t> ids(0);
 
 	timer.start();
-	numa::forEachThread(numa::NodeList::allNodes(), [&]() {
+	numa::forEachThread(numa::NodeList::logicalNodes(), [&]() {
 		taskfun(ids.fetch_add(1), 100, 0);
 	}, 0);
 
-	assert(usleep(tMs * 1000) == 0);
+	if (usleep(tMs * 1000) != 0) {
+		assert(false);
+		return 1;
+	}
 	if (!quiet) printf("[main] done. waiting\n");
 	done.store(1);
 
 	// wait a while
-	assert(usleep(1000 * 1000) == 0);
+	if (usleep(1000 * 1000) != 0) {
+		assert(false);
+		return 1;
+	}
 	if (!quiet) printf("[main] exiting\n");
 
 	int totalTime = 0;

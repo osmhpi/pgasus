@@ -1,0 +1,43 @@
+# - Config file for the @package_name@ package
+# It defines the following variables
+#  @package_name@_INCLUDE_DIRS - include directories for @package_name@
+#  @package_name@_LIBRARIES    - libraries to link against
+#  @package_name@_EXECUTABLE   - the bar executable
+
+set(@package_name@_required_arg)
+if (${CMAKE_FIND_PACKAGE_NAME}_FIND_REQUIRED)
+	set(@package_name@_required_arg REQUIRED)
+endif()
+set(@package_name@_quiet_arg)
+if (${CMAKE_FIND_PACKAGE_NAME}_FIND_QUIETLY)
+	set(@package_name@_quiet_arg QUIET)
+endif()
+# Boost only required for tasking module
+if (@PGASUS_WITH_TASKING@)
+	set(@package_name@_BOOST_MIN_REQUIRED_VERSION @BOOST_MIN_REQUIRED_VERSION@)
+	set(@package_name@_BOOST_MAX_REQUIRED_VERSION @BOOST_MAX_REQUIRED_VERSION@)
+	set(@package_name@_BOOST_REQUIRED_COMPONENTS @BOOST_REQUIRED_COMPONENTS@)
+	find_package(Boost ${@package_name@_REQUIRED_BOOST_MIN_REQUIRED_VERSION}
+		COMPONENTS ${@package_name@_BOOST_REQUIRED_COMPONENTS}
+		${@package_name@_required_arg} ${@package_name@_quiet_arg})
+	unset(@package_name@_required_arg)
+	unset(@package_name@_quiet_arg)
+	set(BOOST_FOUND_VERSION ${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION}.${Boost_SUBMINOR_VERSION})
+	if (BOOST_FOUND_VERSION VERSION_GREATER @package_name@_BOOST_MAX_REQUIRED_VERSION)
+		message(FATAL_ERROR "@package_name@: Boost version newer than ${@package_name@_BOOST_MAX_REQUIRED_VERSION} is currently not supported.")
+	endif()
+endif()
+
+# Compute paths
+get_filename_component(@package_name@_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+set(@package_name@_INCLUDE_DIRS "@CONF_INCLUDE_DIRS@")
+
+# Our library dependencies (contains definitions for IMPORTED targets)
+if(NOT TARGET hpinuma AND NOT @package_name@_BINARY_DIR)
+	include("${@package_name@_CMAKE_DIR}/@package_name@Targets.cmake")
+endif()
+
+# These are IMPORTED targets created by @package_name@Targets.cmake
+set(@package_name@_BINARIES "@export_targets_bin@")
+set(@package_name@_SHARED_LIBRARIES "@export_targets_shlib@")
+set(@package_name@_STATIC_LIBRARIES "@export_targets_staticlib@")

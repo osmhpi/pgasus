@@ -8,8 +8,9 @@
 #include <list>
 #include <iostream>
 
-#include "tasking/tasking.hpp"
+#include "PGASUS/tasking/tasking.hpp"
 #include "timer.hpp"
+#include "test_helper.h"
 
 
 using numa::TaskRef;
@@ -33,9 +34,11 @@ int main (int argc, char const* argv[])
 {
 	if (argc < 3) usage(argv[0]);
 	
+	testing::initialize();
+
 	// get task count
 	int count = atoi(argv[1]);
-	size_t count2 = count/2;
+	int count2 = count/2;
 	int spawner = atoi(argv[2]);
 	
 	printf("Main: %d+%d tasks, %d spawner\n",
@@ -53,25 +56,25 @@ int main (int argc, char const* argv[])
 			std::vector<TriggerableRef> tasks;
 			std::list<TriggerableRef> waitTasks;
 			
-			for (size_t i = 0; i < count; i++) {
+			for (int i = 0; i < count; i++) {
 				tasks.push_back(numa::async<void>( [i] () {
 					Timer<int> t(true);
 					tediousCalc();
-					int total = t.stop_get();
-			
+
+					// int total = t.stop_get();
 //					printf("Task[%d] done: %d.%03ds\n", i, total/1000, total%1000);
 				}, 0));
 			}
 			
-			for (size_t i = 0; i < count2; i++) {
+			for (int i = 0; i < count2; i++) {
 				waitTasks.push_back(numa::async<void>( [=,&tasks] () {
 					Timer<int> t(true);
 					numa::wait(tasks[2*i].get());
-					int w1 = t.stop_get_start();
+					/*int w1 =*/ t.stop_get_start();
 					numa::wait(tasks[2*i+1].get());
-					int w2 = t.stop_get_start();
+					/*int w2 =*/ t.stop_get_start();
 					tediousCalc();
-					int tt = t.stop_get_start();
+					/*int tt =*/ t.stop_get_start();
 			
 					//printf("Task2[%d] done: w1=%d.%03ds, w2=%d.%03ds t=%d.%03ds\n",
 					//	i, w1/1000, w1%1000, w2/1000, w2%1000, tt/1000, tt%1000);

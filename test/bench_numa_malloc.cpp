@@ -1,9 +1,11 @@
 #include <atomic>
 #include <cstring>
 
-#include "malloc.hpp"
-#include "tasking/tasking.hpp"
+#include "PGASUS/malloc.hpp"
+#include "PGASUS/tasking/tasking.hpp"
 #include "timer.hpp"
+
+#include "test_helper.h"
 
 
 float localAllocs(size_t nperthread) {
@@ -37,8 +39,10 @@ int main(int argc, char **argv) {
 		return 1;
 	}
 
+	testing::initialize();
+
 	size_t elems = atoi(argv[2]);
-	assert(elems > 0);
+	ASSERT_TRUE(elems > 0);
 
 	if (!strcmp(argv[1], "local")) {
 		float persec = localAllocs(elems);

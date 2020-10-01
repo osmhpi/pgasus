@@ -2,9 +2,13 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstdlib>
+#include <string>
 #include <vector>
 
-#include "msource/msource.hpp"
+#include "PGASUS/base/node.hpp"
+#include "PGASUS/msource/msource.hpp"
+
+#include "test_helper.h"
 
 
 typedef std::vector<void*> Memories;
@@ -14,7 +18,7 @@ using numa::MemSource;
 
 int sum(const MemSizes &mems) {
 	int s = 0;
-	for (int i = 0; i < mems.size(); i++) s += mems[i];
+	for (size_t i = 0; i < mems.size(); i++) s += mems[i];
 	return s;
 }
 
@@ -22,7 +26,7 @@ int sum(const MemSizes &mems) {
 Memories fill(MemSource src, const MemSizes &mems) {
 	Memories allocs;
 	
-	for (int i = 0; i < mems.size(); i++) {
+	for (size_t i = 0; i < mems.size(); i++) {
 		allocs.push_back(src.alloc(mems[i]));
 	}
 	
@@ -35,7 +39,7 @@ Memories fill(MemSource src, const MemSizes &mems) {
 void printInfo(MemSource src) {
 	numa::msource_info info = src.stats();
 	
-	printf("Space [%s]: %zd arenas (%zd alloc, %zd used), %zd mmaps (%zd alloc, %zd used)\n",
+	printf("Space [%s]: %zu arenas (%zu alloc, %zu used), %zu mmaps (%zu alloc, %zu used)\n",
 		src.getDescription().c_str(),
 		info.arena_count, info.arena_size, info.arena_used,
 		info.hugeobj_count, info.hugeobj_size, info.hugeobj_used);
@@ -45,6 +49,8 @@ void printInfo(MemSource src) {
 
 int main (int argc, char const* argv[])
 {
+	testing::initialize();
+
 	srand(time(0));
 	
 	MemSizes sizes;
@@ -57,7 +63,7 @@ int main (int argc, char const* argv[])
 	Memories mems = fill(msrc, sizes);
 	printInfo(msrc);
 	
-	for (int i = 0; i < mems.size()/2; i++)
+	for (size_t i = 0; i < mems.size()/2; i++)
 		MemSource::free(mems[i]);
 		
 	printInfo(msrc);

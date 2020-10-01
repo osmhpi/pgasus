@@ -4,26 +4,25 @@
 #include <mutex>
 #include <semaphore.h>
 
-#include "msource/msource.hpp"
-#include "base/spinlock.hpp"
-
-#include "tasking/task.hpp"
-#include "tasking/task_collection.hpp"
+#include "PGASUS/hpinuma_export.h"
+#include "PGASUS/base/spinlock.hpp"
+#include "PGASUS/msource/msource.hpp"
 #include "tasking/context.hpp"
 
 
 namespace numa {
 namespace tasking {
 
-
-class WorkerThread;
+class Task;
+class TaskCollection;
 class ThreadManager;
+class WorkerThread;
 
 
 /**
  * Encapsulates all priorities within one scheduling domain
  */
-class SchedulingDomain
+class HPINUMA_EXPORT SchedulingDomain
 {
 private:
 	typedef numa::SpinLock Lock;
@@ -59,7 +58,7 @@ private:
 
 public:
 
-	SchedulingDomain(const numa::MemSource &ms);
+	explicit SchedulingDomain(const numa::MemSource &ms);
 	~SchedulingDomain();
 	
 	/**
@@ -84,7 +83,7 @@ public:
 /**
  * Holds all to-be-scheduled tasks for a set of managed worker threads.
  */
-class Scheduler
+class HPINUMA_EXPORT Scheduler
 {
 private:
 	
@@ -135,7 +134,7 @@ private:
 	
 	
 public:
-	Scheduler(const Node &node);
+	explicit Scheduler(const Node &node);
 	~Scheduler();
 	
 	inline ContextCache& context_cache() { return _ctx_cache; }

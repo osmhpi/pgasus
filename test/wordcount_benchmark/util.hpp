@@ -1,35 +1,44 @@
 #pragma once
 
+#include <list>
+#include <map>
+#include <memory>
+#include <mutex>
 #include <string>
 #include <vector>
-#include <map>
-#include <unordered_map>
-#include <mutex>
-#include <list>
 
 #include "buffer.hpp"
 
-typedef std::map<std::string, size_t> WordCount;
-typedef std::pair<std::string, size_t> Word;
+#define WORDCOUNT_USE_WORD_MAP 0
+
+#if WORDCOUNT_USE_WORD_MAP
+#include <unordered_map>
+#endif
+
+using WordCount = std::map<std::string, size_t>;
 
 struct TextFile {
 public:
 	using WordList = std::vector<std::string>;
 
-	TextFile(const std::string &fname);
+	explicit TextFile(const std::string &fname);
 	~TextFile();
 
-    WordCount *countWords() const;
+    std::unique_ptr<WordCount> countWords() const;
 	size_t count(const std::string &word) const;
 
-	std::unordered_map<size_t, WordList> lines;
+#if WORDCOUNT_USE_WORD_MAP
+    std::unordered_map<size_t, WordList> lines;
+#else
+	std::vector<WordList> lines;
+#endif
     std::string fileName;
-    Buffer *fileData;
+    std::unique_ptr<Buffer> fileData;
 	size_t totalWordCount;
 
 private:
 	static WordList wordsFromLine(const std::string &line);
-	void doExtractLines(Buffer *buf);
+	void doExtractLines(Buffer &buf);
 };
 
 // returns file data of all files listed in given file

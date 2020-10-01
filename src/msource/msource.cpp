@@ -1,21 +1,26 @@
+#include <algorithm>
+#include <atomic>
 #include <cstdio>
 #include <cstddef>
 #include <cassert>
 #include <cstring>
-
 #include <mutex>
+#include <vector>
 
 #include <numaif.h>
 
-#include "malloc-numa.h"
-#include "msource/msource.hpp"
-#include "msource/msource_types.hpp"
-#include "msource/mmaphelper.h"
-#include "base/spinlock.hpp"
-#include "util/strutil.hpp"
-#include "util/topology.hpp"
-#include "util/debug.hpp"
-#include "util/tsc.hpp"
+#include "PGASUS/PGASUS-config.h"
+#include "PGASUS/base/spinlock.hpp"
+#include "PGASUS/base/topology.hpp"
+#include "PGASUS/msource/msource_allocator.hpp"
+#include "PGASUS/msource/msource_types.hpp"
+#include "PGASUS/msource/mmaphelper.h"
+#include "base/debug.hpp"
+#include "msource/malloc-numa.h"
+
+#if MEM_SOURCE_USE_PTHREAD_SPINLOCK
+#include <pthread.h>
+#endif
 
 
 namespace numa {
@@ -25,7 +30,7 @@ class MemSourceImpl
 {
 private:
 
-#ifdef MEM_SOURCE_USE_PTHREAD_SPINLOCK
+#if MEM_SOURCE_USE_PTHREAD_SPINLOCK
 	typedef pthread_spinlock_t SpinLock;
 	#define SpinLock_lock(s) pthread_spin_lock(&s)
 	#define SpinLock_unlock(s) pthread_spin_unlock(&s)
@@ -144,7 +149,9 @@ private:
 			alloc_end = MEM_PAGE_SIZE;
 			prev = nullptr;
 			next = nullptr;
-			assert(SpinLock_init(mspace_lock));
+			if (!SpinLock_init(mspace_lock)) {
+                assert(false);
+            }
 
 			// create mspace
 			if (dst_node < 0) {
@@ -170,7 +177,9 @@ private:
 				munmap(base, size);
 			}
 
-			assert(SpinLock_destroy(mspace_lock));
+			if (!SpinLock_destroy(mspace_lock)) {
+                assert(false);
+            }
 		}
 
 		inline ChunkFooter *alloc(size_t sz) {
@@ -182,8 +191,11 @@ private:
 
 			if (chunk != nullptr) {
 				// update alloc end ptr
-				size_t rel_chunk_start = (intptr_t)chunk - (intptr_t)this;
-				alloc_end = std::max(alloc_end, rel_chunk_start + sz);
+				const size_t rel_chunk_start = (intptr_t)chunk - (intptr_t)this;
+				const size_t current_end = rel_chunk_start + sz;
+				if (alloc_end < current_end) {
+					alloc_end = current_end;
+				}
 
 				chunk->source = msource;
 				chunk->arena = this;
@@ -284,7 +296,7 @@ private:
 		// Init msource
 		node = n;
 		node_home = home;
-		mmap_threshold = (size_t)(1 << 18);
+		mmap_threshold = PGASUS_MMAP_THRESHOLD;
 		mem_size = sz;
 		mmapped_chunk_head = nullptr;
 
@@ -296,8 +308,12 @@ private:
 		active_arena = native_arena;
 
 		// Init spinlocks
-		assert(SpinLock_init(arena_lock));
-		assert(SpinLock_init(mmapped_chunk_lock));
+		if (!SpinLock_init(arena_lock)) {
+            assert(false);
+        }
+		if (!SpinLock_init(mmapped_chunk_lock)) {
+            assert(false);
+        }
 	}
 
 	~MemSourceImpl() {
@@ -332,8 +348,12 @@ private:
 		}
 
 		// Destroy spinlocks
-		assert(SpinLock_destroy(arena_lock));
-		assert(SpinLock_destroy(mmapped_chunk_lock));
+		if (!SpinLock_destroy(arena_lock)) {
+            assert(false);
+        }
+		if (!SpinLock_destroy(mmapped_chunk_lock)) {
+            assert(false);
+        }
 	}
 
 	inline Arena* create_new_arena(size_t arena_size)
@@ -567,8 +587,6 @@ public:
 
 			// Finalize
 			result = chunk->TO_POINTER();
-
-			goto done;
 		}
 		else {
 			SpinLock_lock(arena_lock);
@@ -592,11 +610,8 @@ public:
 				return nullptr;
 
 			result = arena_chunk->TO_POINTER();
-
-			goto done;
 		}
 
-	done:
 		blocks.addBlock();
 
 		return result;
@@ -772,34 +787,42 @@ const MemSource& MemSource::global() {
 	return global_msource;
 }
 
-const MemSource& MemSource::forNode(size_t phys_node) {
-	static msource::MemSourceImpl **global_msources = nullptr;
+const MemSource& MemSource::forNode(const size_t phys_node) {
+	static msource::MemSourceImpl **global_msource_impls = nullptr;
 	static msvector<MemSource>      global_msource_ptrs(global());
-	static size_t                   global_msources_count = 0;
+	static size_t                   global_msources_max_id = 0;
 	static numa::SpinLock           global_msources_mutex;
 
 	std::lock_guard<numa::SpinLock> lock(global_msources_mutex);
 
-	if (global_msources == nullptr) {
-		global_msources_count = numa::util::Topology::get()->max_node_id() + 1;
-		size_t sz = sizeof(msource::MemSourceImpl*) * global_msources_count;
+	/**
+	Note that "maxNodeID + 1 != nodeCount" on some systems.
+	We allocate global_msource_ptrs and global_msource_impls based on
+	maxNodeID, so that the physical ID can always be used as index.
+	Accepting that there can be gaps in the arrays/vectors, wasting a few bytes
+	of memory.
+	*/
 
-		global_msources = (msource::MemSourceImpl**) global().allocAligned(64, sz);
-		for (size_t i = 0; i < global_msources_count; i++)
-			global_msources[i] = nullptr;
+	if (global_msource_impls == nullptr) {
+		global_msources_max_id = numa::util::Topology::get()->node_ids().back();
+		const size_t sz = sizeof(msource::MemSourceImpl*) * (global_msources_max_id + 1);
 
-		global_msource_ptrs.resize(global_msources_count);
+		global_msource_impls = (msource::MemSourceImpl**) global().allocAligned(64, sz);
+		for (size_t i = 0; i <= global_msources_max_id; i++)
+			global_msource_impls[i] = nullptr;
+
+		global_msource_ptrs.resize(global_msources_max_id + 1);
 	}
 
-	assert(phys_node >= 0 && phys_node < global_msources_count);
+	assert(phys_node <= global_msources_max_id);
 
-	if (global_msources[phys_node] == nullptr) {
+	if (global_msource_impls[phys_node] == nullptr) {
 		char buff[4096];
-		snprintf(buff, sizeof(buff) / sizeof(buff[0]), "node_global(%zd)", phys_node);
-		global_msources[phys_node] = msource::MemSourceImpl::create(phys_node, 1LL<<24, buff, -1);
-		global_msource_ptrs[phys_node] = MemSource(global_msources[phys_node]);
+		snprintf(buff, sizeof(buff) / sizeof(buff[0]), "node_global(%zu)", phys_node);
+		global_msource_impls[phys_node] = msource::MemSourceImpl::create(phys_node, 1LL<<24, buff, -1);
+		global_msource_ptrs[phys_node] = MemSource(global_msource_impls[phys_node]);
 
-		numa::debug::log(numa::debug::DEBUG, "Created nodeGlobal MemSource (%zd)", phys_node);
+		numa::debug::log(numa::debug::DEBUG, "Created nodeGlobal MemSource (%zu)", phys_node);
 	}
 
 	return global_msource_ptrs[phys_node];
@@ -842,20 +865,23 @@ size_t MemSource::migrate(int phys_node) const {
 }
 
 Node MemSource::getNodeOf(void *p) {
-	const NodeList& all = NodeList::allNodes();
-	int nodeid = numa::msource::MemSourceImpl::physicalNodeOf(p);
-	for (const Node &n : all)
-		if (n.physicalId() == nodeid)
-			return n;
-	return Node();
+	const int physicalId = numa::msource::MemSourceImpl::physicalNodeOf(p);
+	const int logicalId = NodeList::physicalToLogicalId(physicalId);
+	if (logicalId < 0) {
+		return Node();
+	}
+	const NodeList& all = NodeList::logicalNodes();
+	return all[static_cast<size_t>(logicalId)];
 }
 
 Node MemSource::getLogicalNode() const {
-	const NodeList& all = NodeList::allNodes();
-	for (const Node &n : all)
-		if (n.physicalId() == _msource->get_node())
-			return n;
-	return Node();
+	const int physicalId = _msource->get_node();
+	const int logicalId = NodeList::physicalToLogicalId(physicalId);
+	if (logicalId < 0) {
+		return Node();
+	}
+	const NodeList& all = NodeList::logicalNodes();
+	return all[static_cast<size_t>(logicalId)];
 }
 
 std::string MemSource::getDescription() const {

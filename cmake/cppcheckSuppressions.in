@@ -1,0 +1,12 @@
+
+purgedConfiguration
+
+// Allow non-explicit constructors in only specific cases
+noExplicitConstructor:@PROJECT_SOURCE_DIR@/include/PGASUS/base/ref_ptr.hpp:33
+noExplicitConstructor:@PROJECT_SOURCE_DIR@/include/PGASUS/msource/mmaphelper.h:103
+noExplicitConstructor:@PROJECT_SOURCE_DIR@/include/PGASUS/msource/msource_allocator.hpp:33
+noExplicitConstructor:@PROJECT_SOURCE_DIR@/include/PGASUS/tasking/task.hpp:18
+
+// Ignore third party code
+*:@PROJECT_SOURCE_DIR@/src/msource/ptmalloc3-malloc-numa.h
+*:@PROJECT_SOURCE_DIR@/src/msource/ptmalloc3-malloc.c

@@ -1,19 +1,32 @@
+#include <algorithm>
+#include <atomic>
 #include <cassert>
+#include <list>
+#include <memory>
+#include <mutex>
+#include <vector>
 
-#include "msource/node_replicated.hpp"
-#include "msource/msource_types.hpp"
+#include <semaphore.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <time.h>
 
+#include "PGASUS/base/node.hpp"
+#include "PGASUS/base/topology.hpp"
+#include "PGASUS/msource/msource.hpp"
+#include "PGASUS/msource/msource_allocator.hpp"
+#include "PGASUS/msource/node_replicated.hpp"
+#include "PGASUS/tasking/task.hpp"
+#include "tasking/task_collection.hpp"
 #include "tasking/task_scheduler.hpp"
-#include "tasking/worker_thread.hpp"
 #include "tasking/thread_manager.hpp"
-
-#include "util/topology.hpp"
-#include "util/debug.hpp"
-#include "util/timer.hpp"
+#include "tasking/worker_thread.hpp"
 
 
 namespace numa {
 namespace tasking {
+
+namespace {
 
 struct GlobalInitializer {
 	SchedulingDomain domain;
@@ -29,17 +42,19 @@ struct GlobalInitializer {
 	}
 };
 
-static GlobalInitializer& initer() {
+GlobalInitializer& initer() {
 	static GlobalInitializer gi;
 	return gi;
 }
 
-static NodeReplicated<Scheduler>& getNodeSchedulers() {
+NodeReplicated<Scheduler>& getNodeSchedulers() {
 	return *initer().schedulers;
 }
 
-static SchedulingDomain* globalDomain() {
+SchedulingDomain* globalDomain() {
 	return &initer().domain;
+}
+
 }
 
 /**
@@ -91,7 +106,7 @@ void SchedulingDomain::put_task(Task* t, int thid) {
 			const util::Topology *topo = util::Topology::get();
 			int physNode = _msource.getPhysicalNode();
 			size_t cpuCount = (physNode >= 0) ? topo->get_node(physNode)->cpus.size()
-											  : topo->max_cpu_id() + 1;
+											  : topo->total_cpu_count();
 
 			TaskCollection *tc = TaskCollection::create(_msource, cpuCount);
 			_priorities[idx].count = 0;
@@ -119,39 +134,35 @@ void SchedulingDomain::put_task(Task* t, int thid) {
 void SchedulingDomain::add_thread(int idx) {
 	for (auto &p : _priorities) p.mutex.lock();
 	_active_thread_ids_mutex.lock();
-	
+
 	for (auto &p : _priorities) {
 		if (p.tasks.load() != nullptr)
 			p.tasks.load()->register_thread(idx);
 	}
-	
+
 	_active_thread_ids.push_back(idx);
-	
+
 	_active_thread_ids_mutex.unlock();
 	for (auto &p : _priorities) p.mutex.unlock();
 }
 
 /** Removes given thread ID from task collections */
-void SchedulingDomain::remove_thread(int idx) {
+void SchedulingDomain::remove_thread(const int idx) {
 	for (auto &p : _priorities) p.mutex.lock();
 	_active_thread_ids_mutex.lock();
-	
+
 	for (auto &p : _priorities) {
 		if (p.tasks.load() != nullptr)
 			p.tasks.load()->deregister_thread(idx);
 	}
-	
+
 	// delete index from list
-	auto it = _active_thread_ids.begin();
-	while (it != _active_thread_ids.end()) {
-		if (*it == idx) {
-			_active_thread_ids.erase(it);
-			break;
-		}
-		++it;
-	}
+	const auto it = std::find(_active_thread_ids.begin(), _active_thread_ids.end(), idx);
 	assert(it != _active_thread_ids.end());
-	
+	_active_thread_ids.erase(it);
+	assert(std::find(_active_thread_ids.begin(), _active_thread_ids.end(), idx)
+		== _active_thread_ids.end());
+
 	_active_thread_ids_mutex.unlock();
 	for (auto &p : _priorities) p.mutex.unlock();
 }
@@ -170,7 +181,9 @@ Scheduler::Scheduler(const Node &node)
 	_workers.resize(_cores, nullptr);
 
 	_waitingThreadsCount = 0;
-	assert(sem_init(&_waitingThreadsSemaphore, 0, 0) == 0);
+	if (sem_init(&_waitingThreadsSemaphore, 0, 0) != 0) {
+		assert(false);
+	}
 
 	_thread_manager = ThreadManager::create(_node, cpus, _msource);
 	set_thread_count(node.threadCount());
@@ -211,7 +224,9 @@ Scheduler::~Scheduler() {
 
 	MemSource::destruct(_domain);
 
-	assert(sem_destroy(&_waitingThreadsSemaphore) == 0);
+	if (sem_destroy(&_waitingThreadsSemaphore) != 0) {
+		assert(false);
+	}
 }
 
 Scheduler* Scheduler::get_scheduler(const Node &node) {
@@ -224,17 +239,17 @@ Scheduler* Scheduler::get_scheduler(const Node &node) {
  */
 WorkerThread* Scheduler::create_thread(int core) {
 	std::lock_guard<std::recursive_mutex> lock(_workers_lock);
-	
+
 	assert(core >= 0 && core < _cores);
 	assert(_workers[core] == nullptr);
-	
+
 	WorkerThread *th = _msource.construct<WorkerThread>(core, this, _msource);
-	
+
 	_domain->add_thread(core);
 	_workers[core] = th;
-	
+
 	_thread_manager->register_thread(th, core);
-	
+
 	return th;
 }
 
@@ -244,22 +259,22 @@ WorkerThread* Scheduler::create_thread(int core) {
  */
 void Scheduler::stop_wait_thread(int core) {
 	std::lock_guard<std::recursive_mutex> wlock(_workers_lock);
-	
+
 	assert(core >= 0 && core < _cores);
 	assert(_workers[core] != nullptr);
-	
+
 	// remove from store
 	WorkerThread *th = _workers[core];
 	_workers[core] = nullptr;
 	_domain->remove_thread(core);
-	
+
 	// shutdown thread
 	th->shutdown();
 	th->notify();
-	
+
 	// wait for completion
 	_thread_manager->deregister_thread(th);
-	
+
 	// destroy object
 	MemSource::destruct(th);
 }
@@ -269,20 +284,13 @@ void Scheduler::stop_wait_thread(int core) {
  */
 void Scheduler::set_threads(const std::vector<int> &core_ids) {
 	std::lock_guard<std::recursive_mutex> lock(_workers_lock);
-	
-	// cpuset list -> bitmap
-	std::vector<bool> oncore(_cores, false);
-	for (int c : core_ids) {
-		assert(c >= 0 && c < _cores);
-		oncore[c] = true;
-	}
-	
+
 	for (int c = 0; c < _cores; c++) {
 		// create thread?
 		if (core_ids[c] && _workers[c] == nullptr) {
 			create_thread(c);
 		}
-		
+
 		// or remove thread
 		else if (!core_ids[c] && _workers[c] != nullptr) {
 			stop_wait_thread(c);
@@ -291,17 +299,17 @@ void Scheduler::set_threads(const std::vector<int> &core_ids) {
 }
 
 /**
- * Sets worker thread count 
+ * Sets worker thread count
  */
-void Scheduler::set_thread_count(int count) {
+void Scheduler::set_thread_count(const int count) {
 	std::lock_guard<std::recursive_mutex> lock(_workers_lock);
-	
+
 	assert(count >= 0 && count <= _cores);
-	
+
 	// count current
 	int curr = 0;
 	for (WorkerThread *w : _workers) if (w != nullptr) curr += 1;
-	
+
 	// too few?
 	for (int c = 0; (c < _cores) && (curr < count); c++) {
 		if (_workers[c] == nullptr) {
@@ -309,7 +317,7 @@ void Scheduler::set_thread_count(int count) {
 			curr += 1;
 		}
 	}
-	
+
 	// too many?
 	for (int c = _cores-1; (c >= 0) && (curr > count); c--) {
 		if (_workers[c] != nullptr) {
@@ -379,8 +387,8 @@ void Scheduler::spawn_task(Scheduler *sched, Task *task) {
 	// global?
 	if (sched == nullptr) {
 		globalDomain()->put_task(task, -1);
-		
-		for (const Node &node : NodeList::allNodes())
+
+		for (const Node &node : NodeList::logicalNodesWithCPUs())
 			getNodeSchedulers().get(node).taskAvailable();
 	}
 	// local?

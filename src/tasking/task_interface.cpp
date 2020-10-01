@@ -1,10 +1,25 @@
-#include <pthread.h>
+#include <algorithm>
+#include <atomic>
+#include <cassert>
+#include <cstddef>
+#include <functional>
+#include <list>
+#include <mutex>
+#include <vector>
 
-#include "tasking/tasking.hpp"
+#include <semaphore.h>
+
+#include "PGASUS/malloc.hpp"
+#include "PGASUS/base/node.hpp"
+#include "PGASUS/base/ref_ptr.hpp"
+#include "PGASUS/msource/msource.hpp"
+#include "PGASUS/tasking/synchronizable.hpp"
+#include "PGASUS/tasking/task.hpp"
+#include "PGASUS/tasking/tasking.hpp"
+#include "base/debug.hpp"
 #include "tasking/task_scheduler.hpp"
 #include "tasking/worker_thread.hpp"
 
-#include "util/topology.hpp"
 
 
 /**
@@ -17,15 +32,21 @@ private:
 	sem_t       _semaphore;
 public:
 	NativeThreadWait() {
-		assert(sem_init(&_semaphore, 0, 0) == 0);
+		if (sem_init(&_semaphore, 0, 0) != 0) {
+			assert(false);
+		}
 	}
 	
 	virtual void notify() override {
-		assert(sem_post(&_semaphore) == 0);
+		if (sem_post(&_semaphore) != 0) {
+			assert(false);
+		}
 	}
 	
 	void wait() {
-		assert(sem_wait(&_semaphore) == 0);
+		if (sem_wait(&_semaphore) != 0) {
+			assert(false);
+		}
 	}
 };
 
@@ -65,13 +86,11 @@ void yield() {
 std::list<TriggerableRef> forEachThread(const NodeList &nodes, const numa::tasking::TaskFunction<void> &fun, Priority prio) {
 	std::list<TriggerableRef> waitList;
 
-	// get total thread count
-	size_t count = 0;
-	for (Node node : NodeList::allNodes())
-		count += tasking::Scheduler::get_scheduler(node)->worker_ids().size();
-
 	// spawn one task for each worker thread
-	for (Node node : nodes) {
+	for (const Node & node : nodes) {
+		if (node.cpuCount() == 0) {
+			continue;	// memory-only node, no CPUs
+		}
 		tasking::Scheduler *sched = tasking::Scheduler::get_scheduler(node);
 		for (int thid : sched->worker_ids()) {
 			numa::PlaceGuard guard(node);
@@ -91,7 +110,7 @@ void prefaultWorkerThreadStorages(size_t bytes) {
 
 	// get total thread count
 	size_t count = 0;
-	for (Node node : NodeList::allNodes())
+	for (const Node& node : NodeList::logicalNodesWithCPUs())
 		count += tasking::Scheduler::get_scheduler(node)->worker_ids().size();
 
 	// barrier impl.
@@ -99,10 +118,12 @@ void prefaultWorkerThreadStorages(size_t bytes) {
 	std::mutex mutex;
 	size_t minPrefault = (size_t)-1;
 	std::atomic_size_t counter(0);
-	assert(sem_init(&semaphore, 0, 0) == 0);
+	if (sem_init(&semaphore, 0, 0) != 0) {
+		assert(false);
+	}
 
 	// spawn one task for each worker thread
-	wait(forEachThread(NodeList::allNodes(), [bytes,count,&counter,&semaphore,&mutex,&minPrefault]() {
+	wait(forEachThread(NodeList::logicalNodesWithCPUs(), [bytes,count,&counter,&semaphore,&mutex,&minPrefault]() {
 		size_t pf = malloc::curr_msource().prefault(bytes);
 
 		// wait until all others have completed. super ugly

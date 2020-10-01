@@ -1,21 +1,21 @@
-#include "msource/msource.hpp"
-#include "msource/msource_types.hpp"
-#include "msource/mmaphelper.h"
+#include "PGASUS/msource/msource.hpp"
+#include "PGASUS/msource/msource_types.hpp"
+#include "PGASUS/msource/mmaphelper.h"
 
-#include "tasking/tasking.hpp"
-#include "../src/util/tsc.hpp"
+#include "PGASUS/tasking/tasking.hpp"
+#include "PGASUS/base/tsc.hpp"
 
 #include <cstdio>
 #include <cstdlib>
 
-inline std::map<int,int> *randomMap(size_t size) {
-	std::map<int,int> *ret = new std::map<int,int>();
+inline std::map<unsigned int,unsigned int> *randomMap(size_t size) {
+	std::map<unsigned int,unsigned int> *ret = new std::map<unsigned int,unsigned int>();
 	while (ret->size() < size)
-		(*ret)[rand()] = rand();
+		(*ret)[(unsigned int)rand()] = (unsigned int)rand();
 	return ret;
 }
 
-int accessMap(const std::map<int,int> &map) {
+unsigned int accessMap(const std::map<unsigned int,unsigned int> &map) {
 	int ret = 0;
 	for (auto it = map.begin(); it != map.end(); ++it) {
 		ret += it->first + it->second;
@@ -42,13 +42,13 @@ int main (int argc, char const* argv[])
 	srand(time(0));
 
 	// go through all node combinations
-	numa::NodeList allNodes = numa::NodeList::allNodes();
-	for (int fromNodeIdx = 0; fromNodeIdx < allNodes.size(); fromNodeIdx++) {
+	numa::NodeList allNodes = numa::NodeList::logicalNodesWithCPUs();
+	for (size_t fromNodeIdx = 0; fromNodeIdx < allNodes.size(); fromNodeIdx++) {
 		numa::Node fromNode = allNodes[fromNodeIdx];
 
-		for (int toNodeIdx = fromNodeIdx; toNodeIdx < allNodes.size(); toNodeIdx++) {
+		for (size_t toNodeIdx = fromNodeIdx; toNodeIdx < allNodes.size(); toNodeIdx++) {
 			numa::Node toNode = allNodes[toNodeIdx];
-			std::map<int,int> *map;
+			std::map<unsigned int,unsigned int> *map;
 			TscTime timeRemote = 0, timeMigrate = 0, timeLocal = 0;
 			size_t nPages = 0;
 
@@ -93,7 +93,7 @@ int main (int argc, char const* argv[])
 			//
 			// print result
 			//
-			printf("src=%d dst=%d remote=%zd migrate=%zd (%zd pages) local=%zd\n",
+			printf("src=%d dst=%d remote=%zd migrate=%zd (%zu pages) local=%zd\n",
 				   fromNode.physicalId(), toNode.physicalId(), timeRemote/1000, timeMigrate/1000, nPages, timeLocal/1000);
 		}
 	}

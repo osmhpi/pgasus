@@ -67,6 +67,8 @@ int t = run_test<SomePod, POD_move_pages_executor<SomePod>>(1024, true);
 #include "executor_copy.hpp"
 #include "executor_msource.hpp"
 
+#include "test_helper.h"
+
 
 struct TestPod {
 	float f[16];
@@ -91,12 +93,13 @@ struct TestRunner {
 	int runCount;
 	std::function<T()> generator;
 	
-	TestRunner(numa::Node _from, numa::Node _to, int _elems, int _runCount, const std::function<T()> &_gen) {
-		from = _from;
-		to = _to;
-		elements = _elems;
-		runCount = _runCount;
-		generator = _gen;
+	TestRunner(numa::Node _from, numa::Node _to, int _elems, int _runCount, const std::function<T()> &_gen)
+		: from{ _from }
+		, to{ _to }
+		, elements{ _elems }
+		, runCount{ _runCount }
+		, generator{ _gen }
+	{
 	}
 	
 	template <class Executor>
@@ -198,7 +201,16 @@ template <> struct IsOnNode<IntMap> {
 
 int main (int argc, char const* argv[])
 {
-	numa::NodeList nodes = numa::NodeList::allNodes();
+	testing::initialize();
+
+	const numa::NodeList &allNodes = numa::NodeList::logicalNodes();
+	numa::NodeList nodes;
+	for (const numa::Node &node : allNodes) {
+		if (node.memorySize() == 0 || node.cpuCount() == 0) {
+			continue;
+		}
+		nodes.push_back(node);
+	}
 
 	numa::Node from = nodes.front();
 	numa::Node to = nodes.back();

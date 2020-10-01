@@ -2,11 +2,10 @@
 
 #include <mutex>
 #include <vector>
-#include <boost/context/all.hpp>
+#include <boost/context/fcontext.hpp>
 
-#include "msource/msource.hpp"
-#include "msource/msource_types.hpp"
-#include "base/spinlock.hpp"
+#include "PGASUS/msource/msource_types.hpp"
+#include "PGASUS/base/spinlock.hpp"
 
 namespace numa {
 namespace tasking {
@@ -27,10 +26,11 @@ private:
 
 public:
 	Context(ContextFunction fun, size_t size = 81920, const MemSource &ms = MemSource())
+		: _msource{ ms.valid() ? ms : MemSource::global() }
+		, _size{ size }
+		, _stack{ _msource.alloc(size) }
+		, _context{}
 	{
-		_msource = ms.valid() ? ms : MemSource::global();
-		_size = size;
-		_stack = _msource.alloc(size);
 		reset(fun);
 	}
 	
@@ -67,15 +67,15 @@ public:
 class ContextCache
 {
 private:
-	typedef SpinLock Lock;
-	typedef msvector<Context*> Storage;
+	using Lock = SpinLock;
+	using Storage = msvector<Context*>;
 	
 	MemSource                   _msource;
 	Lock                        _lock;
 	Storage                     _data;
 	
 public:
-	ContextCache(const MemSource &ms)
+	explicit ContextCache(const MemSource &ms)
 		: _msource(ms)
 		, _data(ms)
 	{

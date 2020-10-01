@@ -9,7 +9,7 @@ private:
 	NumType x, y, z, w;
 
 public:
-	FastRand(NumType seed = std::hash<std::thread::id>()(std::this_thread::get_id()))
+	explicit FastRand(NumType seed = std::hash<std::thread::id>()(std::this_thread::get_id()))
 		: x(seed), y(0), z(0), w(0)
 	{
 	}

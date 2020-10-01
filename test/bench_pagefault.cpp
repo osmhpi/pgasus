@@ -2,14 +2,16 @@
 #include <numaif.h>      /* for mbind */
 #include <numa.h>
 
-#include <cstdint>
-#include <cassert>
-#include <vector>
-#include <cstdio>
 #include <algorithm>
+#include <cassert>
+#include <cmath>
+#include <cstdint>
+#include <cstdio>
+#include <numeric>
+#include <vector>
 
-#include "tasking/tasking.hpp"
-#include "msource/node_replicated.hpp"
+#include "PGASUS/tasking/tasking.hpp"
+#include "PGASUS/msource/node_replicated.hpp"
 #include "timer.hpp"
 
 /**
@@ -60,7 +62,7 @@ class SyncVec : public std::vector<T> {
 private:
 	std::mutex _mutex;
 public:
-	SyncVec(const numa::Node &node) {
+	explicit SyncVec(const numa::Node &node) {
 	}
 
 	void addSynced(const T &v) {
@@ -111,16 +113,16 @@ int main(int argc, char *argv[])
 	size_t writeMask = pageSize / sizeof(size_t) - 1;
 
 	if (!quiet) {
-		printf("pageSize: %zd\n", pageSize);
-		printf("pageCount: %zd\n", pageCount);
-		printf("pageWrites: %zd * %zd bytes\n", pageWrites, sizeof(size_t));
+		printf("pageSize: %zu\n", pageSize);
+		printf("pageCount: %zu\n", pageCount);
+		printf("pageWrites: %zu * %zu bytes\n", pageWrites, sizeof(size_t));
 	}
 
 	Timer<int> globalTimer(true);
 	std::atomic_size_t threads(0);
 
 	// startup worker threads
-	numa::wait(numa::forEachThread(numa::NodeList::allNodes(), [&threads](){
+	numa::wait(numa::forEachThread(numa::NodeList::logicalNodesWithCPUs(), [&threads](){
 		threads++;
 	}, 0));
 	int tStart = globalTimer.stop_get_start();
@@ -128,7 +130,7 @@ int main(int argc, char *argv[])
 	numa::NodeReplicated<SyncVec<int>> threadTimers;
 
 	// start paging
-	numa::wait(numa::forEachThread(numa::NodeList::allNodes(), [=, &threadTimers]() {
+	numa::wait(numa::forEachThread(numa::NodeList::logicalNodesWithCPUs(), [=, &threadTimers]() {
 		Timer<int> localTimer(true);
 
 		int flags = huge ? (MAP_HUGETLB) : 0;
@@ -148,7 +150,7 @@ int main(int argc, char *argv[])
 	int tFault = globalTimer.stop_get_start();
 
 	size_t localMb = bytes / (1024*1024);
-	size_t totalMb = localMb * threads.load();
+	// size_t totalMb = localMb * threads.load();
 
 	if (!quiet) {
 	//	printf("tStart\t%d\n", tStart);
@@ -164,7 +166,7 @@ int main(int argc, char *argv[])
 		printf("node\ttotal\tlocal\tstd.dev\n");
 	}
 
-	for (numa::Node node : numa::NodeList::allNodes()) {
+	for (numa::Node node : numa::NodeList::logicalNodesWithCPUs()) {
 		const SyncVec<int> &times = threadTimers.get(node);
 
 		// calc. local bandwidth for each thread
@@ -183,7 +185,8 @@ int main(int argc, char *argv[])
 		});
 		float stddev = sqrt(var);
 
-		printf("%zd\t%d\t%d\t%d\n", node.physicalId(), (int)sum, (int)avg, (int)stddev);
+		printf("%d\t%zd\t%zd\t%zd\n",
+			node.physicalId(), (ssize_t)sum, (ssize_t)avg, (ssize_t)stddev);
 	}
 
 	if (waitInput)

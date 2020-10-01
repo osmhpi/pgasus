@@ -8,7 +8,8 @@
 #include <list>
 #include <iostream>
 
-#include "tasking/tasking.hpp"
+#include "PGASUS/tasking/tasking.hpp"
+#include "test_helper.h"
 #include "timer.hpp"
 
 
@@ -22,6 +23,8 @@ void usage(const char *name) {
 
 int main (int argc, char const* argv[])
 {
+	testing::initialize();
+
 	if (argc < 2) usage(argv[0]);
 
 	// get prefault byte count
@@ -33,7 +36,7 @@ int main (int argc, char const* argv[])
 
 	// spawn some long-running tasks to test if every core
 	// actually received a prefaulting task
-	for (size_t i = 0; i < numa::NodeList::allNodesCount() * 2; i++) {
+	for (size_t i = 0; i < numa::NodeList::logicalNodesCount() * 2; i++) {
 		waitList.push_back(numa::async<float>([]() -> float {
 			printf("dummy start\n");
 			float ret = 0.f;
@@ -48,7 +51,7 @@ int main (int argc, char const* argv[])
 	numa::prefaultWorkerThreadStorages(count);
 	printf("prefaulting done\n");
 
-	getc(stdin);
+	// getc(stdin);
 
 	return 0;
 }

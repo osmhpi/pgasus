@@ -2,32 +2,29 @@
 
 #include <atomic>
 
-#include "msource/msource.hpp"
-#include "msource/msource_types.hpp"
-
-#include "tasking/task.hpp"
+#include "PGASUS/hpinuma_export.h"
+#include "PGASUS/PGASUS-config.h"
+#include "PGASUS/msource/msource_types.hpp"
+#include "PGASUS/tasking/task.hpp"
 #include "tasking/task_scheduler.hpp"
 #include "tasking/thread_manager.hpp"
 
-#include "base/spinlock.hpp"
-#include "util/topology.hpp"
-#include "util/debug.hpp"
-#include "util/tsc.hpp"
+#if ENABLE_DEBUG_LOG && !PGASUS_PLATFORM_PPC64LE
+#include "PGASUS/base/tsc.hpp"
+#endif
 
 
 namespace numa {
 namespace tasking {
 
-
-using numa::debug::log;
-using numa::debug::DebugLevel;
+class Task;
 
 
 /**
  * A WorkerThread represents a running thread that executes Tasks that it 
  * receives from the associated Scheduler
  */
-class WorkerThread : public ThreadBase
+class HPINUMA_EXPORT WorkerThread : public ThreadBase
 {
 private:
 	typedef numa::msvector<Context*> ContextVec;
@@ -55,6 +52,7 @@ private:
 	
 	sem_t                       _sleep;
 	
+#if ENABLE_DEBUG_LOG && !PGASUS_PLATFORM_PPC64LE
 	/**
 	 * Collect fine-grained performance data about where time is spent
 	 */
@@ -74,11 +72,12 @@ private:
 		_curr_time = numa::util::rdtsc();
 		return _curr_time - old;
 	}
+#endif
 	
 public:
 	
 	WorkerThread(size_t id, Scheduler *sched, const numa::MemSource &ms);
-	~WorkerThread();
+	~WorkerThread() override;
 
 	inline int id() const { return _thread_id; }
 	inline Node homeNode() const { return _node; }

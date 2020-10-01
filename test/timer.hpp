@@ -16,8 +16,8 @@
 #include <windows.h>
 #if !defined(_WINSOCK2API_) && !defined(_WINSOCKAPI_)
 struct timeval {
-    long tv_sec;
-    long tv_usec;
+	long tv_sec;
+	long tv_usec;
 };
 #endif
 #else//_WIN32
@@ -25,11 +25,11 @@ struct timeval {
 #endif//_WIN32
 
 
-template <typename timer_dt> 
+template <typename timer_dt>
 class Timer
 {
 public:
-	Timer(bool start = false);
+	explicit Timer(bool start = false);
 	~Timer() {};
 
 	void start();
@@ -65,7 +65,7 @@ int gettimeofday(struct timeval* tv, int t) {
 }// gettimeofday()
 #endif//_WIN32
 
-template <typename timer_dt> 
+template <typename timer_dt>
 Timer<timer_dt>::Timer(bool start)
 {
 #ifdef _WIN32
@@ -77,7 +77,7 @@ Timer<timer_dt>::Timer(bool start)
 		this->start();
 }
 
-template <typename timer_dt> 
+template <typename timer_dt>
 void Timer<timer_dt>::start()
 {
 #ifdef _WIN32
@@ -87,7 +87,7 @@ void Timer<timer_dt>::start()
 #endif//_WIN32
 }
 
-template <typename timer_dt> 
+template <typename timer_dt>
 void Timer<timer_dt>::stop()
 {
 #ifdef _WIN32
@@ -97,44 +97,40 @@ void Timer<timer_dt>::stop()
 #endif//_WIN32
 }
 
-template <typename timer_dt> 
+template <typename timer_dt>
 timer_dt Timer<timer_dt>::get_time()
 {
-	timer_dt interval = 0.0f;
-
 #ifdef _WIN32
-	interval = (timer_dt)((double)(finish_time.QuadPart
+	const timer_dt interval = (timer_dt)((double)(finish_time.QuadPart
 		- start_time.QuadPart)	/ freq);
 #else
 	// time difference in milli-seconds
-	interval = (timer_dt) (1000.0 * ( finish_time.tv_sec - start_time.tv_sec)
+	const timer_dt interval = (timer_dt) (1000.0 * ( finish_time.tv_sec - start_time.tv_sec)
 		+(0.001 * (finish_time.tv_usec - start_time.tv_usec)));
 #endif//_WIN32
 
 	return interval;
 }
 
-template <typename timer_dt> 
+template <typename timer_dt>
 timer_dt Timer<timer_dt>::get_elapsed() const
 {
-	timer_dt interval = 0.0f;
-
 	#ifdef _WIN32
 		LARGE_INTEGER curr_time;
 		QueryPerformanceCounter((LARGE_INTEGER*) &finish_time);
-		
-		interval = (timer_dt)((double)(curr_time.QuadPart - start_time.QuadPart)	/ freq);
+
+		const timer_dt interval = (timer_dt)((double)(curr_time.QuadPart - start_time.QuadPart)	/ freq);
 	#else//_WIN32
 		struct timeval curr_time;
 		gettimeofday(&curr_time, 0);
-		interval = (timer_dt) (1000.0 * ( curr_time.tv_sec - start_time.tv_sec)
+		const timer_dt interval = (timer_dt) (1000.0 * ( curr_time.tv_sec - start_time.tv_sec)
 			+(0.001 * (curr_time.tv_usec - start_time.tv_usec)));
 	#endif//_WIN32
 
 	return interval;
 }
 
-template <typename timer_dt> 
+template <typename timer_dt>
 timer_dt Timer<timer_dt>::stop_get()
 {
 	timer_dt interval;
@@ -145,7 +141,7 @@ timer_dt Timer<timer_dt>::stop_get()
 }
 
 // Stop the timer, get the time interval, then start the timer again.
-template <typename timer_dt> 
+template <typename timer_dt>
 timer_dt Timer<timer_dt>::stop_get_start()
 {
 	timer_dt interval;

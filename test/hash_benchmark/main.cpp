@@ -9,10 +9,10 @@
 #include "test.hpp"
 
 #include <libcuckoo/cuckoohash_map.hh>
-#include <tbb44/tbb/concurrent_hash_map.h>
-#include <tbb44/tbb/parallel_for.h>
-#include <tbb44/tbb/parallel_reduce.h>
-#include "hashtable/hashtable.hpp"
+#include <tbb/concurrent_hash_map.h>
+#include <tbb/parallel_for.h>
+#include <tbb/parallel_reduce.h>
+#include "PGASUS/hashtable/hashtable.hpp"
 
 //
 // Key generators
@@ -20,7 +20,7 @@
 template <> struct Generator<std::string> {
 	static inline std::string generate(size_t idx) {
 		char buff[256];
-		sprintf(buff, "string%zdfoobar", idx ^ 0xDEADBEEF);
+		sprintf(buff, "string%zufoobar", idx ^ 0xDEADBEEF);
 		return std::string(buff);
 	}
 };
@@ -46,7 +46,7 @@ struct StdMapBench : public MapBenchmarker<StdMapBench<_MapType, _KeyType>>
 	std::mutex mutex;
 	const char *n;
 
-	StdMapBench(const char *nn) : n(nn) {}
+	explicit StdMapBench(const char *nn) : n(nn) {}
 	inline const char *name() const { return n; }
 	size_t count() { return map.size(); }
 
@@ -134,7 +134,7 @@ struct NumaHashTableBench : public MapBenchmarker<NumaHashTableBench<_KeyType>>
 
 	MapType map;
 
-	NumaHashTableBench() : map(numa::NodeList::allNodes()) {}
+	NumaHashTableBench() : map(numa::NodeList::logicalNodes()) {}
 
 	inline const char *name() const { return "numa::HashTable"; }
 	size_t count() { return map.size(); }
@@ -223,7 +223,9 @@ int main (int argc, char const* argv[])
 	}
 
 	size_t elems;
-	assert(sscanf(argv[1], "%zd", &elems) == 1);
+	if (sscanf(argv[1], "%zu", &elems) != 1) {
+		return 1;
+	}
 
 	std::string maptype = argv[2];
 

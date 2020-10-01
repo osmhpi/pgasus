@@ -1,16 +1,9 @@
 #pragma once
 
-#include <vector>
 #include <mutex>
-#include <semaphore.h>
 
-#include "msource/msource.hpp"
-#include "msource/msource_types.hpp"
-#include "base/spinlock.hpp"
-
-#include "tasking/task.hpp"
-#include "tasking/task_collection.hpp"
-#include "tasking/context.hpp"
+#include "PGASUS/hpinuma_export.h"
+#include "PGASUS/msource/msource_types.hpp"
 
 
 namespace numa {
@@ -23,7 +16,7 @@ class ThreadManager;
 /**
  * A class that is managed by a thread manager
  */
-class ThreadBase {
+class HPINUMA_EXPORT ThreadBase {
 private:
 	enum State {
 		CREATED, 
@@ -63,8 +56,8 @@ protected:
 	const numa::MemSource& msource() const { return _msource; }
 
 public:
-	ThreadBase(const numa::MemSource &ms);
-	~ThreadBase();
+	explicit ThreadBase(const numa::MemSource &ms);
+	virtual ~ThreadBase();
 	
 	/** Associate with given manager. Can only start if associated. */
 	void associate(ThreadManager *mgr, CpuId cpuid);
@@ -88,7 +81,7 @@ public:
  * Manages starting, shutting down and waiting on threads that run on
  * a specified cpu set. May have more than one cpu. Bound to a specific node.
  */
-class ThreadManager {
+class HPINUMA_EXPORT ThreadManager {
 private:
 
 	template <class T> using msvector = numa::msvector<T>;
