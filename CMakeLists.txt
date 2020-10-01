@@ -37,10 +37,13 @@ endif()
 
 set(PGASUS_PLATFORM_X86_64 0)
 set(PGASUS_PLATFORM_PPC64LE 0)
+set(PGASUS_PLATFORM_S390X 0)
 if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
 	set(PGASUS_PLATFORM_X86_64 1)
 elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL "ppc64le")
 	set(PGASUS_PLATFORM_PPC64LE 1)
+elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL "s390x")
+	set(PGASUS_PLATFORM_S390X 1)
 else()
 	message(WARNING "Unsupported platform: \"${CMAKE_SYSTEM_PROCESSOR}\"")
 endif()
@@ -98,11 +101,14 @@ if (NOT DEFAULT_COMPILE_DEFINITIONS)
 	set(DEFAULT_COMPILE_DEFINITIONS)
 endif()
 
+add_compile_options(-fPIC)
+
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 	add_compile_options(
 		-Wpedantic
 		-Wall
 		-Wno-missing-braces
+		-Wno-unused-function
 	)
 	if (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.8)
 		set(PGASUS_CLANG_DEBUGGER gdb CACHE STRING
@@ -120,6 +126,7 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	add_compile_options(
 		-Wpedantic
 		-Wall
+		-Wno-unused-function
 
 		$<$<CONFIG:Debug>:-ggdb3>
 	)

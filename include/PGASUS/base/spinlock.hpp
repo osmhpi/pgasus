@@ -17,6 +17,8 @@ namespace
 	// Alternatives: yield, mdoio, mdoom
 		// same as asm("mdoom"); (not supported on clang 3.8)
 		asm("or 30,30,30");
+#elif PGASUS_PLATFORM_S390X
+                asm("");
 #else
 		asm("pause");
 #endif
@@ -80,6 +82,11 @@ class SpinLockType {
 	uint64_t counter = 0;
 
 	static size_t rdtsc() {
+#if PGASUS_PLATFORM_S390X
+		uint64_t tsc;
+		__asm__ volatile("stckf %0" : "=Q" (tsc) : : "cc");
+		return tsc;
+#else
 		uint_least32_t hi, lo;
 #if PGASUS_PLATFORM_PPC64LE
 /// DCL TODO adjust for POWER 64 LE
@@ -88,6 +95,7 @@ class SpinLockType {
 		__asm__ volatile("rdtsc": "=a"(lo), "=d"(hi));
 #endif
 		return (size_t)lo | ((size_t)hi << 32);
+#endif
 	}
 #endif
 

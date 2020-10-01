@@ -264,8 +264,6 @@ private:
 	static constexpr size_t     NAME_LENGTH = 128;
 	char                        description[NAME_LENGTH];
 
-	void                       *user_data;
-
 	int                         node;             // where the memory comes from
 	int                         node_home;        // where the data structs lie, or -1, if its the same
 
@@ -700,23 +698,6 @@ public:
 		return native_arena->prefault(bytes);
 	}
 };
-
-// debug output msources before program shutdown - this should
-// be handled in stackedmalloc, etc, where msources are allocated.
-// but TLS support is a grand fuckup.
-static struct StaticMsourceDtor {
-	StaticMsourceDtor() {
-	}
-	~StaticMsourceDtor() {
-		for (MemSourceImpl *ms : MemSourceImpl::s_allsources()) {
-			if (ms == nullptr) continue;
-			char buff[4096];
-			ms->getDescription(buff, 4096);
-			numa::debug::log(numa::debug::DEBUG, "OnExit MemSource %s", buff);
-		}
-	}
-} _static_msource_dtor;
-
 
 } // namespace msource
 
