@@ -21,8 +21,8 @@ find_package(ZLIB REQUIRED)
 
 function(replace_by_static_libs LINK_LIST)
 	set(result)
-	set(target_libs hpinuma_util hpinuma_msource hpinuma)
-	set(replacement_libs hpinuma_util_s hpinuma_msource_s hpinuma_s)
+	set(target_libs PGASUS_util PGASUS_msource PGASUS)
+	set(replacement_libs PGASUS_util_s PGASUS_msource_s PGASUS_s)
 	foreach(lib ${${LINK_LIST}})
 		list(FIND target_libs ${lib} idx)
 		if (idx EQUAL -1)
@@ -36,13 +36,13 @@ function(replace_by_static_libs LINK_LIST)
 endfunction()
 
 if (PGASUS_TEST_WITH_FAKE_TOPOLOGY)
-	set(lib_hpinuma_util hpinuma_util_s)
-	set(lib_hpinuma_msource hpinuma_msource_s)
-	set(lib_hpinuma hpinuma_s)
+	set(lib_PGASUS_util PGASUS_util_s)
+	set(lib_PGASUS_msource PGASUS_msource_s)
+	set(lib_PGASUS PGASUS_s)
 else()
-	set(lib_hpinuma_util hpinuma_util)
-	set(lib_hpinuma_msource hpinuma_msource)
-	set(lib_hpinuma hpinuma)
+	set(lib_PGASUS_util PGASUS_util)
+	set(lib_PGASUS_msource PGASUS_msource)
+	set(lib_PGASUS PGASUS)
 endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
@@ -102,7 +102,7 @@ endfunction()
 
 
 add_test_without_ctest(NAME test_msource SOURCES mspacetest.cpp
-	LIBS hpinuma_msource)
+	LIBS PGASUS_msource)
 
 # TODO implement more tests/benchmarks that work with MemSources only
 if (NOT PGASUS_REPLACE_MALLOC)
@@ -110,9 +110,9 @@ if (NOT PGASUS_REPLACE_MALLOC)
 endif()
 
 add_test_without_ctest(NAME test_hashtable SOURCES hashtable_test.cpp
-	LIBS hpinuma)
+	LIBS PGASUS)
 
-add_test_without_ctest(NAME test_malloc SOURCES malloctest.cpp LIBS hpinuma
+add_test_without_ctest(NAME test_malloc SOURCES malloctest.cpp LIBS PGASUS
 	PARAMS 10 32 1200)
 
 add_subdirectory(migration_benchmark)
@@ -128,26 +128,26 @@ endif()
 
 
 
-add_benchmark(NAME bench_pagefault SOURCES bench_pagefault.cpp LIBS hpinuma
+add_benchmark(NAME bench_pagefault SOURCES bench_pagefault.cpp LIBS PGASUS
 	PARAMS 100)
 
 if (NOT PGASUS_PLATFORM_PPC64LE)
 	add_benchmark(NAME bench_accessremote SOURCES bench_accessremote.cpp
-		LIBS hpinuma
+		LIBS PGASUS
 		PARAMS 10)
 endif()
 
-add_test_without_ctest(NAME test_tasking SOURCES tasking_test.cpp LIBS hpinuma
+add_test_without_ctest(NAME test_tasking SOURCES tasking_test.cpp LIBS PGASUS
 	PARAMS 1200 16)
 
 add_test_without_ctest(NAME test_stdcontainers SOURCES test_stdcontainers.cpp
-	LIBS hpinuma)
+	LIBS PGASUS)
 
-add_test_without_ctest(NAME test_mutex SOURCES mutextest.cpp LIBS hpinuma
+add_test_without_ctest(NAME test_mutex SOURCES mutextest.cpp LIBS PGASUS
 	PARAMS 1200)
 
 add_test_without_ctest(NAME test_prefault SOURCES test_prefault.cpp
-	LIBS hpinuma
+	LIBS PGASUS
 	PARAMS 2000)
 
 add_subdirectory(hash_benchmark)

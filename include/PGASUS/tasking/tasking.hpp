@@ -3,7 +3,7 @@
 #include <list>
 
 #include "PGASUS/base/node.hpp"
-#include "PGASUS/hpinuma_export.h"
+#include "PGASUS/PGASUS_export.h"
 #include "PGASUS/tasking/synchronizable.hpp"
 #include "PGASUS/tasking/task.hpp"
 
@@ -13,18 +13,18 @@ namespace numa {
 
 namespace tasking {
 class Task;
-HPINUMA_EXPORT void spawn_task(const Node &node, Task *task);
+PGASUS_EXPORT void spawn_task(const Node &node, Task *task);
 }
 
-HPINUMA_EXPORT void wait(const std::list<TriggerableRef> &tasks);
-HPINUMA_EXPORT void wait(const TriggerableRef &ref);
-HPINUMA_EXPORT void yield();
+PGASUS_EXPORT void wait(const std::list<TriggerableRef> &tasks);
+PGASUS_EXPORT void wait(const TriggerableRef &ref);
+PGASUS_EXPORT void yield();
 
 /**
  * Makes sure the worker thread's thread-local msources
  * are populated with enough pages
  */
-HPINUMA_EXPORT void prefaultWorkerThreadStorages(size_t bytes);
+PGASUS_EXPORT void prefaultWorkerThreadStorages(size_t bytes);
 
 /**
  * Waits for task completion and returns result
@@ -55,7 +55,7 @@ TaskRef<T> async(const numa::tasking::TaskFunction<T> &fun, Priority prio, const
  * Spawns the given task on each worker thread's task queue on all
  * the given nodes
  */
-HPINUMA_EXPORT std::list<TriggerableRef> forEachThread(
+PGASUS_EXPORT std::list<TriggerableRef> forEachThread(
 	const NodeList &nodes, const numa::tasking::TaskFunction<void> &fun, Priority prio);
 
 template <class T>

@@ -5,7 +5,7 @@
 
 #include "PGASUS/base/spinlock.hpp"
 #include "PGASUS/base/ref_ptr.hpp"
-#include "PGASUS/hpinuma_export.h"
+#include "PGASUS/PGASUS_export.h"
 
 namespace numa {
 
@@ -18,7 +18,7 @@ class Synchronizer;
  * clients wanting to synchronize with this object will be registered and 
  * notified, when the objet has finally triggered.
  */
-class HPINUMA_EXPORT Triggerable : public numa::Referenced {
+class PGASUS_EXPORT Triggerable : public numa::Referenced {
 protected:
 	std::list<Synchronizer*>                _clients;
 
@@ -73,7 +73,7 @@ using TriggerableRef = numa::RefPtr<Triggerable>;
  * Specialized Triggerable that is initialized unsignaled, then gets signaled.
  * Base for tasks, etc. that change their state exactly once
  */
-class HPINUMA_EXPORT TwoPhaseTriggerable : public Triggerable
+class PGASUS_EXPORT TwoPhaseTriggerable : public Triggerable
 {
 private:
 	bool        _state;
@@ -104,7 +104,7 @@ protected:
  * An object that may wait for the completion of a triggerable entity.
  * Keep references to that item to make sure that it is not deleted.
  */
-class HPINUMA_EXPORT Synchronizer {
+class PGASUS_EXPORT Synchronizer {
 private:
 	typedef numa::SpinLock LockType;
 	

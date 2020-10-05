@@ -2,7 +2,7 @@
 
 #include <mutex>
 
-#include "PGASUS/hpinuma_export.h"
+#include "PGASUS/PGASUS_export.h"
 #include "PGASUS/msource/msource_types.hpp"
 
 
@@ -16,7 +16,7 @@ class ThreadManager;
 /**
  * A class that is managed by a thread manager
  */
-class HPINUMA_EXPORT ThreadBase {
+class PGASUS_EXPORT ThreadBase {
 private:
 	enum State {
 		CREATED, 
@@ -81,7 +81,7 @@ public:
  * Manages starting, shutting down and waiting on threads that run on
  * a specified cpu set. May have more than one cpu. Bound to a specific node.
  */
-class HPINUMA_EXPORT ThreadManager {
+class PGASUS_EXPORT ThreadManager {
 private:
 
 	template <class T> using msvector = numa::msvector<T>;

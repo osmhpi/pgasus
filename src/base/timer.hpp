@@ -24,7 +24,7 @@ struct timeval {
 #include <sys/time.h>
 #endif//_WIN32
 
-#include "PGASUS/base/hpinuma_base_export.h"
+#include "PGASUS/base/PGASUS_base_export.h"
 
 
 template <typename timer_dt> 
@@ -54,7 +54,7 @@ public:
 
 // Definition
 #ifdef _WIN32
-HPINUMA_BASE_EXPORT int gettimeofday(struct timeval* tv, int t) {
+PGASUS_BASE_EXPORT int gettimeofday(struct timeval* tv, int t) {
 	union {
 		long long ns100;
 		FILETIME ft;

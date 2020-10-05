@@ -9,7 +9,7 @@
 #include <tuple>
 
 #include "PGASUS/msource/node_replicated.hpp"
-#include "PGASUS/hpinuma_export.h"
+#include "PGASUS/PGASUS_export.h"
 #include "PGASUS/tasking/tasking.hpp"
 
 namespace numa {
@@ -335,12 +335,12 @@ public:
 	}
 };
 
-struct HPINUMA_EXPORT IgnorePlacement {
+struct PGASUS_EXPORT IgnorePlacement {
 	template <class iterator_type>
 	inline Node operator()(const iterator_type &) { return numa::Node(); }
 };
 
-struct HPINUMA_EXPORT MemSourceCreationPlacement {
+struct PGASUS_EXPORT MemSourceCreationPlacement {
 	template <class iterator_type>
 	inline Node operator()(const iterator_type &it) {
 		return numa::MemSource::nodeOf((void*) &(*it));

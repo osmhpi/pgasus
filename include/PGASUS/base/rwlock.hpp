@@ -4,7 +4,7 @@
 #include <mutex>
 #include <cassert>
 
-#include "PGASUS/base/hpinuma_base_export.h"
+#include "PGASUS/base/PGASUS_base_export.h"
 
 namespace numa {
 
@@ -14,7 +14,7 @@ namespace detail {
 	};
 }
 
-class HPINUMA_BASE_EXPORT RWLock {
+class PGASUS_BASE_EXPORT RWLock {
 private:
 	typedef uint_least64_t BaseType;
 	typedef std::atomic<BaseType> AtomicType;

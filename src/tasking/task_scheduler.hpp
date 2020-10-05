@@ -4,7 +4,7 @@
 #include <mutex>
 #include <semaphore.h>
 
-#include "PGASUS/hpinuma_export.h"
+#include "PGASUS/PGASUS_export.h"
 #include "PGASUS/base/spinlock.hpp"
 #include "PGASUS/msource/msource.hpp"
 #include "tasking/context.hpp"
@@ -22,7 +22,7 @@ class WorkerThread;
 /**
  * Encapsulates all priorities within one scheduling domain
  */
-class HPINUMA_EXPORT SchedulingDomain
+class PGASUS_EXPORT SchedulingDomain
 {
 private:
 	typedef numa::SpinLock Lock;
@@ -83,7 +83,7 @@ public:
 /**
  * Holds all to-be-scheduled tasks for a set of managed worker threads.
  */
-class HPINUMA_EXPORT Scheduler
+class PGASUS_EXPORT Scheduler
 {
 private:
 	

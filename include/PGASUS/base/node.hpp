@@ -5,7 +5,7 @@
 #include <limits>
 #include <vector>
 
-#include "PGASUS/base/hpinuma_base_export.h"
+#include "PGASUS/base/PGASUS_base_export.h"
 
 namespace numa {
 
@@ -17,7 +17,7 @@ class Node;
  * This class assumes a static NUMA topology, so be careful when running on
  * dynamic POWER LPARs...
  */
-class HPINUMA_BASE_EXPORT NodeList : public std::vector<Node> {
+class PGASUS_BASE_EXPORT NodeList : public std::vector<Node> {
 public:
 	/**
 	 * List of nodes available for the application.
@@ -38,7 +38,7 @@ public:
 using CpuId = int;
 using CpuSet = std::vector<CpuId>;
 
-class HPINUMA_BASE_EXPORT Node {
+class PGASUS_BASE_EXPORT Node {
 private:
 	int16_t _logical_id;
 	int16_t _physical_id;

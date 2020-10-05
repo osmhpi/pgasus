@@ -55,58 +55,58 @@ if (PGASUS_WITH_TASKING)
 endif()
 
 # Create Library
-add_library(hpinuma SHARED ${SOURCES})
-set_target_properties(hpinuma PROPERTIES LINKER_LANGUAGE CXX)
-target_link_libraries(hpinuma
+add_library(PGASUS SHARED ${SOURCES})
+set_target_properties(PGASUS PROPERTIES LINKER_LANGUAGE CXX)
+target_link_libraries(PGASUS
 	PUBLIC
-		hpinuma_base
-		hpinuma_msource
+		PGASUS_base
+		PGASUS_msource
 )
-target_include_directories(hpinuma ${include_dirs})
+target_include_directories(PGASUS ${include_dirs})
 if (PGASUS_WITH_TASKING)
-	target_link_libraries(hpinuma PUBLIC ${Boost_LIBRARIES})
+	target_link_libraries(PGASUS PUBLIC ${Boost_LIBRARIES})
 endif()
-cppcheck_target(hpinuma)
+cppcheck_target(PGASUS)
 
 # Create public exports
-set(HPINUMA_EXPORT_HEADER "${PROJECT_BINARY_DIR}/src/PGASUS/hpinuma_export.h")
-generate_export_header(hpinuma EXPORT_FILE_NAME ${HPINUMA_EXPORT_HEADER})
-list(APPEND PUBLIC_HEADERS ${HPINUMA_EXPORT_HEADER})
-# set_target_properties(hpinuma PROPERTIES
+set(PGASUS_EXPORT_HEADER "${PROJECT_BINARY_DIR}/src/PGASUS/PGASUS_export.h")
+generate_export_header(PGASUS EXPORT_FILE_NAME ${PGASUS_EXPORT_HEADER})
+list(APPEND PUBLIC_HEADERS ${PGASUS_EXPORT_HEADER})
+# set_target_properties(PGASUS PROPERTIES
 #   PUBLIC_HEADER "${PUBLIC_HEADERS}")
-addExportTarget(hpinuma)
-install(TARGETS hpinuma
+addExportTarget(PGASUS)
+install(TARGETS PGASUS
 	EXPORT ${package_name}Targets COMPONENT dev
 	RUNTIME DESTINATION "${INSTALL_BIN_DIR}" COMPONENT bin
 	LIBRARY DESTINATION "${INSTALL_LIB_DIR}" COMPONENT shlib
 )
-install(FILES ${HPINUMA_EXPORT_HEADER} DESTINATION "${INSTALL_INCLUDE_DIR}/PGASUS" COMPONENT dev)
+install(FILES ${PGASUS_EXPORT_HEADER} DESTINATION "${INSTALL_INCLUDE_DIR}/PGASUS" COMPONENT dev)
 
-add_sanitizers(hpinuma)
+add_sanitizers(PGASUS)
 
 
 # Create Library
 if (PGASUS_BUILD_STATIC_LIBRARIES)
-	add_library(hpinuma_s STATIC ${SOURCES})
-	set_target_properties(hpinuma_s PROPERTIES LINKER_LANGUAGE CXX)
-	target_link_libraries(hpinuma_s
+	add_library(PGASUS_s STATIC ${SOURCES})
+	set_target_properties(PGASUS_s PROPERTIES LINKER_LANGUAGE CXX)
+	target_link_libraries(PGASUS_s
 		PUBLIC
-			hpinuma_base_s
-			hpinuma_msource_s
+			PGASUS_base_s
+			PGASUS_msource_s
 	)
 	if (PGASUS_WITH_TASKING)
-		target_link_libraries(hpinuma_s PUBLIC ${Boost_LIBRARIES})
+		target_link_libraries(PGASUS_s PUBLIC ${Boost_LIBRARIES})
 	endif()
-	target_include_directories(hpinuma_s ${include_dirs})
-	target_compile_definitions(hpinuma_s ${DEFAULT_COMPILE_DEFINITIONS}
+	target_include_directories(PGASUS_s ${include_dirs})
+	target_compile_definitions(PGASUS_s ${DEFAULT_COMPILE_DEFINITIONS}
 		PUBLIC HPINUMA_STATIC_DEFINE)
 
-	# set_target_properties(hpinuma_s PROPERTIES
+	# set_target_properties(PGASUS_s PROPERTIES
 	# 	PUBLIC_HEADER "${PUBLIC_HEADERS}")
-	addExportTarget(hpinuma_s)
-	install(TARGETS hpinuma_s
+	addExportTarget(PGASUS_s)
+	install(TARGETS PGASUS_s
 		EXPORT ${package_name}Targets COMPONENT dev
 		ARCHIVE DESTINATION "${INSTALL_LIB_DIR}" COMPONENT staticlib
 	)
-	add_sanitizers(hpinuma_s)
+	add_sanitizers(PGASUS_s)
 endif()

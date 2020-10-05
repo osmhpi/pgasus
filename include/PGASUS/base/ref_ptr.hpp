@@ -4,7 +4,7 @@
 #include <atomic>
 #include <functional>
 
-#include "PGASUS/base/hpinuma_base_export.h"
+#include "PGASUS/base/PGASUS_base_export.h"
 
 namespace numa {
 
@@ -98,7 +98,7 @@ public:
  * Base class for ref-counted objects. Must NOT be allocated on the stack,
  * but using new().
  */
-class HPINUMA_BASE_EXPORT Referenced
+class PGASUS_BASE_EXPORT Referenced
 {
 private:
 	std::atomic_int_least32_t   _ref_count;

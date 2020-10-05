@@ -2,7 +2,7 @@
 
 #include <atomic>
 
-#include "PGASUS/hpinuma_export.h"
+#include "PGASUS/PGASUS_export.h"
 #include "PGASUS/PGASUS-config.h"
 #include "PGASUS/msource/msource_types.hpp"
 #include "PGASUS/tasking/task.hpp"
@@ -24,7 +24,7 @@ class Task;
  * A WorkerThread represents a running thread that executes Tasks that it 
  * receives from the associated Scheduler
  */
-class HPINUMA_EXPORT WorkerThread : public ThreadBase
+class PGASUS_EXPORT WorkerThread : public ThreadBase
 {
 private:
 	typedef numa::msvector<Context*> ContextVec;

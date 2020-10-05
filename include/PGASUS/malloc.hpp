@@ -2,14 +2,14 @@
 
 #include "PGASUS/base/node.hpp"
 #include "PGASUS/msource/msource.hpp"
-#include "PGASUS/msource/hpinuma_msource_export.h"
+#include "PGASUS/msource/PGASUS_msource_export.h"
 
 #include <vector>
 #include <cassert>
 
 namespace numa {
 
-struct HPINUMA_MSOURCE_EXPORT Place {
+struct PGASUS_MSOURCE_EXPORT Place {
 	MemSource       msource;
 	Node            node;
 	
@@ -34,16 +34,16 @@ namespace malloc {
 using PlaceStack = std::vector<Place>;
 static constexpr size_t MEM_PAGE_SIZE = 4096;
 
-HPINUMA_MSOURCE_EXPORT void push(const Place &p);
-HPINUMA_MSOURCE_EXPORT void push_all(const PlaceStack &places);
+PGASUS_MSOURCE_EXPORT void push(const Place &p);
+PGASUS_MSOURCE_EXPORT void push_all(const PlaceStack &places);
 
-HPINUMA_MSOURCE_EXPORT Place pop();
-HPINUMA_MSOURCE_EXPORT PlaceStack pop_all();
+PGASUS_MSOURCE_EXPORT Place pop();
+PGASUS_MSOURCE_EXPORT PlaceStack pop_all();
 
-HPINUMA_MSOURCE_EXPORT MemSource curr_msource();
+PGASUS_MSOURCE_EXPORT MemSource curr_msource();
 }
 
-class HPINUMA_MSOURCE_EXPORT PlaceGuard {
+class PGASUS_MSOURCE_EXPORT PlaceGuard {
 private:
 	Place       _place;
 public:
@@ -55,7 +55,7 @@ public:
 
 namespace malloc {
 
-class HPINUMA_MSOURCE_EXPORT PlaceGuardForIfHack : public PlaceGuard {
+class PGASUS_MSOURCE_EXPORT PlaceGuardForIfHack : public PlaceGuard {
 public:
 	explicit inline PlaceGuardForIfHack(const Node &n) : PlaceGuard(n) {}
 	explicit inline PlaceGuardForIfHack(const MemSource &ms) : PlaceGuard(ms) {}

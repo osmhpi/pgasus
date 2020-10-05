@@ -9,7 +9,7 @@
 
 #include "PGASUS/base/spinlock.hpp"
 #include "PGASUS/msource/msource_types.hpp"
-#include "PGASUS/hpinuma_export.h"
+#include "PGASUS/PGASUS_export.h"
 #include "PGASUS/synced_containers.hpp"
 
 
@@ -23,7 +23,7 @@ class Task;
  * All tasks that are to run on a number of threads. Contains a local thread
  * queue for each thread, as well as a global queue of untied threads.
  */
-class HPINUMA_EXPORT TaskCollection
+class PGASUS_EXPORT TaskCollection
 {
 private:
 	typedef numa::util::SyncDeque<Task*, numa::MemSourceAllocator<Task*>> TaskQueue;

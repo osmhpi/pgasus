@@ -9,7 +9,7 @@
 
 int main()
 {
-	std::cout << "## PGASUS/hpinuma_util" << std::endl << std::endl;
+	std::cout << "## PGASUS/PGASUS_util" << std::endl << std::endl;
 	std::cout << "# Detected NUMA topology:" << std::endl;
 	numa::util::Topology::get()->print(std::cout);
 	std::cout << std::endl << std::endl;

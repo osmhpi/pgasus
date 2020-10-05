@@ -2,7 +2,7 @@
 
 #include <string>
 #include "PGASUS/base/node.hpp"
-#include "PGASUS/msource/hpinuma_msource_export.h"
+#include "PGASUS/msource/PGASUS_msource_export.h"
 
 namespace numa {
 
@@ -10,7 +10,7 @@ namespace msource {
 class MemSourceImpl;
 }
 
-struct HPINUMA_MSOURCE_EXPORT msource_info
+struct PGASUS_MSOURCE_EXPORT msource_info
 {
 	size_t hugeobj_count;
 	size_t hugeobj_used;
@@ -23,7 +23,7 @@ struct HPINUMA_MSOURCE_EXPORT msource_info
 
 static constexpr size_t MEM_PAGE_SIZE = 4096;
 
-class HPINUMA_MSOURCE_EXPORT MemSource
+class PGASUS_MSOURCE_EXPORT MemSource
 {
 private:
 	msource::MemSourceImpl *_msource;

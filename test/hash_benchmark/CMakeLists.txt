@@ -20,7 +20,7 @@ endif()
 add_executable(bench_hash ${SOURCES})
 target_link_libraries(bench_hash
 	PUBLIC
-		hpinuma
+		PGASUS
 		${TBB_LIBRARIES}
 )
 target_include_directories(bench_hash
@@ -32,7 +32,7 @@ cppcheck_target(bench_hash)
 add_executable(bench_hash_s ${SOURCES})
 target_link_libraries(bench_hash_s
 	PUBLIC
-		hpinuma_s
+		PGASUS_s
 		${TBB_LIBRARIES}
 )
 target_include_directories(bench_hash_s

@@ -71,59 +71,59 @@ list(APPEND SOURCES ${MALLOC_SOURCES} ${MALLOC_HEADER}
 	${CMAKE_CURRENT_BINARY_DIR}/malloc-numa.h)
 
 
-add_library(hpinuma_msource SHARED ${SOURCES})
-target_link_libraries(hpinuma_msource
+add_library(PGASUS_msource SHARED ${SOURCES})
+target_link_libraries(PGASUS_msource
 	PUBLIC
-		hpinuma_base
+		PGASUS_base
 		pthread
 		numa
 )
-target_include_directories(hpinuma_msource ${include_dirs})
+target_include_directories(PGASUS_msource ${include_dirs})
 if (MALLOC_DEFINES)
-	target_compile_definitions(hpinuma_msource ${MALLOC_DEFINES})
+	target_compile_definitions(PGASUS_msource ${MALLOC_DEFINES})
 endif()
-cppcheck_target(hpinuma_msource)
+cppcheck_target(PGASUS_msource)
 
 # Create public exports
-set(HPINUMA_MSOURCE_EXPORT_HEADER "${PROJECT_BINARY_DIR}/src/PGASUS/msource/hpinuma_msource_export.h")
-generate_export_header(hpinuma_msource EXPORT_FILE_NAME ${HPINUMA_MSOURCE_EXPORT_HEADER})
-list(APPEND PUBLIC_HEADERS ${HPINUMA_MSOURCE_EXPORT_HEADER})
+set(PGASUS_MSOURCE_EXPORT_HEADER "${PROJECT_BINARY_DIR}/src/PGASUS/msource/PGASUS_msource_export.h")
+generate_export_header(PGASUS_msource EXPORT_FILE_NAME ${PGASUS_MSOURCE_EXPORT_HEADER})
+list(APPEND PUBLIC_HEADERS ${PGASUS_MSOURCE_EXPORT_HEADER})
 list(APPEND PROJECT_HEADERS)
-# set_target_properties(hpinuma_msource PROPERTIES
+# set_target_properties(PGASUS_msource PROPERTIES
 #   PUBLIC_HEADER "${PUBLIC_HEADERS}")
-addExportTarget(hpinuma_msource)
-install(TARGETS hpinuma_msource
+addExportTarget(PGASUS_msource)
+install(TARGETS PGASUS_msource
     EXPORT ${package_name}Targets COMPONENT dev
     RUNTIME DESTINATION "${INSTALL_BIN_DIR}" COMPONENT bin
     LIBRARY DESTINATION "${INSTALL_LIB_DIR}" COMPONENT shlib
 )
-install(FILES ${HPINUMA_MSOURCE_EXPORT_HEADER}
+install(FILES ${PGASUS_MSOURCE_EXPORT_HEADER}
 	DESTINATION "${INSTALL_INCLUDE_DIR}/PGASUS/msource" COMPONENT dev)
 
-add_sanitizers(hpinuma_msource)
+add_sanitizers(PGASUS_msource)
 
 
 if (PGASUS_BUILD_STATIC_LIBRARIES)
-	add_library(hpinuma_msource_s STATIC ${SOURCES})
-	target_link_libraries(hpinuma_msource_s
+	add_library(PGASUS_msource_s STATIC ${SOURCES})
+	target_link_libraries(PGASUS_msource_s
 		PUBLIC
-			hpinuma_base_s
+			PGASUS_base_s
 			pthread
 			numa
 	)
-	target_include_directories(hpinuma_msource_s ${include_dirs})
+	target_include_directories(PGASUS_msource_s ${include_dirs})
 	if (MALLOC_DEFINES)
-		target_compile_definitions(hpinuma_msource_s ${MALLOC_DEFINES})
+		target_compile_definitions(PGASUS_msource_s ${MALLOC_DEFINES})
 	endif()
-	target_compile_definitions(hpinuma_msource_s ${DEFAULT_COMPILE_DEFINITIONS}
+	target_compile_definitions(PGASUS_msource_s ${DEFAULT_COMPILE_DEFINITIONS}
 		PUBLIC HPINUMA_MSOURCE_STATIC_DEFINE)
 
-	# set_target_properties(hpinuma_msource_s PROPERTIES
+	# set_target_properties(PGASUS_msource_s PROPERTIES
 	# 	PUBLIC_HEADER "${PUBLIC_HEADERS}")
-	addExportTarget(hpinuma_msource_s)
-	install(TARGETS hpinuma_msource_s
+	addExportTarget(PGASUS_msource_s)
+	install(TARGETS PGASUS_msource_s
 		EXPORT ${package_name}Targets COMPONENT dev
 		ARCHIVE DESTINATION "${INSTALL_LIB_DIR}" COMPONENT staticlib
 	)
-	add_sanitizers(hpinuma_msource_s)
+	add_sanitizers(PGASUS_msource_s)
 endif()

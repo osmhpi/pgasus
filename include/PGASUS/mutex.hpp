@@ -1,18 +1,18 @@
 #pragma once
 
 #include <atomic>
-#include "PGASUS/hpinuma_export.h"
+#include "PGASUS/PGASUS_export.h"
 #include "PGASUS/tasking/tasking.hpp"
 
 namespace numa {
 
-class HPINUMA_EXPORT Mutex
+class PGASUS_EXPORT Mutex
 {
 private:
 	/**
 	 * If spinlock could not be acquired, wait for this
 	 */
-	struct HPINUMA_EXPORT WaitObject : public Triggerable
+	struct PGASUS_EXPORT WaitObject : public Triggerable
 	{
 		WaitObject()
 		{

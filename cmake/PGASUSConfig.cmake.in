@@ -33,7 +33,7 @@ get_filename_component(@package_name@_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PAT
 set(@package_name@_INCLUDE_DIRS "@CONF_INCLUDE_DIRS@")
 
 # Our library dependencies (contains definitions for IMPORTED targets)
-if(NOT TARGET hpinuma AND NOT @package_name@_BINARY_DIR)
+if(NOT TARGET PGASUS AND NOT @package_name@_BINARY_DIR)
 	include("${@package_name@_CMAKE_DIR}/@package_name@Targets.cmake")
 endif()
 

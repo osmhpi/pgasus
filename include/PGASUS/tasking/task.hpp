@@ -5,13 +5,13 @@
 
 #include "PGASUS/base/spinlock.hpp"
 #include "PGASUS/base/ref_ptr.hpp"
-#include "PGASUS/hpinuma_export.h"
+#include "PGASUS/PGASUS_export.h"
 #include "PGASUS/malloc.hpp"
 #include "PGASUS/tasking/synchronizable.hpp"
 
 namespace numa {
 
-struct HPINUMA_EXPORT Priority {
+struct PGASUS_EXPORT Priority {
 	int_least8_t value;
 	
 	Priority() : value(min().value) {}
@@ -44,7 +44,7 @@ class WorkerThread;
  * It is exported to the user through a RefPtr<Task>.
  * Schedulers and threads call state change methods.
  */
-class HPINUMA_EXPORT Task : public TwoPhaseTriggerable, public Synchronizer
+class PGASUS_EXPORT Task : public TwoPhaseTriggerable, public Synchronizer
 {
 	friend class Scheduler;
 	friend class WorkerThread;

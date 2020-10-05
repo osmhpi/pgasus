@@ -5,14 +5,14 @@
 #include <utility>
 #include <vector>
 #include <hwloc.h>
-#include "PGASUS/base/hpinuma_base_export.h"
+#include "PGASUS/base/PGASUS_base_export.h"
 
 
 namespace numa {
 namespace util {
 
 
-class HPINUMA_BASE_EXPORT Topology {
+class PGASUS_BASE_EXPORT Topology {
 public:
 	struct NumaNode {
 		int                     id;
