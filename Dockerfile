@@ -8,7 +8,6 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update \
         cmake \
         wget \
         zlib1g-dev \
-        libhwloc5 \
         libhwloc-common \
         libhwloc-dev \
         ca-certificates
