@@ -1,0 +1,75 @@
+---
+    language: cpp
+    matrix:
+      include:
+        # Ubuntu 20.04 + gcc on amd64
+        - arch: amd64
+          os: linux
+          dist: focal
+          compiler: gcc
+        # Ubuntu 20.04 + clang on amd64
+        - arch: amd64
+          os: linux
+          dist: focal
+          compiler: clang
+        # Ubuntu 18.04 + gcc on amd64
+        - arch: amd64
+          os: linux
+          dist: bionic
+          compiler: gcc
+        # Ubuntu 18.04 + clang on amd64
+        - arch: amd64
+          os: linux
+          dist: bionic
+          compiler: clang
+        # Ubuntu 16.04 + gcc on amd64
+        - arch: amd64
+          os: linux
+          dist: xenial
+          compiler: gcc
+        # Ubuntu 16.04 + clang on amd64
+        - arch: amd64
+          os: linux
+          dist: xenial
+          compiler: clang
+        # Ubuntu 20.04 + gcc on ppc64le
+        - arch: ppc64le
+          os: linux
+          dist: focal
+          compiler: gcc
+        # Ubuntu 20.04 + clang on ppc64le
+        - arch: ppc64le
+          os: linux
+          dist: focal
+          compiler: clang
+        # Ubuntu 18.04 + gcc on ppc64le
+        - arch: ppc64le
+          os: linux
+          dist: bionic
+          compiler: gcc
+        # Ubuntu 18.04 + clang on ppc64le
+        - arch: ppc64le
+          os: linux
+          dist: bionic
+          compiler: clang
+        # Ubuntu 16.04 + gcc on ppc64le
+        - arch: ppc64le
+          os: linux
+          dist: xenial
+          compiler: gcc
+        # Ubuntu 16.04 + clang on ppc64le
+        - arch: ppc64le
+          os: linux
+          dist: xenial
+          compiler: clang
+    before_install:
+      - |
+        # For PGASUS
+        sudo apt-get -y install libnuma-dev zlib1g-dev libhwloc5 libhwloc-common libhwloc-dev
+    script:
+      - |
+        # Build PGASUS
+        mkdir build && cd build
+        cmake -DCMAKE_BUILD_TYPE=Release ..
+        make -j"$(nproc)"
+    

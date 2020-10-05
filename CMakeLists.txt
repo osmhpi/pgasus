@@ -11,7 +11,7 @@ endif()
 include(GenerateExportHeader)
 
 
-project(LibNumaCpp VERSION 0.0.0 LANGUAGES C CXX)
+project(libPGASUS VERSION 0.0.0 LANGUAGES C CXX)
 
 include(cmake/CppCheckTargets.cmake)
 
