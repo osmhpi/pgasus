@@ -75,12 +75,12 @@
         cd /tmp/boost_1_60_0
         ./bootstrap.sh --with-libraries=context,chrono,thread,system
         ./b2
-        ./b2 install
+        sudo ./b2 install
         cd /tmp
         rm -Rf /tmp/boost_1_60_0
 
         # Build PGASUS
         mkdir build && cd build
         cmake -DCMAKE_BUILD_TYPE=Release ..
-        make -j"$(nproc)"
+        sudo make -j"$(nproc)"
     
