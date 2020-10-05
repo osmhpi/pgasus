@@ -1,5 +1,6 @@
 # pgasus
 [![Build Status](https://travis-ci.org/osmhpi/pgasus.svg?branch=master)](https://travis-ci.org/osmhpi/pgasus)
+
 A C++ parallel programming framework for NUMA systems, based on PGAS semantics
 
 # Dependencies
