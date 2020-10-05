@@ -68,15 +68,14 @@
         sudo apt-get -y install libnuma-dev zlib1g-dev libhwloc-common libhwloc-dev
         
         # Download and build Boost 1.60
-        wget -O /tmp/boost_1_60_0.tar.gz https://sourceforge.net/projects/boost/files/boost/1.60.0/boost_1_60_0.tar.gz/download
-        cd /tmp/ 
+        wget -O boost_1_60_0.tar.gz https://sourceforge.net/projects/boost/files/boost/1.60.0/boost_1_60_0.tar.gz/download 
         tar -xzf boost_1_60_0.tar.gz
-        cd /tmp/boost_1_60_0
+        cd boost_1_60_0
         ./bootstrap.sh --with-libraries=context,chrono,thread,system
         ./b2
         sudo ./b2 install
-        cd /tmp
-        rm -Rf /tmp/boost_1_60_0
+        cd ..
+        rm -Rf boost_1_60_0
     script:
       - |
         # Build PGASUS
