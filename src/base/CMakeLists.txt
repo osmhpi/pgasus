@@ -67,7 +67,7 @@ if (PGASUS_BUILD_STATIC_LIBRARIES)
 	)
 	target_include_directories(PGASUS_base_s ${include_dirs})
 	target_compile_definitions(PGASUS_base_s ${DEFAULT_COMPILE_DEFINITIONS}
-		PUBLIC HPINUMA_BASE_STATIC_DEFINE)
+		PUBLIC PGASUS_BASE_STATIC_DEFINE)
 
 	# set_target_properties(PGASUS_base_s PROPERTIES
 	# 	PUBLIC_HEADER "${PUBLIC_HEADERS}")

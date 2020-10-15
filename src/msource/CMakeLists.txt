@@ -116,7 +116,7 @@ if (PGASUS_BUILD_STATIC_LIBRARIES)
 		target_compile_definitions(PGASUS_msource_s ${MALLOC_DEFINES})
 	endif()
 	target_compile_definitions(PGASUS_msource_s ${DEFAULT_COMPILE_DEFINITIONS}
-		PUBLIC HPINUMA_MSOURCE_STATIC_DEFINE)
+		PUBLIC PGASUS_MSOURCE_STATIC_DEFINE)
 
 	# set_target_properties(PGASUS_msource_s PROPERTIES
 	# 	PUBLIC_HEADER "${PUBLIC_HEADERS}")

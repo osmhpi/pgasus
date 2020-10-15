@@ -11,7 +11,9 @@ endif()
 include(GenerateExportHeader)
 
 
-project(libPGASUS VERSION 0.0.0 LANGUAGES C CXX)
+project(libPGASUS VERSION 0.1.0 
+			DESCRIPTION "A Framework for C++ Application Development on NUMA Architectures"
+			LANGUAGES C CXX)
 
 include(cmake/CppCheckTargets.cmake)
 
@@ -30,8 +32,8 @@ macro(add_PGASUS_option NAME DOC INITVALUE)
 	endif()
 endmacro()
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-	set(LINUX 1)
+if (NOT CMAKE_SYSTEM_NAME STREQUAL "Linux")
+	message(FATAL_ERROR "Unsupported operating system: \"${CMAKE_SYSTEM_PROCESSOR}\"")
 endif()
 
 
@@ -83,8 +85,15 @@ endif()
 set(PGASUS_REPLACE_MALLOC ON CACHE BOOL
 	"Determines whether PGASUS replaces the process-wide malloc function.")
 
+set(WITH_TASKING_doc
+	"Include tasking support, currently requiring boost version >= 1.58 and <= 1.60.")
+set(WITH_TASKING_default ON)
+if (PGASUS_PLATFORM_S390X)
+	set(WITH_TASKING_default OFF)
+endif()
+
 add_PGASUS_option(WITH_TASKING
-	"Include tasking support, currently requiring boost version >= 1.58 and <= 1.60." ON)
+	WITH_TASKING_doc WITH_TASKING_default)
 
 add_PGASUS_option(BUILD_TESTS "Build the tests and benchmarks (requires further 3rd party libs)." ON)
 
@@ -131,7 +140,13 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 		$<$<CONFIG:Debug>:-ggdb3>
 	)
 
-	if (NOT PGASUS_PLATFORM_PPC64LE)
+	if (PGASUS_PLATFORM_PPC64LE)
+		add_compile_options(
+			-maltivec 
+			-mabi=altivec 
+			-mvsx
+		)
+	else()
 		add_compile_options(
 			-march=native
 		)
