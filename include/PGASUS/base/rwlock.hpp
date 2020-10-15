@@ -27,7 +27,11 @@ private:
 	
 	static inline void backoff(size_t sz) {
 		for (size_t i = 0; i < sz; i++) {
+			#if PGASUS_PLATFORM_S390X
+			asm("nopr 0");
+			#else
 			asm("nop");
+			#endif
 		}
 	}
 
