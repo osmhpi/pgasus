@@ -37,6 +37,7 @@ if (NOT CMAKE_SYSTEM_NAME STREQUAL "Linux")
 endif()
 
 
+message("Detected platform: \"${CMAKE_SYSTEM_PROCESSOR}\"")
 set(PGASUS_PLATFORM_X86_64 0)
 set(PGASUS_PLATFORM_PPC64LE 0)
 set(PGASUS_PLATFORM_S390X 0)
@@ -93,7 +94,7 @@ if (PGASUS_PLATFORM_S390X)
 endif()
 
 add_PGASUS_option(WITH_TASKING
-	WITH_TASKING_doc WITH_TASKING_default)
+	${WITH_TASKING_doc} ${WITH_TASKING_default})
 
 add_PGASUS_option(BUILD_TESTS "Build the tests and benchmarks (requires further 3rd party libs)." ON)
 
