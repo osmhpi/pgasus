@@ -4,6 +4,7 @@
 #include <mutex>
 #include <cassert>
 
+#include "PGASUS/PGASUS-config.h"
 #include "PGASUS/base/PGASUS_base_export.h"
 
 namespace numa {
