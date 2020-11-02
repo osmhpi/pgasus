@@ -47,21 +47,11 @@
           os: linux
           dist: focal
           compiler: gcc
-        # Ubuntu 20.04 + clang on s390x
-        - arch: s390x
-          os: linux
-          dist: focal
-          compiler: clang
         # Ubuntu 18.04 + gcc on s390x
         - arch: s390x
           os: linux
           dist: bionic
           compiler: gcc
-        # Ubuntu 18.04 + clang on s390x
-        - arch: s390x
-          os: linux
-          dist: bionic
-          compiler: clang
     before_install:
       - |
         # PGASUS dependencies
