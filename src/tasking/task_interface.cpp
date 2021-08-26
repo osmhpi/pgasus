@@ -105,6 +105,31 @@ std::list<TriggerableRef> forEachThread(const NodeList &nodes, const numa::taski
 	return waitList;
 }
 
+/**
+ * Spawns the given task once on the first worker thread's task queue on all
+ * the given nodes
+ */
+std::list<TriggerableRef> onceForEachNode(const NodeList &nodes, const numa::tasking::TaskFunction<void> &fun, Priority prio) {
+	std::list<TriggerableRef> waitList;
+
+	// spawn one task for each first worker thread per node
+	for (const Node & node : nodes) {
+		if (node.cpuCount() == 0) {
+			continue;	// memory-only node, no CPUs
+		}
+		tasking::Scheduler *sched = tasking::Scheduler::get_scheduler(node);
+		int thid = sched->worker_ids()[0];
+		numa::PlaceGuard guard(node);
+
+		TaskRef<void> task = tasking::FunctionTask<void>::create(fun, prio);
+
+		sched->put_task(task.get(), thid);
+		waitList.push_back(task);
+	}
+
+	return waitList;
+}
+
 void prefaultWorkerThreadStorages(size_t bytes) {
 	std::list<TriggerableRef> waitList;
 
