@@ -58,6 +58,13 @@ TaskRef<T> async(const numa::tasking::TaskFunction<T> &fun, Priority prio, const
 PGASUS_EXPORT std::list<TriggerableRef> forEachThread(
 	const NodeList &nodes, const numa::tasking::TaskFunction<void> &fun, Priority prio);
 
+/**
+ * Spawns the given task once on the first worker thread's task queue on all
+ * the given nodes
+ */
+PGASUS_EXPORT std::list<TriggerableRef> onceForEachNode(
+	const NodeList &nodes, const numa::tasking::TaskFunction<void> &fun, Priority prio);
+
 template <class T>
 struct DistributedExec {
 	typedef std::vector<T> ResultType;
